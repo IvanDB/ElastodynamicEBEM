@@ -4,6 +4,7 @@ function uXT = BEMenerg_ppD_calc(pbParam, domainMesh, density, gK, methodInfo, x
 % - 
 % OUTPUT
 % - 
+
 %% INIZIALIZZAZIONE PARAMETRI
 gpuID = gpuDevice;
 %Controllo teorico sul valore temporale
@@ -87,12 +88,16 @@ kernelG.SharedMemorySize = blockX * 9 * 8;
 
 %% COMPUTAZIONE MATRICE G
 wait(gpuID);
+time = tic;
 matrixG = feval(kernelG, matrixG, pbParam.velP, pbParam.velS, 4*pi*pbParam.rho,  ...
                     sourcePoint, diffTemp, ...
                     stdPPw, stdPPnx, stdPPny, stdPPnz, numNodiPerThread, ...
                     vertsT, areeT, centerT, maxLenT);
 wait(gpuID);
-matrixG = reshape(matrixG, [3*nHat 3*numT]);
+
+%matrixG = reshape(matrixG, [3*nHat 3*numT]);
+matrixG = reshape(gather(matrixG), [3*nHat 3*numT]);
+disp("G: " + toc(time));
 
 %% SETUP KERNEL MATRICE P
 kernelP = parallel.gpu.CUDAKernel("kernelP.ptx", "kernelP.cu");
@@ -104,22 +109,33 @@ kernelP.SharedMemorySize = blockX * 9 * 8;
 
 %% COMPUTAZIONE MATRICE P
 wait(gpuID);
+time = tic;
 matrixP = feval(kernelP, matrixP, pbParam.velP, pbParam.velS, pbParam.lambda, pbParam.mu, 4*pi*pbParam.rho*deltaT, numT, ...
                     sourcePoint, diffTemp, ...
                     stdPPw, stdPPnx, stdPPny, stdPPnz, numNodiPerThread, ...
                     vertsT, areeT, normT, indSMmatrixGPU, matCoeff, vetCoeff);
 
 wait(gpuID);
-matrixP = reshape(matrixP, [3*nHat 3*numS]);
+%matrixP = reshape(matrixP, [3*nHat 3*numS]);
+matrixP = reshape(gather(matrixP), [3*nHat 3*numS]);
+
+disp("P: " + toc(time));
 
 %% SOMMA PER uXT
-uXTtemp = zeros(3, nHat, "gpuArray");
+%uXTtemp = zeros(3, nHat, "gpuArray");
+uXTtemp = zeros(3, nHat);
+
+time = tic;
 for indTemp = 1 : nHat
     matrixGSlice = matrixG(3*(indTemp-1) + (1:3), :);
     matrixPSlice = matrixP(3*(indTemp-1) + (1:3), :);
-
-    uXTtemp(:, indTemp) = matrixGSlice * density(:, indTemp) - matrixPSlice * gK{indTemp};
+    
+    uXTtemp(:, indTemp) = matrixGSlice * density(:, indTemp) - matrixPSlice * gK{indTemp};% 
 end
 uXT = sum(uXTtemp, 2);
-uXT = gather(uXT);
+%uXT = gather(uXT);
+
+disp("S: " + toc(time));
+disp(" ");
+
 return

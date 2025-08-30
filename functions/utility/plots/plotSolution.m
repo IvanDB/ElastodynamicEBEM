@@ -51,7 +51,7 @@ for indPG = 1 : numPlotGroups
             plot(tVal, funcValue);
         end
         if varLib == "x"
-            scatter3(xVal(:, 1), xVal(:, 2), xVal(:, 3), 15, -funcValue, ".");
+            scatter3(xVal(:, 1), xVal(:, 2), xVal(:, 3), 15, funcValue, ".");
         end
 
         %Set parametri figura

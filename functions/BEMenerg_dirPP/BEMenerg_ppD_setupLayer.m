@@ -1,4 +1,4 @@
-function campoVett = BEMenerg_ppD_setup(pbParam, domainMesh, density, numPoints, xVal, tVal, methodInfo, PPn, PPw)
+function campoVett = BEMenerg_ppD_setupLayer(pbParam, domainMesh, density, ~, xVal, tVal, methodInfo, PPn, PPw)
 
 %Calcolo dimensioni
 xSize = size(xVal, 1);
@@ -10,14 +10,11 @@ deltaT = pbParam.Tfin / pbParam.nT;
 gK = BEMenerg_dir_calcBoundDataDirichlet(deltaT, pbParam, domainMesh);
 
 %Calcolo dimensioni ed inizializzazione matrice soluzione
-solRaw = cell(xSize * tSize, 1);
+campoVett = cell(xSize, tSize);
 
-for ind = 1 : numPoints
-    [indX, indT] = ind2sub([xSize, tSize], ind);
-    solRaw{ind} = BEMenerg_ppD_calc(pbParam, domainMesh, density, gK, methodInfo, xVal(indX, :), tVal(indT), PPn, PPw);
+for indT = 1 : tSize
+    campoVett(:, indT) = BEMenerg_ppD_calcLayer(pbParam, domainMesh, density, gK, methodInfo, xVal, tVal(indT), PPn, PPw);
 end
-
-campoVett = reshape(solRaw, [xSize, tSize]);
 
 %Salvataggio campo vettoriale calcolato
 filePath = strcat("./outputData/", pbParam.domainType, num2str(pbParam.lev), "_NEW_campoVett");

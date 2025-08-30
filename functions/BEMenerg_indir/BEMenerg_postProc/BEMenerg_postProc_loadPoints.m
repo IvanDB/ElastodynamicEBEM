@@ -33,15 +33,15 @@ switch pbParam.domainType
                 0, 0, 0.50;
                 0, 0, 0.75];
         tVal = linspace(0, pbParam.Tfin, 100 * pbParam.Tfin);
-        iVal = 3;   
-        typePlot = "u(x, :)";  
+        iVal = 3; 
+        typePlot = "u(x, :)";
     case 'barH3'
         xVal = [0.25, -0.25, 2];
         tVal = linspace(0, pbParam.Tfin, 100 * pbParam.Tfin);
         iVal = 3;     
         typePlot = "u(x, :)";
     case 'sphereWave'
-        coordLin = linspace(-5, 5, 250);
+        coordLin = linspace(-3, 3, 150);
         [X2D, Y2D] = meshgrid(coordLin, coordLin);
         normSq2D = X2D.^2 + Y2D.^2;
         X1D = X2D(normSq2D > 1);

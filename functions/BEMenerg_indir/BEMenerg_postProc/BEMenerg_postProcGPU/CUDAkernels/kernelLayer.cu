@@ -151,8 +151,7 @@ __global__ void kernelPP(double *campoVettX, const double velP, const double vel
     if(threadIdx.x == 0)
         for (i = 0; i < 3; i++)
             campoVettX[3*blockIdx.x + i] += campoVett[threadIdx.x][i];
-            
-
+    
 }
 
 
