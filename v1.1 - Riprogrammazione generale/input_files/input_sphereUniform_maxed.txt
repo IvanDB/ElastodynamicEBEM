@@ -1,0 +1,22 @@
+%Densità di massa 
+1
+%Modulo di taglio
+1
+%Rapporto di Poisson
+0.3333333333333
+%Parametro lambda
+-1
+%Istante di tempo finale
+3
+%Numero di sottointervalli temporali
+48
+%Tipologia mesh
+sphereUniform
+%Livello di raffinamento
+4
+%Numero nodi Gauss-Hammer
+12
+%Equazione Integrale 
+EFIE
+%Tipo di dato al bordo
+DIR

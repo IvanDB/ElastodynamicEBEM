@@ -1,0 +1,10 @@
+FUNZIONALI
+ - Implementare check condizione minima distanza nei kernel GPU
+
+
+ESTETICI
+ - Spostare function "*_calcFieldT..." "*_calcChildT..." sotto  "*_analiticIntg"
+ - Eliminare ridondanza function per calcolo elementi diagonali MX.*** e GPU
+ - Unire computazione MX.G2D e MX.GHC
+
+

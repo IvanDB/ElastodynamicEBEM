@@ -1,0 +1,30 @@
+NOME VARIABILE/I		DETTAGLIO				DIPENDE DA		FUNCTION DOVE CALCOLATO			NUMERO RICALCOLI		PUNTI DI UTILIZZO
+
+# CALCOLO TERMINE NOTO -> solo copie di dati già calcolati
+
+
+# CALCOLO MATRICI
+SdR				dati del sistema di 			triangolo campo		BEMenerg_calcIntgExt			3 * (Nx ^ 2) * Nt		preparazioneTriangolo, 
+				riferimento del triangolo														rotazioneInversaEulero
+				di campo
+
+nodoGHcurr			coordinate nodo GH sorgente		triangolo sorgente,	BEMenerg_calcIntgExt			3 * (Nx ^ 2) * Ngh * Nt		preparazioneTriangolo
+									indice nodo GH															
+
+Children, zeta,			dati dei triangoli			triangolo campo,
+d_MIN, c, sign_prod		figli di quello di campo		triangolo sorgente,	BEMenerg_calcIntgExt			3 * (Nx ^ 2) * Ngh * Nt		BEMenerg_calcIntgInt_fieldTriangle			
+									indice nodo GH
+
+
+theta0, cos_theta0		ampiezza, seno e coseno  		triangolo campo,	BEMenerg_calcIntgInt_fieldTriangle	9 * (Nx ^ 2) * Ngh * Nt		BEMenerg_calcIntgInt_childTriangle
+sin_theta0;			angolo di rotazione sul			triangolo sorgente,
+tri2D, infoTri2D		piano per il triangolo figlio;		indice nodo GH,
+				vertici, lati e angoli			indice figlio
+				triangolo figlio ruotato		
+
+matB				matrici di correzione per 		triangolo campo,	BEMenerg_calcIntgInt_childTriangle	9 * (Nx ^ 2) * Ngh * Nt		BEMenerg_esplicitIntg_*
+				rotazione figlio			triangolo sorgente,
+									indice nodo GH,
+									indice figlio
+
+

@@ -1,0 +1,24 @@
+%Densità di massa 
+1
+%Modulo di taglio
+1
+%Rapporto di Poisson
+0.3333333333333
+%Parametro lambda
+2
+%Istante di tempo finale
+1
+%Numero di sottointervalli temporali
+2
+%Nome del file mesh
+screenTest
+%Livello di raffinamento
+0
+%Numero nodi Gauss-Hammer
+3
+%Equazione Integrale 
+EFIE
+%Tipo di dato al bordo
+TEST
+%Metodo di calcolo termine noto
+doppioIntegral1D
