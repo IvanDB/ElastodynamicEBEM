@@ -86,7 +86,7 @@ switch methodInfo.typeIntg
         %Nodi interni diagonali
         [methodInfo.numNodiDiag, ~, ~, nextIdx] = sscanf(methodSelected, "%d", 1);      %Numero nodi interni
         methodSelected = methodSelected(nextIdx : end);
-        if ~ismember(methodInfo.numNodiDiag, [16, 64, 256, 1024])
+        if ~ismember(methodInfo.numNodiDiag, [16, 64, 256, 1024, 16384])
             error("Valori nodi interni non validi")
         end
         [DIAGn, DIAGw] = doppioGauss1D(methodInfo.numNodiDiag);

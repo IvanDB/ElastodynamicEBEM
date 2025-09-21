@@ -1,17 +1,17 @@
 %% SETUP WORKSPACE
 clc
 close all
-clearvars -except indForm indProblem indMethodCore indMethodPP
+clearvars -except indForm indProblem indMethodCore indMethodPP timeStart
 
 format longG
 warning off
 
 %Impostazione parametri
 if ~exist('indForm', 'var')
-    indForm = 2;
+    indForm = 1;
 end
 if ~exist('indProblem', 'var')
-    indProblem = 9;
+    indProblem = 23;
 end
 if ~exist('indMethodCore', 'var')
     indMethodCore = 27;
@@ -36,7 +36,10 @@ listProblems = ["input_screenUniformLimit_small.txt", "input_screenUniformLimit_
                 "input_sphereUniform_small.txt", "input_sphereUniform_mid.txt", "input_sphereUniform_large.txt", "input_sphereUniform_maxed.txt", ...
                 "input_barH1_small.txt", "input_barH1_mid.txt", "input_barH1_large.txt", "input_barH1_maxed.txt", ...
                 "input_barH3_small.txt", "input_barH3_mid.txt", "input_barH3_large.txt", "input_barH3_maxed.txt", ...
-                "input_waveOnSphere.txt", "input_waveOnElemInd.txt"
+                "input_waveOnSphere.txt", "input_waveOnElemInd.txt", ...
+                "input_DesCop-cube_small.txt", "input_DesCop-cube_mid.txt", "input_DesCop-cube_large.txt", "input_DesCop-cube_maxed.txt", ...
+                "input_DesCop-sphere_small.txt", "input_DesCop-sphere_mid.txt", "input_DesCop-sphere_large.txt", "input_DesCop-sphere_maxed.txt", ...
+                "input_DesCop-sphere-mod_small.txt", ...
                ];
 problemFileName = listProblems(indProblem);
 
@@ -126,7 +129,7 @@ switch formSelected
     otherwise
         error("Formulazione non implementata")
 end
-
+return
 %% SETUP METODO E QUADRATURA POST-PROCESSING
 %Selezione metoto postProcessing
 % - "A":            integrazione analitica 

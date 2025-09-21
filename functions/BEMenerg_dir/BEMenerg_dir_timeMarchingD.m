@@ -219,14 +219,18 @@ for indIter = 1 : numIterK
             continue
         end
 
+        timerTest = tic;
         %Set istante temporale
         indTempCurr = offSetsK(indIter) + indTemp - 1;
+
         %Ciclo sull'indice di riga
         parfor indRow = 1 : numTriang
             for indV = 1 : 3
                 matrixSubBlocksSING(:, :, indV, indRow, indTemp) = BEMenerg_dir_calcSubBlockSingK(methodInfo, deltaT, pbParam, domainMesh, DIAGn, DIAGw, indTempCurr, indRow, constValues{indRow}, indV);
             end
         end
+        timeTest = toc(timerTest);
+        disp("Done K sing n:" + indTemp + " in " + timeTest + "s")
     end
 
     %Attesa completamento operazioni GPU

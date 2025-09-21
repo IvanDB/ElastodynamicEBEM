@@ -63,7 +63,6 @@ nGH = methodInfo.numNodiExt;
 nDIAGtot = 3 * methodInfo.numNodiDiag;
 
 %% CALCOLO INTEGRALI
-
 %Calcolo indice temporale
 istTemp = indTemp + [1, 0, -1];
 
@@ -91,7 +90,7 @@ for var = 1 : 3
 
                 vettX = nodoInt - nodoExt;
                 lungX = norm(vettX);
-
+                
                 intgG2DC = intgG2DC + G2DCweights(indG2DC) .* nu(vettX, lungX, currT);
             end
         end

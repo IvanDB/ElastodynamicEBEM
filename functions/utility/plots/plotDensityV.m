@@ -45,6 +45,14 @@ function glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFi
             jVal = 1 : 3;
         case 'sphereWave'
             return
+        case 'DesCop-cube'
+            nDim = 3;
+            tVal = 30 : 46;
+            jVal = 0;
+        case "DesCop-sphere"
+            nDim = 3;
+            tVal = 2 : 2 : pbParam.nT;
+            jVal = [1, 3];
         case 'elementoIndustriale'
             return
     end
@@ -58,7 +66,11 @@ function glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFi
 
             %plot dati
             if(nDim == 3)
-                fill3(X, Y, Z, density(j:3:end, i));
+                if(j == 0)
+                    normDens = sqrt(density(1:3:end, i).^2 + density(2:3:end, i).^2 + density(3:3:end, i).^2);
+                    fill3(X, Y, Z, normDens);
+                end
+                fill3(X, Y, Z, density(j:3:end, i), LineStyle="none");
             elseif(nDim == 2)
                 fill(X, Y, density(j:3:end, i));
             end
@@ -82,7 +94,7 @@ function glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFi
             colormap(jet)
             colorbar
             daspect([1 1 1]);
-            %clim([0 3]);
+            %clim([-0.015 0.015]);
         
             %salvataggio figura come file immagine (.tiff) e come file .fig
             folderPath = strcat('./outputPlot/', pbParam.domainType);
