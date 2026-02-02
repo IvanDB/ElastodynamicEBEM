@@ -47,7 +47,7 @@ function glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFi
             return
         case 'DesCop-cube'
             nDim = 3;
-            tVal = 30 : 46;
+            tVal = floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
             jVal = 0;
         case "DesCop-sphere"
             nDim = 3;

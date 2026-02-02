@@ -1,5 +1,5 @@
 %% SETUP WORKSPACE
-clc
+%clc
 close all
 clearvars -except indForm indProblem indMethodCore indMethodPP timeStart
 
@@ -8,10 +8,10 @@ warning off
 
 %Impostazione parametri
 if ~exist('indForm', 'var')
-    indForm = 1;
+    indForm = 3;
 end
 if ~exist('indProblem', 'var')
-    indProblem = 23;
+    indProblem = 11;
 end
 if ~exist('indMethodCore', 'var')
     indMethodCore = 27;
@@ -54,7 +54,7 @@ checkImplementation(pbParam);
 domainMesh = readSpaceMesh(pbParam.domainType, pbParam.lev);
 
 %Plot MESH SPAZIALE
-glbIndexFigures = plotMesh(domainMesh, glbIndexFigures);
+%glbIndexFigures = plotMesh(domainMesh, glbIndexFigures);
 
 %% SCELTA FORMULAZIONE SELEZIONATA
 listForm = ["ID", "DD", "DN"];
@@ -116,7 +116,7 @@ switch formSelected
                 error("Metodo non disponibile per la formulazione selezionata")
         end
         %Plot della densità ottenuta
-        glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFigures);
+       glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFigures);
     case "DN"
         switch methodInfo.typeIntg
             case "FN"

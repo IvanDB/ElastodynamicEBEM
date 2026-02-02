@@ -7,9 +7,9 @@
 %Parametro lambda
 0
 %Istante di tempo finale
-12
+36
 %Numero di sottointervalli temporali
-24
+72
 %Tipologia mesh
 barH3
 %Livello di raffinamento
