@@ -38,3 +38,8 @@ codegen/
 # SimBiology backup files
 *.sbproj.backup
 *.sbproj.bak
+
+# Custom data
+outputData/*
+outputPlot/*
+tempData/*
