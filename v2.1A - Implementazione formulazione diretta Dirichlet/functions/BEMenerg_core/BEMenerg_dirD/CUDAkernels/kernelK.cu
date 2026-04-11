@@ -411,19 +411,19 @@ __device__ void nucleoKRj(double nuKRj[3][3], const double x[3], const double r,
                             + (2 * mu / rho) * (tensorE[j][0][1] * (x[1] * x[0] / pow(r, 3)) + tensorE[j][0][2] * (x[2] * x[0] / pow(r, 3)))
                                                             * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[0][1] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][1][0] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP)))
+    nuKRj[0][1] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][1][0] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)))
                             + (2 * mu / rho) * (tensorE[j][0][1] * (3 * x[1] * x[1] / pow(r, 5) - 1 / pow(r, 3)) + tensorE[j][0][2] * (3 * x[2] * x[1] / pow(r, 5)))
                                                            * ((t - (r/cS)) * (t - (r/cS))  * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0)) 
                             + (2 * mu / rho) * (tensorE[j][0][1] * (x[1] * x[1] / pow(r, 3)) + tensorE[j][0][2] * (x[2] * x[1] / pow(r, 3))) 
                                                            * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[0][2] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][2][0] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP))) 
+    nuKRj[0][2] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][2][0] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP))) 
                             + (2 * mu / rho) * (tensorE[j][0][1] * (3 * x[1] * x[2] / pow(r, 5)) + tensorE[j][0][2] * (3 * x[2] * x[2] / pow(r, 5) - 1 / pow(r, 3))) 
                                                            * ((t - (r/cS)) * (t - (r/cS))  * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0)) 
                             + (2 * mu / rho) * (tensorE[j][0][1] * (x[1] * x[2] / pow(r, 3)) + tensorE[j][0][2] * (x[2] * x[2] / pow(r, 3)))
                                                            * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[1][0] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][0][1] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP))) 
+    nuKRj[1][0] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][0][1] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP))) 
                             + (2 * mu / rho) * (tensorE[j][1][0] * (3 * x[0] * x[0] / pow(r, 5) - 1 / pow(r, 3)) + tensorE[j][1][2] * (3 * x[2] * x[0] / pow(r, 5)))
                                                             * ((t - (r/cS)) * (t - (r/cS)) * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0))
                             + (2 * mu / rho) * (tensorE[j][1][0] * (x[0] * x[0] / pow(r, 3)) + tensorE[j][1][2] * (x[2] * x[0] / pow(r, 3)))
@@ -434,19 +434,19 @@ __device__ void nucleoKRj(double nuKRj[3][3], const double x[3], const double r,
                             + (2 * mu / rho) * (tensorE[j][1][0] * (x[0] * x[1] / pow(r, 3)) + tensorE[j][1][2] * (x[2] * x[1] / pow(r, 3))) 
                                                            * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[1][2] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][2][1] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP))) 
+    nuKRj[1][2] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][2][1] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP))) 
                             + (2 * mu / rho) * (tensorE[j][1][0] * (3 * x[0] * x[2] / pow(r, 5)) + tensorE[j][1][2] * (3 * x[2] * x[2] / pow(r, 5) - 1 / pow(r, 3))) 
                                                            * ((t - (r/cS)) * (t - (r/cS))  * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0)) 
                             + (2 * mu / rho) * (tensorE[j][1][0] * (x[0] * x[2] / pow(r, 3)) + tensorE[j][1][2] * (x[2] * x[2] / pow(r, 3))) 
                                                            * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[2][0] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][0][2] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP))) 
+    nuKRj[2][0] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][0][2] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP))) 
                             + (2 * mu / rho) * (tensorE[j][2][0] * (3 * x[0] * x[0] / pow(r, 5) - 1 / pow(r, 3)) + tensorE[j][2][1] * (3 * x[1] * x[0] / pow(r, 5)))
                                                             * ((t - (r/cS)) * (t - (r/cS)) * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0))
                             + (2 * mu / rho) * (tensorE[j][2][0] * (x[0] * x[0] / pow(r, 3)) + tensorE[j][2][1] * (x[1] * x[0] / pow(r, 3)))
                                                             * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
-    nuKRj[2][1] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][1][2] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((r - (r/cP)) > 0) / (cP*cP))) 
+    nuKRj[2][1] = (lambda * mu / (rho * (lambda+mu))) * tensorE[j][1][2] / r * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP))) 
                             + (2 * mu / rho) * (tensorE[j][2][0] * (3 * x[0] * x[1] / pow(r, 5)) + tensorE[j][2][1] * (3 * x[1] * x[1] / pow(r, 5) - 1 / pow(r, 3))) 
                                                            * ((t - (r/cS)) * (t - (r/cS))  * (t + (2*r/cS)) / 6 * ((t - (r/cS)) > 0) - (t - (r/cP)) * (t - (r/cP)) * (t + (2*r/cP)) / 6 * ((t - (r/cP)) > 0)) 
                             + (2 * mu / rho) * (tensorE[j][2][0] * (x[0] * x[1] / pow(r, 3)) + tensorE[j][2][1] * (x[1] * x[1] / pow(r, 3))) 
@@ -458,3 +458,4 @@ __device__ void nucleoKRj(double nuKRj[3][3], const double x[3], const double r,
                                                            * (((t - (r/cS)) * ((t - (r/cS)) > 0) / (cS*cS)) - ((t - (r/cP)) * ((t - (r/cP)) > 0) / (cP*cP)));
 
 }
+

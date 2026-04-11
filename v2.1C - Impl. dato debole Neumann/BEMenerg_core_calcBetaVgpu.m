@@ -13,7 +13,7 @@ gV = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT
     gVcurr = cell(domainMesh.numberTriangles, 1);
     for indT = 1 : domainMesh.numberTriangles
-        gVcurr{indT} = [0; 0; 2*pbParam.mu * tildeP(domainMesh.center(indT, :), indTemp*deltaT) * domainMesh.normal(indT, 3)];
+        gVcurr{indT} = [0; 0; 2*pbParam.mu * tildeP(domainMesh.center(indT, :), (indTemp - 0.5)*deltaT) * domainMesh.normal(indT, 3)];
         %gVcurr{indT} = [0; 0; 0];
         %if(all(domainMesh.coordinates(domainMesh.triangles(indT, 1:3), 3) > -0.0015) || all(domainMesh.coordinates(domainMesh.triangles(indT, 1:3), 3) < -0.35))
         %if(all(domainMesh.coordinates(domainMesh.triangles(indT, 1:3), 3) == 0) || all(domainMesh.coordinates(domainMesh.triangles(indT, 1:3), 3) == h))
