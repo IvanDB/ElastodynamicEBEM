@@ -19,7 +19,7 @@ neuBoundData = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT
     gVcurr = cell(domainMesh.numberTriangles, 1);
     parfor indT = 1 : domainMesh.numberTriangles
-        gVcurr{indT} = g(domainMesh.center(indT, :), indTemp*deltaT, domainMesh.normal(indT, :));
+        gVcurr{indT} = g(domainMesh.center(indT, :), (indTemp - 0.5)*deltaT, domainMesh.normal(indT, :));
     end
     neuBoundData{indTemp} = cell2mat(gVcurr);
 end
