@@ -1,5 +1,4 @@
-function domainMesh = readSpaceMesh(domainType, lev)
-
+function domainMesh = readSpaceMesh(basePath, domainType, lev)
 % INPUT 
 %   - domain_type: stringa contenente il TIPO di DOMINIO
 %   - lev: intero contente il LIVELLO di RAFFINAMENTO
@@ -9,24 +8,24 @@ function domainMesh = readSpaceMesh(domainType, lev)
  
 %% APERTURA del FILE MESH
 %Apertura del file mesh
-meshFilePath = strcat("./mesh/", domainType, "/", domainType, "_", num2str(lev), ".mesh");
-mesh_file = fopen(meshFilePath, 'r');
-if mesh_file == -1
+meshFilePath = fullfile(basePath, "mesh", domainType, domainType + "_" + lev + ".mesh");
+meshFile = fopen(meshFilePath, 'r');
+if meshFile == -1
     error("Impossibile aprire file di mesh")
 end
 
 %Lettura dell'intestazione del file mesh
-fgets(mesh_file);
-fgets(mesh_file);
-fgets(mesh_file);
-fgets(mesh_file);
+fgets(meshFile);
+fgets(meshFile);
+fgets(meshFile);
+fgets(meshFile);
 
 %% LETTURA dei NODI della MESH
 %Lettura linea commentata introduzione sezione dei nodi
-fgets(mesh_file);
+fgets(meshFile);
 
 %Lettura NUMERO di NODI
-domainMesh.number_nodes = sscanf(fgets(mesh_file), "%d");
+domainMesh.number_nodes = sscanf(fgets(meshFile), "%d");
 
 %Allocazione MATRICE contenente le COORDINATE dei NODI
 domainMesh.coordinates = zeros(domainMesh.number_nodes, 4);
@@ -42,17 +41,17 @@ formatSpec = "%f";
 sizeSpec = [4 4*domainMesh.number_nodes];
 
 %Lettura dei nodi della mesh
-domainMesh.coordinates = fscanf(mesh_file, formatSpec, sizeSpec)';
+domainMesh.coordinates = fscanf(meshFile, formatSpec, sizeSpec)';
 
 %Eliminazione quarta colonna (inutile)
 domainMesh.coordinates(:, 4) = [];
 
 %% LETTURA dei TRIANGOLI della MESH
 %Lettura linea commentata introduzione sezione degli elementi di bordo
-fgets(mesh_file);
+fgets(meshFile);
 
 %Lettura NUMERO di TRIANGOLI
-domainMesh.numberTriangles = sscanf(fgets(mesh_file), "%d");
+domainMesh.numberTriangles = sscanf(fgets(meshFile), "%d");
 
 %Allocazione MATRICE contenente le INCIDENZE dei TRIANGOLI
 domainMesh.triangles = zeros(domainMesh.numberTriangles, 4);
@@ -69,7 +68,7 @@ formatSpec = "%f";
 sizeSpec = [4 4*domainMesh.numberTriangles];
 
 %Lettura incidenze dei triangoli e relativo tipo di dato al bordo 
-domainMesh.triangles = fscanf(mesh_file, formatSpec, sizeSpec)';
+domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 
 %L"i-esima riga di questa matrice contiene nei primi 3 elementi le incidenze 
 % dei tre vertici dell"i-esimo triangolo e nel quarto elemento l"indice
@@ -85,10 +84,10 @@ end
 
 %% CHIUSURA DEL FILE MESH
 %Lettura dell"ultima riga
-fgets(mesh_file);
+fgets(meshFile);
 
 %CHIUSURA del FILE mesh
-fclose(mesh_file);
+fclose(meshFile);
 
 %% ESTRAPOLAZIONE INFORMAZIONI UTILI sui TRIANGOLI della MESH
 %Creazione matrice contenente le coordinate in sequenza di tutti i primi

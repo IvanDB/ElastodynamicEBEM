@@ -1,4 +1,4 @@
-function pbParam = readInputFile(problemFileName)
+function pbParam = readInputFile(basePath, problemFileName)
 % INPUT 
 %   - problemFileName: stringa contenente il nome del file di input
 %               contenete i dati del problema
@@ -8,8 +8,10 @@ function pbParam = readInputFile(problemFileName)
 % OUTPUT:
 %   - pbParam: struct contenente i parametri del problema
 
+import eebem.utility.fileRead.*
+
 %% APERTURA FILE PROBLEMA
-problemFile = fopen(strcat("./inputFiles/", problemFileName), 'r');
+problemFile = fopen(fullfile(basePath, "inputFiles", problemFileName), 'r');
 if problemFile == -1
     error("Impossibile aprire file coi dati del problema")
 end
@@ -76,4 +78,6 @@ end
 
 %% CHIUSURA FILE
 fclose(problemFile);
+
+checkImplementation(pbParam);
 return

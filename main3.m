@@ -23,8 +23,7 @@ parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
 problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
-pbParam = utility.fileRead.readInputFile(problemFileName);
-utility.fileRead.checkImplementation(pbParam);
+pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
 domainMesh = utility.fileRead.readSpaceMesh(pbParam.domainType, pbParam.lev);
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
