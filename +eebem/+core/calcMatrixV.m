@@ -16,6 +16,7 @@ arguments (Output)
 end
 
 import eebem.core.*
+import eebem.utility.*
 
 matrixSavedV = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
 

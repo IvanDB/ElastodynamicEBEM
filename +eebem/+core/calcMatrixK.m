@@ -16,6 +16,7 @@ arguments (Output)
 end
 
 import eebem.core.*
+import eebem.utility.*
 
 %Allocazione array contente i blocchi matriciali
 matrixSavedK = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
