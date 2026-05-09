@@ -63,7 +63,9 @@ switch formSelected
         assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
                                                         coreQuadData.methodSpecs.quadType, formSelected))
 
-        assert(false, "WIP...")
+        displacement = core.timeMarchingDN_c(basePath, pbParam, domainMesh, coreQuadData);
+        
+        glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, displacement, glbIndexFigures);
 
     case "IN"
         assert(false, "Coming soon...")
