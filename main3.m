@@ -19,16 +19,16 @@ utility.autobuild(basePath);
 
 %Start parallel pool
 delete(gcp("nocreate"));
-parInfo = parpool("Processes");
+parInfo = parpool("Processes", 2);
 
 %% SETUP INPUT DATA
 problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
-domainMesh = utility.fileRead.readSpaceMesh(pbParam.domainType, pbParam.lev);
+domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, pbParam.lev);
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
 
-formSelected = "DD";
+formSelected = "DNc";
 %Check invalid configuration problems -> (Barilli working on it?) 
 assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input error", "Problems with lambda + mu = 0 are not solvable with current implementation of the direct formulations");
 
