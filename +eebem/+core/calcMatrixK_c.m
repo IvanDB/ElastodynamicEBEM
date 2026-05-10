@@ -56,7 +56,7 @@ for indIter = 1 : matrixSpecs.numIter
     end
 
     %Allocazione array contente i componenti singolari dei blocchi di questa iterazione
-    matrixSubBlocksSING = zeros(3, 3, 3, matrixSpecs.blockSizes2D(1), numBlocksThisIter);
+    matrixSubBlocksSING = zeros(3, 3, matrixSpecs.blockSizes2D(1), numBlocksThisIter);
 
     %Avvio computazione CPU
     for indTemp = 1 : numBlocksThisIter
@@ -95,8 +95,8 @@ for indIter = 1 : matrixSpecs.numIter
 
             kernelK = parallel.gpu.CUDAKernel(ptxPath, srcPath);
             kernelK.GridSize = [matrixSpecs.blockSizes2D numBlockThisLaunch];
-            kernelK.ThreadBlockSize = [quadData.methodSpecs.numSRint quadData.methodSpecs.numGHint 1];
-            kernelK.SharedMemorySize = quadData.methodSpecs.numINT * 9 * 8;
+            kernelK.ThreadBlockSize = [quadData.methodSpecs.numBOUND 1 1];
+            kernelK.SharedMemorySize = quadData.methodSpecs.numBOUND * 9 * 8;
 
             gpuInputArrays = copyArrayK_c(domainMesh, quadData, constValues);
 

@@ -31,7 +31,7 @@ blockSizesK = [domainMesh.numTriangles, domainMesh.numTriangles];
 matrixSpecsK = calcMatrixSpecs(nGPU, avMem, blockSizesK, numBlocksK);
 matrixK = calcMatrixK_c(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
-matrixIGamma = kron(eye(numTriang) .* domainMesh.area ./ 2, eye(3));
+matrixIGamma = kron(eye(domainMesh.numTriangles) .* domainMesh.area ./ 2, eye(3));
 
 % Datum vectors calculations
 betaV = calcBetaV(pbParam, domainMesh, matrixV);

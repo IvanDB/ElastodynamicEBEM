@@ -49,7 +49,7 @@ for indZeta = 1 : 4
                 [G2DCnodes, G2DCweights] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, methodSpecs.numSNGLR);
                 
                 % Temp MATLAB code
-                for infordDiag = 1 : length(pesiInt)                            
+                for indDiag = 1 : length(G2DCweights)                            
                     %Calcolo nodo e peso corrente
                     nodoInt = G2DCnodes(indDiag, :);
                     pesoInt = G2DCweights(indDiag);
