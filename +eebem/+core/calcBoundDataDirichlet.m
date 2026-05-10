@@ -8,8 +8,8 @@ g = getDatumHandleDirichlet(pbParam);
 
 boundDataDirichlet = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT
-    gKcurr = cell(domainMesh.number_nodes, 1);
-    parfor indVert = 1 : domainMesh.number_nodes
+    gKcurr = cell(domainMesh.numVertices, 1);
+    parfor indVert = 1 : domainMesh.numVertices
         gKcurr{indVert} = g(domainMesh.coordinates(indVert, :), indTemp*pbParam.deltaT);
     end
     boundDataDirichlet{indTemp} = cell2mat(gKcurr);

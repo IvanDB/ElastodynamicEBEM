@@ -10,7 +10,7 @@ end
 
 import eebem.core.*
 
-numT = domainMesh.numberTriangles;
+numT = domainMesh.numTriangles;
 
 gI = getDatumHandleDirichlet(pbParam);
 

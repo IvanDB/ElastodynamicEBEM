@@ -25,10 +25,10 @@ fgets(meshFile);
 fgets(meshFile);
 
 %Lettura NUMERO di NODI
-domainMesh.number_nodes = sscanf(fgets(meshFile), "%d");
+domainMesh.numVertices = sscanf(fgets(meshFile), "%d");
 
 %Allocazione MATRICE contenente le COORDINATE dei NODI
-domainMesh.coordinates = zeros(domainMesh.number_nodes, 4);
+domainMesh.coordinates = zeros(domainMesh.numVertices, 4);
 
 %Ogni riga della matrice è relativa ad un determinato nodo: i primi 
 % tre elementi della riga contengono le coordinate del nodo, mentre
@@ -38,7 +38,7 @@ domainMesh.coordinates = zeros(domainMesh.number_nodes, 4);
 formatSpec = "%f";
 
 %DIMENSIONE struttura in cui salvare i dati
-sizeSpec = [4 4*domainMesh.number_nodes];
+sizeSpec = [4 4*domainMesh.numVertices];
 
 %Lettura dei nodi della mesh
 domainMesh.coordinates = fscanf(meshFile, formatSpec, sizeSpec)';
@@ -51,10 +51,10 @@ domainMesh.coordinates(:, 4) = [];
 fgets(meshFile);
 
 %Lettura NUMERO di TRIANGOLI
-domainMesh.numberTriangles = sscanf(fgets(meshFile), "%d");
+domainMesh.numTriangles = sscanf(fgets(meshFile), "%d");
 
 %Allocazione MATRICE contenente le INCIDENZE dei TRIANGOLI
-domainMesh.triangles = zeros(domainMesh.numberTriangles, 4);
+domainMesh.triangles = zeros(domainMesh.numTriangles, 4);
 
 %Ogni riga è relativa ad un triangolo: i primi tre elementi contengono 
 % l"indice dei nodi che costituiscono i tre vertici del triangolo mentre
@@ -65,7 +65,7 @@ domainMesh.triangles = zeros(domainMesh.numberTriangles, 4);
 formatSpec = "%f";
 
 %DIMENSIONE struttura in cui salvare i dati
-sizeSpec = [4 4*domainMesh.numberTriangles];
+sizeSpec = [4 4*domainMesh.numTriangles];
 
 %Lettura incidenze dei triangoli e relativo tipo di dato al bordo 
 domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
@@ -76,7 +76,7 @@ domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 
 % Assegnazione forzata dell"indice di ciascun triangolo
 ind = 4;
-domainMesh.triangles(:, 4) = ind * ones(domainMesh.numberTriangles, 1);
+domainMesh.triangles(:, 4) = ind * ones(domainMesh.numTriangles, 1);
 
 if(domainType == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
     domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);
@@ -95,22 +95,22 @@ fclose(meshFile);
 coordVertTriangles = domainMesh.coordinates(domainMesh.triangles(:, 1:3), :);
 
 %Calcolo dei vettori P1 - P3 = P3P1 al variare dei triangoli
-vg1 = coordVertTriangles(1 : domainMesh.numberTriangles, :) - ...
-    coordVertTriangles(2*domainMesh.numberTriangles+1 : end, :);
+vg1 = coordVertTriangles(1 : domainMesh.numTriangles, :) - ...
+    coordVertTriangles(2*domainMesh.numTriangles+1 : end, :);
 
 %Calcolo dei vettori P2 - P3 = P3P2 al variare dei triangoli
-vg2 = coordVertTriangles(domainMesh.numberTriangles+1 : 2*domainMesh.numberTriangles, :) - ...
-    coordVertTriangles(2*domainMesh.numberTriangles+1 : end, :);
+vg2 = coordVertTriangles(domainMesh.numTriangles+1 : 2*domainMesh.numTriangles, :) - ...
+    coordVertTriangles(2*domainMesh.numTriangles+1 : end, :);
 
 %Calcolo dei vettori P1 - P2 = P2P1 al variare dei triangoli
-vg3 = coordVertTriangles(1 : domainMesh.numberTriangles, :) - ...
-    coordVertTriangles(domainMesh.numberTriangles+1 : 2*domainMesh.numberTriangles, :);
+vg3 = coordVertTriangles(1 : domainMesh.numTriangles, :) - ...
+    coordVertTriangles(domainMesh.numTriangles+1 : 2*domainMesh.numTriangles, :);
 
 %Allocazione matrice contenente le componenti dei vettore normali ai triangoli della mesh
-domainMesh.normal = zeros(domainMesh.numberTriangles, 3);
+domainMesh.normal = zeros(domainMesh.numTriangles, 3);
 
 %Allocazione vettore contenente le aree dei triangoli della mesh
-domainMesh.area = zeros(domainMesh.numberTriangles, 1);
+domainMesh.area = zeros(domainMesh.numTriangles, 1);
 
 %Calcolo COMPONENTI dei VETTORI NORMALI (n = vg1 x vg2)
 domainMesh.normal(:, 1) =  vg1(:, 2) .* vg2(:, 3) - vg2(:, 2) .* vg1(:, 3);
@@ -124,25 +124,25 @@ domainMesh.area = sqrt(sum(domainMesh.normal.^2, 2)) / 2;
 domainMesh.normal = domainMesh.normal ./ (2*domainMesh.area);
 
 %Allocazione matrice contenente le componenti dei baricentri dei triangoli della mesh
-domainMesh.center = zeros(domainMesh.numberTriangles, 3);
+domainMesh.center = zeros(domainMesh.numTriangles, 3);
 
 %Calcolo componenti dei baricentri (b = P1 + P2 + P3 / 3)
-domainMesh.center = (coordVertTriangles(1 : domainMesh.numberTriangles, :) + ...
-    coordVertTriangles(domainMesh.numberTriangles + 1 : 2*domainMesh.numberTriangles, :) + ...
-    coordVertTriangles(2*domainMesh.numberTriangles + 1 : 3*domainMesh.numberTriangles, :)) / 3;
+domainMesh.center = (coordVertTriangles(1 : domainMesh.numTriangles, :) + ...
+    coordVertTriangles(domainMesh.numTriangles + 1 : 2*domainMesh.numTriangles, :) + ...
+    coordVertTriangles(2*domainMesh.numTriangles + 1 : 3*domainMesh.numTriangles, :)) / 3;
 
 %Calcolo lunghezza dei lati dei triangoli della mesh (l_i = |vg_i|_2)
 len = [sqrt(sum(vg3.^2, 2)), sqrt(sum(vg2.^2, 2)), sqrt(sum(vg1.^2, 2))];
 
 %Allocazione vettore contenente le massime lunghezze dei lati dei triangoli della mesh
-domainMesh.maxL = zeros(domainMesh.numberTriangles, 1);
+domainMesh.maxL = zeros(domainMesh.numTriangles, 1);
 
 %Calcolo massime lunghezze dei lati dei triangoli della mesh
 domainMesh.maxL = max(len, [], 2);
 
 %Allocazione matrice contenente le componenti dei curl dei
 %triangoli della mesh
-domainMesh.curl = zeros(3, 3, domainMesh.numberTriangles);
+domainMesh.curl = zeros(3, 3, domainMesh.numTriangles);
 
 %Calcolo delle componenti dei curl
 domainMesh.curl(:, 1, :) =  (vg2 ./ (2*domainMesh.area))';
@@ -150,9 +150,9 @@ domainMesh.curl(:, 2, :) = -(vg1 ./ (2*domainMesh.area))';
 domainMesh.curl(:, 3, :) =  (vg3 ./ (2*domainMesh.area))';
 
 %Vertex matrix
-domainMesh.indSMmatrix = zeros(domainMesh.numberTriangles, domainMesh.number_nodes, 'int32');
-for indS = 1 : domainMesh.number_nodes
-    for indM = 1 : domainMesh.numberTriangles
+domainMesh.indSMmatrix = zeros(domainMesh.numTriangles, domainMesh.numVertices, 'int32');
+for indS = 1 : domainMesh.numVertices
+    for indM = 1 : domainMesh.numTriangles
         [~, domainMesh.indSMmatrix(indM, indS)] = ismember(indS, domainMesh.triangles(indM, 1 : 3));
     end
 end
@@ -168,7 +168,7 @@ function domainMesh = calcParamMesh(domainMesh)
     lMax = -Inf;
     
     % Ciclo sui triangoli della mesh
-    for indT = 1 : domainMesh.numberTriangles
+    for indT = 1 : domainMesh.numTriangles
         %Estrazione incidenze vertici triangolo corrente
         incidenze = domainMesh.triangles(indT, 1:3);
         

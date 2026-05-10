@@ -5,7 +5,7 @@ glbIndexFigures = glbIndexFigures + 1;
 figure(glbIndexFigures)
 
 % Ciclo sui triangoli della mesh
-for i = 1 : domainMesh.numberTriangles
+for i = 1 : domainMesh.numTriangles
     %Estrazione incidenze vertici triangolo corrente
     incidenze = domainMesh.triangles(i, 1 : 3);
     

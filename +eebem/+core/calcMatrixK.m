@@ -1,4 +1,4 @@
-function matrixSavedK = calcMatrixK(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
+function matrixK = calcMatrixK(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
 %CALCMATRIXV Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
@@ -12,14 +12,14 @@ arguments (Input)
 end
 
 arguments (Output)
-    matrixSavedK cell
+    matrixK cell
 end
 
 import eebem.core.*
 import eebem.utility.*
 
 %Allocazione array contente i blocchi matriciali
-matrixSavedK = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
+matrixK = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
 
 %Ciclo sulle iterazioni necessarie (limite memoria GPU)
 for indIter = 1 : matrixSpecs.numIter
@@ -93,7 +93,7 @@ for indIter = 1 : matrixSpecs.numIter
         end
 
         %Selezione singolo blocco matriciale
-        matrixSavedK{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
+        matrixK{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
 
         %Aggiunta sottoblocchi singolari
         for indBlock = 1 : matrixSpecs.blockSizes2D(1)
@@ -101,30 +101,30 @@ for indIter = 1 : matrixSpecs.numIter
             for indV = 1 : 3
                 indR = 3 * (indBlock - 1);
                 indC = 3 * (indCols(indV) - 1);
-                matrixSavedK{indTemp, indIter}(indR + (1:3), indC + (1:3)) = matrixSavedK{indTemp, indIter}(indR + (1:3), indC + (1:3)) + matrixSubBlocksSING(:, :, indV, indBlock, indTemp);
+                matrixK{indTemp, indIter}(indR + (1:3), indC + (1:3)) = matrixK{indTemp, indIter}(indR + (1:3), indC + (1:3)) + matrixSubBlocksSING(:, :, indV, indBlock, indTemp);
             end
         end
 
         %Trasformazione in sparse matrix
-        matrixSavedK{indTemp, indIter} = sparse(matrixSavedK{indTemp, indIter});
+        matrixK{indTemp, indIter} = sparse(matrixK{indTemp, indIter});
     end
 end
 
 %Reshape matrici salvate
-matrixSavedK = reshape(matrixSavedK, [numel(matrixSavedK), 1]);
-matrixSavedK = matrixSavedK(1 : matrixSpecs.numBlocks);
+matrixK = reshape(matrixK, [numel(matrixK), 1]);
+matrixK = matrixK(1 : matrixSpecs.numBlocks);
 
 % AGGIUNTA BLOCCHI NULLI
 for ind = (matrixSpecs.numBlocks + 1) : pbParam.nT
-    matrixSavedK{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
+    matrixK{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
 end
 
 end
 
 
 function gpuInputArrays = copyArrayK(domainMesh, quadData, constValues)
-numT = domainMesh.numberTriangles;
-numN = domainMesh.number_nodes;
+numT = domainMesh.numTriangles;
+numV = domainMesh.numVertices;
 
 %Nodi e pesi GH integrazione esterna
 gpuInputArrays.stdEXTw = gpuArray(kron(ones(quadData.methodSpecs.numSRext, 1), quadData.EXTw));
@@ -140,7 +140,7 @@ gpuInputArrays.stdINTnz = gpuArray(quadData.INTn(:, 3));
 
 %Aree, vertici e vettori normali dei triangoli della mesh spaziale
 gpuInputArrays.areeT = gpuArray(domainMesh.area);
-gpuInputArrays.vertsT = zeros(9 * domainMesh.numberTriangles, 1, 'gpuArray');
+gpuInputArrays.vertsT = zeros(9 * domainMesh.numTriangles, 1, 'gpuArray');
 gpuInputArrays.normT = zeros(3*numT, 1, 'gpuArray');
 for indTemp = 1 : numT
     gpuInputArrays.vertsT(9*(indTemp-1) + (1:9), 1) = reshape(domainMesh.coordinates(domainMesh.triangles(indTemp, 1:3), :), [9 1]);
@@ -157,8 +157,8 @@ for indTemp = 1 : numT
 end
 
 %Vertex index matrix
-gpuInputArrays.indSMmatrix = gpuArray(reshape(domainMesh.indSMmatrix, [numN * numT, 1]));
+gpuInputArrays.indSMmatrix = gpuArray(reshape(domainMesh.indSMmatrix, [numV * numT, 1]));
 
 %Vertex coordinates
-gpuInputArrays.nodesMesh = gpuArray(reshape(domainMesh.coordinates', [3*numN 1]));
+gpuInputArrays.nodesMesh = gpuArray(reshape(domainMesh.coordinates', [3*numV 1]));
 end

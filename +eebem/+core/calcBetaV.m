@@ -8,7 +8,7 @@ gV = calcBoundDataNeumann(pbParam, domainMesh);
 
 betaV = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT
-    betaV{indTemp} = zeros(3*domainMesh.numberTriangles, 1);
+    betaV{indTemp} = zeros(3*domainMesh.numTriangles, 1);
     for j = 1 : indTemp
         betaV{indTemp} = betaV{indTemp} + matrixV{indTemp - j + 1} * gV{j};
     end

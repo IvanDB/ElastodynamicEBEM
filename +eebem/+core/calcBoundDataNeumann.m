@@ -8,8 +8,8 @@ g = getDatumHandleNeumann(pbParam);
 
 boundDataNeumann = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT
-    gVcurr = cell(domainMesh.numberTriangles, 1);
-    parfor indT = 1 : domainMesh.numberTriangles
+    gVcurr = cell(domainMesh.numTriangles, 1);
+    parfor indT = 1 : domainMesh.numTriangles
         gVcurr{indT} = g(domainMesh.center(indT, :), (indTemp - 0.5)*pbParam.deltaT, domainMesh.normal(indT, :));
     end
     boundDataNeumann{indTemp} = cell2mat(gVcurr);

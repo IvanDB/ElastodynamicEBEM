@@ -11,7 +11,7 @@ arguments (Output)
     numBlocksK (1, 1) {mustBeInteger, mustBePositive}
 end
 
-numV = domainMesh.number_nodes;
+numV = domainMesh.numVertices;
 deltaT = pbParam.Tfin / pbParam.nT;
 
 dists = zeros(numV, numV);

@@ -1,4 +1,4 @@
-function matrixSavedV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
+function matrixV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
 %CALCMATRIXV Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
@@ -12,13 +12,13 @@ arguments (Input)
 end
 
 arguments (Output)
-    matrixSavedV cell
+    matrixV cell
 end
 
 import eebem.core.*
 import eebem.utility.*
 
-matrixSavedV = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
+matrixV = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
 
 % %Ciclo sulle iterazioni necessarie (limite memoria GPU)
 for indIter = 1 : matrixSpecs.numIter
@@ -90,33 +90,33 @@ for indIter = 1 : matrixSpecs.numIter
         end
 
         %Selezione singolo blocco matriciale
-        matrixSavedV{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
+        matrixV{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
 
         %Inserimento sottoblocchi diagonali
         for indBlock = 1 : matrixSpecs.blockSizes2D(1)
             indRC = 3 * (indBlock - 1);
-            matrixSavedV{indTemp, indIter}(indRC + (1:3), indRC + (1:3)) = matrixSingSubBlocks(:, :, indBlock, indTemp);
+            matrixV{indTemp, indIter}(indRC + (1:3), indRC + (1:3)) = matrixSingSubBlocks(:, :, indBlock, indTemp);
         end
 
         %Trasformazione in sparse matrix
-        matrixSavedV{indTemp, indIter} = sparse(matrixSavedV{indTemp, indIter});
+        matrixV{indTemp, indIter} = sparse(matrixV{indTemp, indIter});
     end
 end
 
 %Reshape matrici salvate
-matrixSavedV = reshape(matrixSavedV, [numel(matrixSavedV), 1]);
-matrixSavedV = matrixSavedV(1 : matrixSpecs.numBlocks);
+matrixV = reshape(matrixV, [numel(matrixV), 1]);
+matrixV = matrixV(1 : matrixSpecs.numBlocks);
 
 % AGGIUNTA BLOCCHI NULLI
 for ind = (matrixSpecs.numBlocks + 1) : pbParam.nT
-    matrixSavedV{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
+    matrixV{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
 end
 
 end
 
 
 function gpuInputArrays = copyArrayV(domainMesh, quadData)
-numT = domainMesh.numberTriangles;
+numT = domainMesh.numTriangles;
 
 %Nodi e pesi GH integrazione esterna
 gpuInputArrays.stdEXTw = gpuArray(kron(ones(quadData.methodSpecs.numSRext, 1), quadData.EXTw));
@@ -132,7 +132,7 @@ gpuInputArrays.stdINTnz = gpuArray(quadData.INTn(:, 3));
 
 %Aree, vertici e vettori normali dei triangoli della mesh spaziale
 gpuInputArrays.areeT = gpuArray(domainMesh.area);
-gpuInputArrays.vertsT = zeros(9 * domainMesh.numberTriangles, 1, 'gpuArray');
+gpuInputArrays.vertsT = zeros(9 * domainMesh.numTriangles, 1, 'gpuArray');
 gpuInputArrays.normT = zeros(3*numT, 1, 'gpuArray');
 for indTemp = 1 : numT
     gpuInputArrays.vertsT(9*(indTemp-1) + (1:9), 1) = reshape(domainMesh.coordinates(domainMesh.triangles(indTemp, 1:3), :), [9 1]);

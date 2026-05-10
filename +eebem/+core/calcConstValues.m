@@ -15,9 +15,9 @@ numExtW = quadData.methodSpecs.numGHext;
 numIntN = quadData.methodSpecs.numINT;
 numIntW = quadData.methodSpecs.numGHint;
 
-constValues = cell(domainMesh.numberTriangles, 1);
+constValues = cell(domainMesh.numTriangles, 1);
 
-parfor indT = 1 : domainMesh.numberTriangles
+parfor indT = 1 : domainMesh.numTriangles
     vertsT = domainMesh.coordinates(domainMesh.triangles(indT, 1:3), :);
     areaT = domainMesh.area(indT);
 
