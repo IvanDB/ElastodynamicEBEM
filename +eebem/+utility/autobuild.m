@@ -28,14 +28,13 @@ for MEXCkernel = fullfile(coreMEXCkernelsDirectory, coreMEXCkernelsFileNames)
     if(contains(compilerInfo.ShortName, "MSVC"))
         cmd_opts = "LINKFLAGS='$LINKFLAGS /LTCG' COMPFLAGS='$COMPFLAGS /O2 /GL /fp:fast' ";
     end
-    if(contains(compilerInfo.ShortName, "gcc"))
-        cmd_opts = "LDFLAGS='$LDFLAGS -lfto' CFLAGS='$CFLAGS -O3 -lfto --fast-math' ";
+    if(contains(compilerInfo.ShortName, "gcc") || contains(compilerInfo.ShortName, "clang") || contains(compilerInfo.ShortName, "mingw"))
+        cmd_opts = "LDFLAGS='$LDFLAGS -flto' CFLAGS='$CFLAGS -O3 -flto -ffast-math' ";
     end
 
     cmd_outf = "-outdir '" + binOutputDirectory + "' "; 
 
     cmd = cmd_base + cmd_opts + cmd_outf + " '" + MEXCkernel + "' ";
-    %disp(cmd)
     cmdout = evalc(cmd);
     assert(contains(cmdout, "MEX completed successfully."), "C-MEX compilation failed! Shell output:" + newline + cmdout)
 end
@@ -49,12 +48,11 @@ coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
 coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"];
 
 for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
-    cmd = strcat(scriptCompiler, ' && nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -outdir "', binOutputDirectory, '" "', CUDAkernel, '"');
-    disp(cmd)
+    cmd = strcat(scriptCompiler, ' && nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
     [status, cmdout] = system(cmd);
     assert(~status, "CUDA compilation failed! Shell output:" + newline + cmdout)
 end
 
-disp("Auto - building is WIP")
+disp("Auto - building is in beta")
 addpath(fullfile(basePath, "buildDir"));
 end
