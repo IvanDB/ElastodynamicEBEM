@@ -1,13 +1,21 @@
-function autobuild(basePath)
+function autobuild(basePath, flag)
 
-%basePath = ".";
+arguments
+    basePath (1, 1) string
+    flag     (1, 1) logical = false
+end
+
+if(~flag)
+    return
+end
+
 
 compilerInfo = mex.getCompilerConfigurations('C');
 if(isempty(compilerInfo))
     mex -setup C
     compilerInfo = mex.getCompilerConfigurations('C');
 end
-assert(~isempty(compilerInfo), "C compiler can't be found") % error or we try to skip?
+assert(~isempty(compilerInfo), "C compiler can't be found")
 
 scriptCompiler = "";
 if(ispc)
