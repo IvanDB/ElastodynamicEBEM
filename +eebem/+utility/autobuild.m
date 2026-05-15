@@ -1,5 +1,60 @@
 function autobuild(basePath)
 
+%basePath = ".";
+
+compilerInfo = mex.getCompilerConfigurations('C');
+if(isempty(compilerInfo))
+    mex -setup C
+    compilerInfo = mex.getCompilerConfigurations('C');
+end
+assert(~isempty(compilerInfo), "C compiler can't be found") % error or we try to skip?
+
+scriptCompiler = "";
+if(ispc)
+    assert(contains(compilerInfo.ShortName, "MSVC"), "For CUDA compilation on Windows the host compiler must be MSVC")
+
+    scriptCompiler = ['"' compilerInfo.Details.CommandLineShell '" ' ...
+        compilerInfo.Details.CommandLineShellArg];
+end
+
+
+coreMEXCkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsMEXC");
+coreMEXCkernelsFileNames = ["kernelK.c", "kernelV.c"];
+
+binOutputDirectory = fullfile(basePath, "buildDir");
+
+for MEXCkernel = fullfile(coreMEXCkernelsDirectory, coreMEXCkernelsFileNames)
+    cmd_base = "mex -v -R2018a ";
+    if(contains(compilerInfo.ShortName, "MSVC"))
+        cmd_opts = "LINKFLAGS='$LINKFLAGS /LTCG' COMPFLAGS='$COMPFLAGS /O2 /GL /fp:fast' ";
+    end
+    if(contains(compilerInfo.ShortName, "gcc"))
+        cmd_opts = "LDFLAGS='$LDFLAGS -lfto' CFLAGS='$CFLAGS -O3 -lfto --fast-math' ";
+    end
+
+    cmd_outf = "-outdir '" + binOutputDirectory + "' "; 
+
+    cmd = cmd_base + cmd_opts + cmd_outf + " '" + MEXCkernel + "' ";
+    %disp(cmd)
+    cmdout = evalc(cmd);
+    assert(contains(cmdout, "MEX completed successfully."), "C-MEX compilation failed! Shell output:" + newline + cmdout)
+end
+
+
+gpuInfo = gpuDevice;
+gpuCC = gpuInfo.ComputeCapability;
+gpuCC(gpuCC == '.') = [];
+
+coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
+coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"];
+
+for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
+    cmd = strcat(scriptCompiler, ' && nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -outdir "', binOutputDirectory, '" "', CUDAkernel, '"');
+    disp(cmd)
+    [status, cmdout] = system(cmd);
+    assert(~status, "CUDA compilation failed! Shell output:" + newline + cmdout)
+end
+
 disp("Auto - building is WIP")
 addpath(fullfile(basePath, "buildDir"));
 end
