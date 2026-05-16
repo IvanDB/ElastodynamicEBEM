@@ -5,10 +5,12 @@ arguments
     flag     (1, 1) logical = false
 end
 
+disp("Autobuilding is in beta")
+addpath(fullfile(basePath, "buildDir"));
+
 if(~flag)
     return
 end
-
 
 compilerInfo = mex.getCompilerConfigurations('C');
 if(isempty(compilerInfo))
@@ -22,7 +24,7 @@ if(ispc)
     assert(contains(compilerInfo.ShortName, "MSVC"), "For CUDA compilation on Windows the host compiler must be MSVC")
 
     scriptCompiler = ['"' compilerInfo.Details.CommandLineShell '" ' ...
-        compilerInfo.Details.CommandLineShellArg];
+        compilerInfo.Details.CommandLineShellArg ' && '];
 end
 
 
@@ -37,7 +39,7 @@ for MEXCkernel = fullfile(coreMEXCkernelsDirectory, coreMEXCkernelsFileNames)
         cmd_opts = "LINKFLAGS='$LINKFLAGS /LTCG' COMPFLAGS='$COMPFLAGS /O2 /GL /fp:fast' ";
     end
     if(contains(compilerInfo.ShortName, "gcc") || contains(compilerInfo.ShortName, "clang") || contains(compilerInfo.ShortName, "mingw"))
-        cmd_opts = "LDFLAGS='$LDFLAGS -flto' CFLAGS='$CFLAGS -O3 -flto -ffast-math' ";
+        cmd_opts = "LDFLAGS='$LDFLAGS -flto -march=native -mtune=native' CFLAGS='$CFLAGS -std=c99 -O3 -flto -ffast-math -march=native -mtune=native' ";
     end
 
     cmd_outf = "-outdir '" + binOutputDirectory + "' "; 
@@ -56,11 +58,8 @@ coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
 coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"];
 
 for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
-    cmd = strcat(scriptCompiler, ' && nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
+    cmd = strcat(scriptCompiler, 'nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
     [status, cmdout] = system(cmd);
     assert(~status, "CUDA compilation failed! Shell output:" + newline + cmdout)
 end
-
-disp("Auto - building is in beta")
-addpath(fullfile(basePath, "buildDir"));
 end
