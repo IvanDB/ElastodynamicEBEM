@@ -19,7 +19,7 @@ utility.autobuild(basePath);
 
 %Start parallel pool
 delete(gcp("nocreate"));
-parInfo = parpool("Processes", 2);
+parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
 problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
@@ -28,7 +28,7 @@ pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, pbParam.lev);
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
 
-formSelected = "DNc";
+formSelected = "ID";
 %Check invalid configuration problems -> (Barilli working on it?) 
 assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input error", "Problems with lambda + mu = 0 are not solvable with current implementation of the direct formulations");
 
@@ -40,7 +40,12 @@ disp(coreQuadData.methodSpecs.stringID)
 % Main call
 switch formSelected
     case "ID"
-        assert(false, "WIP...")
+        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) for the ID  formulation is WIP", ...
+                                                        coreQuadData.methodSpecs.quadType))
+
+        density = core.timeMarchingID(basePath, pbParam, domainMesh, coreQuadData);
+
+        glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, density, glbIndexFigures);
 
     case "DD"
         assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
