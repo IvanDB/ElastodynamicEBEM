@@ -15,5 +15,6 @@ The code in this branch is deprecated, frozen, and completely unsupported.
 
 * **Not for production use:** This code is strictly for historical reference. It is not intended to be used in any active environment.
 * **No maintenance:** No updates or bug fixes will be provided for any files within this branch.
+* **Language Note:** Please note that some code and comments within these directories may be written in Italian.
 
 For the active, production-ready codebase, please switch to the default branch.
