@@ -1,0 +1,213 @@
+%% SETUP WORKSPACE
+clc
+clear
+clearvars -except indForm indMethodPP indMethodCore indProblem glbIndexFigures
+
+format longG
+warning off
+
+
+
+%Impostazione parametri
+if ~exist('indForm', 'var')
+    indForm = 3;
+end
+if ~exist('indProblem', 'var')
+    indProblem = 9;
+end
+if ~exist('indMethodCore', 'var')
+    indMethodCore = 27;
+end
+if ~exist('indMethodPP', 'var')
+    indMethodPP = 7;
+end
+
+%Definizione percorsi delle cartelle contenti le functions
+basePath = './TesiLM/MATLAB/remoteSetup/';
+c = parcluster;
+%pctRunOnAll("unzip('code.zip', './TesiLM/MATLAB/remoteSetup');");  %Test if can use basePath here
+% pctRunOnAll("addpath(genpath('.'));");
+spmd
+    addpath(genpath("./functions"))
+end
+% addpath(genpath("./functions"));
+
+%Build extern function
+% externBuild();
+
+%Avvio pool parallela
+% delete(gcp("nocreate"));
+% parInfo = parpool("Processes");
+
+%Definizione 
+if ~exist('glbIndexFigures', 'var')
+    glbIndexFigures = 0;
+end
+
+%% LETTURA dei PARAMETRI di INPUT
+%Selezione file input
+listProblems = ["input_screenUniformLimit_small.txt", "input_screenUniformLimit_mid.txt", "input_screenUniformLimit_large.txt", "input_screenUniformLimit_maxed.txt", ...
+                "input_sphereUniform_small.txt", "input_sphereUniform_mid.txt", "input_sphereUniform_large.txt", "input_sphereUniform_maxed.txt", ...
+                "input_barH1_small.txt", "input_barH1_mid.txt", "input_barH1_large.txt", "input_barH1_maxed.txt", ...
+                "input_barH3_small.txt", "input_barH3_mid.txt", "input_barH3_large.txt", "input_barH3_maxed.txt", ...
+                "input_waveOnSphere.txt", "input_waveOnElemInd.txt", ...
+                "input_DesCop-cube_small.txt", "input_DesCop-cube_mid.txt", "input_DesCop-cube_large.txt", "input_DesCop-cube_maxed.txt", ...
+                "input_DesCop-sphere_small.txt", "input_DesCop-sphere_mid.txt", "input_DesCop-sphere_large.txt", "input_DesCop-sphere_maxed.txt", ...
+                "input_DesCop-sphere-mod_small.txt", ...
+                "input_barH3sim_large.txt"
+               ];
+problemFileName = listProblems(indProblem);
+
+%Lettura del file di input
+pbParam = readInputFile(problemFileName, basePath);
+
+%Controllo implementazione metodo risolutivo richiesto
+checkImplementation(pbParam);
+
+%% LETTURA e PLOT della MESH SPAZIALE
+%Lettura del file contenente la MESH SPAZIALE
+domainMesh = readSpaceMesh(pbParam.domainType, pbParam.lev, basePath);
+
+%Plot MESH SPAZIALE
+% glbIndexFigures = plotMesh(domainMesh, glbIndexFigures);
+
+%% SCELTA FORMULAZIONE SELEZIONATA
+listForm = ["ID", "DD", "DN"];
+formSelected = listForm(indForm);
+
+%Check temporaneo problemi
+if (pbParam.lambda + pbParam.mu == 0) && (formSelected ~= "ID")
+    error("Problema non adatto a questa formulazione")
+end
+
+%% SCELTA METODO DI CALCOLO e COSTRUZIONE QUADRATURE
+%Selezione metoto core
+% - "SA     xx":            integrazione esterna mediante GH a xx nodi e integrazione interna analitica  
+% - "MX.G2D xx yy":         integrazione esterna mediante GH a xx nodi e integrazione interna mediante G2D a yy nodi 
+% - "MX.GHC xx yy z":       integrazione esterna mediante GH a xx nodi e integrazione interna mediante GHC con yy sottoregioni a z nodi ciascuna 
+% - "GPU    xx yy z":       esecuzione su GPU - implementato solo metodo MX.GHC xx yy z
+% - "FN     xx yy z kk":    metodo interamente numerico implementata soltanto combinazione GPU xx yy z (non diag) + MX.G2DC xx kk (diag) 
+
+listMethods = ["SA 03", "SA 07", "SA 12", "SA 19", ...                                                  % 1 -  4
+               "MX.GHC 12 01 12", "MX.GHC 12 01 19", "MX.GHC 19 01 12", "MX.GHC 19 01 19", ...          % 5 -  8 
+               "MX.G2D 12 64", "MX.G2D 12 256", "MX.G2D 19 64", "MX.G2D 19 256", ...                    % 9 - 12
+               "MX.GHC 12 16 3", "MX.GHC 12 64 3", "MX.GHC 19 16 3", "MX.GHC 19 64 3", ...              %13 - 16
+               "GPU 12 16 3", "GPU 12 64 3", "GPU 19 16 3", "GPU 19 64 3", ...                          %17 - 20
+               "GPU 12 16 19", "GPU 19 16 19", ...                                                      %21 - 22
+               "FN 12 64 3 64", "FN 12 64 3 256", "FN 12 64 3 1024", ...                                %23 - 25
+               "FN 19 64 3 64", "FN 19 64 3 256", "FN 19 64 3 1024", ...                                %26 - 28
+               "FN 12 16 3 16", "FN 12 16 3 64", "FN 12 16 3 256", ...                                  %29 - 31
+               "FN 19 16 3 16", "FN 19 16 3 64", "FN 19 16 3 256", ...                                  %32 - 34
+               "FN 7 64 3 256", "FN 7 256 1 256", "FN 12 256 1 256", "FN 19 256 1 256", ...             %35 - 38
+               "FNC 9 64 3 256", "FNC 16 64 3 256", "FNC 64 64 3 256", "FNC 256 64 3 256", ...          %39 - 42
+               "FNC 9 256 1 256", "FNC 16 256 1 256", "FNC 64 256 1 256", "FNC 256 256 1 256", ...      %43 - 46
+               "FNC3 9 64 3 256", "FNC3 16 64 3 256", "FNC3 9 256 1 256", "FNC3 16 256 1 256", ...      %47 - 50
+              ];
+methodSelected = convertStringsToChars(listMethods(indMethodCore));
+
+[methodInfo, EXTn, EXTw, INTn, INTw, DIAGn, DIAGw] = BEMenerg_setupCore(methodSelected);
+
+%% TIME-MARCHING
+%Calcolo funzione densità incognita
+switch formSelected
+    case "ID"
+        switch methodInfo.typeIntg
+            case "SA"
+                density = BEMenerg_coreSA_timeMarching(pbParam, domainMesh, methodInfo, EXTn, EXTw);
+            case "MX.G2D"
+                density = BEMenerg_coreMXG2D_timeMarching(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw);
+            case "MX.GHC"
+                density = BEMenerg_coreMXGHC_timeMarching(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw);
+            case "GPU"
+                density = BEMenerg_coreGPU_timeMarching(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw);
+            case {"FN", "FNC"}
+                density = BEMenerg_coreFN_timeMarching(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw, DIAGn, DIAGw);
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+        %Plot della densità ottenuta
+        glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFigures);
+    case "DD"
+        switch methodInfo.typeIntg
+            case {"FN", "FNC"}
+                density = BEMenerg_dir_timeMarchingD(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw, DIAGn, DIAGw);
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+        %Plot della densità ottenuta
+        glbIndexFigures = plotDensityV(pbParam, domainMesh, density, glbIndexFigures);
+    case "DN"
+        switch methodInfo.typeIntg
+            case {"FN", "FNC", "FNC3"}
+                density = BEMenerg_dir_timeMarchingN(pbParam, domainMesh, methodInfo, EXTn, EXTw, INTn, INTw, DIAGn, DIAGw);
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+        %Plot della densità ottenuta
+        glbIndexFigures = plotDensityU(pbParam, domainMesh, density, glbIndexFigures);
+    otherwise
+        error("Formulazione non implementata")
+end
+return
+%% SETUP METODO E QUADRATURA POST-PROCESSING
+%Selezione metoto postProcessing
+% - "A":            integrazione analitica 
+% - "N.GHC yy z":   integrazione mediante GHC con yy sottoregioni a z nodi ciascuna 
+% - "GPU   yy z":   esecuzione su GPU - implementato solo metodo N.GHC 
+listPost = ["A", ...
+            "N.GHC 01 12", "N.GHC 01 19", ...
+            "N.GHC 16 3", "N.GHC 64 3", ...
+            "GPU 16 3", "GPU 64 3", ...
+            "GPU 16 19", ...
+           ];
+postSelected = convertStringsToChars(listPost(indMethodPP));
+
+[methodInfo, PPn, PPw] = BEMenerg_setupPost(methodInfo, postSelected);
+
+%% ESECUZIONE POST-PROCESSING
+%Recupero punti (x, t) di interesse per il post-processing
+[xVal, tVal, iVal, numPoints, typePlot] = BEMenerg_postProc_loadPoints(pbParam);
+
+% Check per verificare sia richiesto il postProcessing
+if numPoints == 0
+    return
+end
+
+%Calcolo componenti campo vettoriale incognito nei punti selezionati
+switch formSelected
+    case "ID"
+        switch methodInfo.typePost 
+            case "A"
+                campoVett = BEMenerg_postProcA_setup(pbParam, domainMesh, density, numPoints, xVal, tVal);
+            case "N.GHC"
+                campoVett = BEMenerg_postProcN_setup(pbParam, domainMesh, density, numPoints, xVal, tVal, methodInfo, PPn, PPw);
+            case "GPU"
+                switch typePlot
+                    case "u(:, t)"
+                        campoVett = BEMenerg_postProcGPU_setupLayer(pbParam, domainMesh, density, xVal, tVal, methodInfo, PPn, PPw);
+                    case "u(x, :)"
+                        campoVett = BEMenerg_postProcGPU_setupSP(pbParam, domainMesh, density, numPoints, xVal, tVal, methodInfo, PPn, PPw);
+                end
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+    case "DD"
+        switch methodInfo.typePost 
+            case "GPU"
+                campoVett = BEMenerg_ppD_setup(pbParam, domainMesh, density, numPoints, xVal, tVal, methodInfo, PPn, PPw);
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+    case "DN"
+        switch methodInfo.typePost 
+            case "GPU"
+                campoVett = BEMenerg_ppN_setup(pbParam, domainMesh, density, numPoints, xVal, tVal, methodInfo, PPn, PPw);
+            otherwise
+                error("Metodo non disponibile per la formulazione selezionata")
+        end
+    otherwise
+        error("Formulazione non implementata")
+end
+
+%Plot soluzione nei punti (x, t) fissati
+glbIndexFigures = plotSolution(pbParam, campoVett, xVal, tVal, iVal, typePlot, glbIndexFigures);

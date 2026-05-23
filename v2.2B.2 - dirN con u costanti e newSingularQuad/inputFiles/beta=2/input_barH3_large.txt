@@ -1,0 +1,20 @@
+%Densità di massa 
+1
+%Modulo di taglio
+0.5
+%Rapporto di Poisson
+0
+%Parametro lambda
+0
+%Istante di tempo finale
+24
+%Numero di sottointervalli temporali
+192
+%Tipologia mesh
+barH3
+%Livello di raffinamento
+2
+%Equazione Integrale 
+EFIE
+%Tipo di dato al bordo
+DIR

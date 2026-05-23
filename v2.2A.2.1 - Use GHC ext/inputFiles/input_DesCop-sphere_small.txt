@@ -1,0 +1,20 @@
+%Densità di massa 
+7.9
+%Modulo di taglio
+0.8077
+%Rapporto di Poisson
+0.3
+%Parametro lambda
+1.212
+%Istante di tempo finale
+0.005
+%Numero di sottointervalli temporali
+200
+%Tipologia mesh
+DesCop-sphere
+%Livello di raffinamento
+1
+%Equazione Integrale 
+EFIE
+%Tipo di dato al bordo
+DIR
