@@ -6,6 +6,7 @@ end
 
 if ispc()
     warning("Windows support is WIP");
+    setupHPC(inputStruct);
     return
 end
 
@@ -31,7 +32,7 @@ end
 timeFields = ["betaVal", "TimeMult"];
 meshFields = ["meshType", "meshLevel"];
 quadFields = ["quadType", "numSRext", "numGHext", "numSRint", "numGHint", "numSNGLR", "numBOUND"];
-confFields = ["plotFigs", "saveFigs", "saveTemp"];
+confFields = ["aBldFlag", "plotFigs", "saveFigs", "saveTemp"];
 
 %Problem data
 assert(isfield(inputStruct, "pbName"), "Input error", "A problem name (pbName) must be specified in the input structure.")

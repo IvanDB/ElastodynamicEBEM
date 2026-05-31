@@ -12,7 +12,7 @@ warning off
 utility.setupWorkspace;
 
 %Build extern functions
-utility.autobuild(basePath);
+utility.autobuild(basePath, glbFlag.aBldFlag);
 
 %Start parallel pool
 % delete(gcp("nocreate"));
@@ -35,11 +35,6 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 % Setup quadrature data
 coreQuadData = core.setupCore(quadID, quadSpecs{:});
 
-disp(pbParam)
-disp(domainMesh)
-disp(coreQuadData)
-
-return
 % Main call
 switch formSelected
     case "ID"
