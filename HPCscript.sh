@@ -77,7 +77,7 @@ for i in "${!cmdBuffer[@]}"; do
     echo "Submitting job $name"
     export COMMAND=${cmd}
     sbatch  --job-name=$name                \
-            --output="logs/%j.log"          \
+            --output="logs/%j_%x.log"          \
             --qos=gpu                       \
             --partition=gpu                 \
             --nodes=1                       \
