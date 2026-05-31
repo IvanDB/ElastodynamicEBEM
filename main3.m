@@ -12,11 +12,11 @@ warning off
 utility.setupWorkspace;
 
 %Build extern functions
-utility.autobuild(basePath, glbFlag.aBldFlag);
+utility.autobuild(basePath, glbFlags.aBldFlag);
 
 %Start parallel pool
-% delete(gcp("nocreate"));
-% parInfo = parpool("Processes");
+delete(gcp("nocreate"));
+parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
 problemFileName = utility.fileRead.constructProblemFileName(pbIndex, pbSpecs{:});
