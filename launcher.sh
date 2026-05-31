@@ -6,4 +6,4 @@
 
 
 echo $COMMAND
-#matlab -nodisplay -batch $COMMAND
+matlab -nodisplay -batch $COMMAND

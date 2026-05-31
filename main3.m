@@ -1,31 +1,26 @@
 %% INIT PHASE
 clc
-clearvars -except glbIndexFigures indProblem 
+clearvars -except inputStruct glbIndexFigures basePath
 
 import eebem.*
 format longG
 warning off
 
-%Set values
-if ~exist('glbIndexFigures', 'var')
-    glbIndexFigures = 0;
-end
+%Initialize the workspace
+utility.setupWorkspace
 
-%Obtain the base path 
-basePath = fileparts(mfilename("fullpath"));
-
-%Build functions
+%Build extern functions
 utility.autobuild(basePath);
 
 %Start parallel pool
-delete(gcp("nocreate"));
-parInfo = parpool("Processes");
+% delete(gcp("nocreate"));
+% parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
-problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
+problemFileName = constructProblemFileName(pbIndex, inputStruct);
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
-domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, pbParam.lev);
+domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, inputStruct);
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
 
 formSelected = "ID";
@@ -37,6 +32,7 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 coreQuadData = core.setupCore(10);
 disp(coreQuadData.methodSpecs.stringID)
 
+return
 % Main call
 switch formSelected
     case "ID"
