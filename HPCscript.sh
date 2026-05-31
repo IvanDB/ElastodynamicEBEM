@@ -12,6 +12,7 @@ if [ ${#pbNames[@]} -eq 0 ]; then
 fi
 
 for pbName in "${pbNames[@]}"; do
+for meshType in "${meshTypes[@]:-"symm"}"; do
 for meshLvl in "${meshLvls[@]:-1}"; do
 for betaVal in "${betaVals[@]:-1}"; do
    
