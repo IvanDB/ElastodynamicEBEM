@@ -54,7 +54,7 @@ domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 ind = 4;
 domainMesh.triangles(:, 4) = ind * ones(domainMesh.numTriangles, 1);
 
-if(domainMesh.domainName == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
+if(domainMesh.name == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
     domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);
 end
 
