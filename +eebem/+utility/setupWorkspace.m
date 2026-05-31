@@ -38,7 +38,9 @@ confFields = ["plotFigs", "saveFigs", "saveTemp"];
 
 %Problem data
 assert(isfield(inputStruct, "pbName"), "Input error", "Problem name (pbName) must be specified in the input structure.")
-assignin('base', "pbSpecs.pbName", inputStruct.pbName);
+localStruct = struct();
+localStruct.pbName = inputStruct.pbName;
+assignin('base', "pbSpecs", localStruct);
 
 %Formulation data
 assert(isfield(inputStruct, "formID"), "Input error", "Formulation ID (formID) must be specified in the input structure.")
