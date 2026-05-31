@@ -63,6 +63,7 @@ for betaVal in "${betaVals[@]:-1}"; do
 done
 done
 done
+done
 
 if [ ${#cmdBuffer[@]} -eq 0 ]; then
     echo "Error in setup script: no command to execute."
