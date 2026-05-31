@@ -22,9 +22,13 @@ for betaVal in "${betaVals[@]:-1}"; do
 		            <<< "$baseTemplate")
 
     if [ ${#quadID[@]} -ne 0 ]; then
-        cmdString="${baseData} inputStruct.quadID=$quadID;"
-        echo $cmdString
-        cmdBuffer+=("$cmdString")
+        for quadID in "${quadID[@]}"; do
+            cmdString="${baseData} inputStruct.quadID=$quadID;"
+            cmdBuffer+=("$cmdString")
+
+            jobName="${pbName}-${meshType}_${meshLvl}-${betaVal}_\'ID$quadID\'"
+            nameBuffer+=("$jobName")
+        done
         continue
     fi
 
@@ -45,6 +49,9 @@ for betaVal in "${betaVals[@]:-1}"; do
 
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
+
+        jobName="${pbName}-${meshType}_${meshLvl}-${betaVal}_\'${numSRext}-Ge${numGHext}_Si${numSRint}-Gi${numGHint}_SG${numSNGLR}_BD${numBOUND}\'"
+        nameBuffer+=("$jobName")
     done
     done
     done
@@ -61,9 +68,19 @@ if [ ${#cmdBuffer[@]} -eq 0 ]; then
     exit 1
 fi
 
-for cmd in "${cmdBuffer[@]}"; do
-    echo "Launching $cmd"
+for i in "${!cmdBuffer[@]}"; do
+    cmd="${cmdBuffer[i]}"
+    name="${nameBuffer[i]}"
 
+    echo "Submitting job $name"
     export COMMAND=${cmd}
-    bash "./launcher.sh"
+    sbatch  --job-name=$name                \
+            --output="logs/%j.log"          \
+            --qos=gpu                       \     
+            --partition=gpu                 \
+            --nodes=1                       \
+            --ntasks-per-node=$poolSize     \
+            --mem=$RAMsize                  \
+            --gres=gpu:$GPUtype:$GPUcount   \
+            "./launcher.sh"
 done
