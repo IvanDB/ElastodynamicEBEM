@@ -56,12 +56,12 @@ for timeMult in "${timeMults[@]:--1}"; do
     for numBOUND in "${numsBOUND[@]:--1}"; do
     
         [[ $quadType == "" ]] && { qt=""; j_qt=""; } || { qt="inputStruct.quadType=\"$quadType\";"; j_qt="$quadType"; }
-        [[ $numSRext -eq -1 ]] && { se=""; j_se=""; } || { se="inputStruct.numSRext=$numSRext;"; j_se="SE$numSRext"; }
-        [[ $numGHext -eq -1 ]] && { ge=""; j_ge=""; } || { ge="inputStruct.numGHext=$numGHext;"; j_ge="GE$numGHext"; }
-        [[ $numSRint -eq -1 ]] && { si=""; j_si=""; } || { si="inputStruct.numSRint=$numSRint;"; j_si="SI$numSRint"; }
-        [[ $numGHint -eq -1 ]] && { gi=""; j_gi=""; } || { gi="inputStruct.numGHint=$numGHint;"; j_gi="GI$numGHint"; }
-        [[ $numSNGLR -eq -1 ]] && { sg=""; j_sg=""; } || { sg="inputStruct.numSNGLR=$numSNGLR;"; j_sg="SG$numSNGLR"; }
-        [[ $numBOUND -eq -1 ]] && { bd=""; j_bd=""; } || { bd="inputStruct.numBOUND=$numBOUND;"; j_bd="BD$numBOUND"; }
+        [[ $numSRext -eq -1 ]] && { se=""; j_se=""; } || { se="inputStruct.numSRext=$numSRext;"; j_se="se$numSRext"; }
+        [[ $numGHext -eq -1 ]] && { ge=""; j_ge=""; } || { ge="inputStruct.numGHext=$numGHext;"; j_ge="ge$numGHext"; }
+        [[ $numSRint -eq -1 ]] && { si=""; j_si=""; } || { si="inputStruct.numSRint=$numSRint;"; j_si="si$numSRint"; }
+        [[ $numGHint -eq -1 ]] && { gi=""; j_gi=""; } || { gi="inputStruct.numGHint=$numGHint;"; j_gi="gi$numGHint"; }
+        [[ $numSNGLR -eq -1 ]] && { sg=""; j_sg=""; } || { sg="inputStruct.numSNGLR=$numSNGLR;"; j_sg="sg$numSNGLR"; }
+        [[ $numBOUND -eq -1 ]] && { bd=""; j_bd=""; } || { bd="inputStruct.numBOUND=$numBOUND;"; j_bd="bd$numBOUND"; }
 
         quadData=$(sed  -e "s/\[\[QT\]\]/$qt/" \
                         -e "s/\[\[SE\]\]/$se/" \
@@ -75,7 +75,7 @@ for timeMult in "${timeMults[@]:--1}"; do
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
 
-        jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${j_qt}${j_bv}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
+        jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${j_qt}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
         nameBuffer+=("$jobName")
     done
     done
