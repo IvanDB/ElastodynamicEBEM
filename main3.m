@@ -7,7 +7,7 @@ format longG
 warning off
 
 %Initialize the workspace
-utility.setupWorkspace
+utility.setupWorkspace(inputStruct);
 
 %Build extern functions
 utility.autobuild(basePath);
@@ -29,7 +29,7 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 
 %% CORE EXECUTION
 % Setup quadrature data
-coreQuadData = core.setupCore(10);
+coreQuadData = core.setupCore(quadID, quadStruct{:});
 disp(coreQuadData.methodSpecs.stringID)
 
 return
