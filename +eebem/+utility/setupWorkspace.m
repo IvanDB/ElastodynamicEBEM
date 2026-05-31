@@ -37,7 +37,9 @@ quadFields = ["quadType", "numSRext", "numGHext", "numSRint", "numGHint", "numSN
 confFields = ["plotFigs", "saveFigs", "saveTemp"];
 
 %Problem data
-assert(isfield(inputStruct, "pbName"), "Input error", "Problem name (pbName) must be specified in the input structure.")
+assert(isfield(inputStruct, "pbName"), "Input error", "A problem name (pbName) must be specified in the input structure.")
+assignin('base', "pbIndex", 0);
+
 localStruct = struct();
 localStruct.pbName = inputStruct.pbName;
 assignin('base', "pbSpecs", localStruct);
@@ -66,12 +68,12 @@ end
 assignin('base', "meshSpecs", localStruct);
 
 %Quadrature data
-localStruct = struct();
+assignin('base', "quadID", 0);
 if isfield(inputStruct, "quadID")
     assignin('base', "quadID", inputStruct.quadID);
-else
-    assignin('base', "quadID", 0);
 end
+
+localStruct = struct();
 for fieldName = quadFields
     if isfield(inputStruct, fieldName)
         localStruct.(fieldName) = inputStruct.(fieldName);
