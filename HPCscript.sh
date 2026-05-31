@@ -11,6 +11,11 @@ if [ ${#pbNames[@]} -eq 0 ]; then
     exit 0
 fi
 
+if [ ${#formIDs[@]} -eq 0 ]; then
+    echo "Select at least one formulation"
+    exit 0
+fi
+
 for pbName in "${pbNames[@]}"; do
 for formID in "${formIDs[@]}"; do
 for meshType in "${meshTypes[@]:-""}"; do

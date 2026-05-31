@@ -1,8 +1,3 @@
-function setupWorkspace(inputStruct)
-arguments
-    inputStruct (1, 1) struct = struct()
-end
-
 if isunix()
     assert(exist('inputStruct', 'var'), "Input error", "On Linux (HPC), an input structure must be provided. Please use the dedicated bash script.")
     setupHPC(inputStruct);
@@ -15,15 +10,17 @@ if ispc()
 end
 
 assert(false, "OS different from Unix and Windows not supported yet.")
-end
+return
+
+%Helper function
 
 function setupHPC(inputStruct)
 %Tecnical variables 
-if ~exist("glbIndexFigures", "var")
+if ~evalin('base', "exist('glbIndexFigures', 'var')")
     assignin('base', 'glbIndexFigures', 0);
 end
 
-if ~exist("basePath", "var")
+if ~evalin('base', "exist('basePath', 'var')")
     callStack = dbstack('-completenames');
     assert(length(callStack) > 2, "Internal error", "setupWorkspace shouldn't be called directly but only from main3.") 
     [basePath, ~, ~] = fileparts(callStack(3).file);
@@ -42,7 +39,7 @@ assignin('base', "pbIndex", 0);
 
 localStruct = struct();
 localStruct.pbName = inputStruct.pbName;
-assignin('base', "pbSpecs", localStruct);
+assignin('base', "pbSpecs", namedargs2cell(localStruct));
 
 %Formulation data
 assert(isfield(inputStruct, "formID"), "Input error", "Formulation ID (formID) must be specified in the input structure.")
@@ -55,7 +52,7 @@ for fieldName = timeFields
         localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
-assignin('base', "timeSpecs", localStruct);
+assignin('base', "timeSpecs", namedargs2cell(localStruct));
 
 
 %Space mesh data
@@ -65,7 +62,7 @@ for fieldName = meshFields
         localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
-assignin('base', "meshSpecs", localStruct);
+assignin('base', "meshSpecs", namedargs2cell(localStruct));
 
 %Quadrature data
 assignin('base', "quadID", 0);
@@ -79,7 +76,7 @@ for fieldName = quadFields
         localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
-assignin('base', "quadSpecs", localStruct);
+assignin('base', "quadSpecs", namedargs2cell(localStruct));
 
 %Configuration flags
 localStruct = struct();

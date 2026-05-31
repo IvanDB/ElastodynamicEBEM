@@ -12,8 +12,8 @@ function problemFileName = constructProblemFileName(pbIndex, pbSpecs)
         return
     end
 
-    if pbSpecs == struct()
-        error("Input error", "No problem specifications provided, and no problem index specified. Please provide at least one of the two inputs.")
+    if pbSpecs.pbName == ""
+        error("No problem specifications provided, and no problem index specified. Please provide at least one of the two inputs.")
     end
 
     problemFileName = pbSpecs.pbName + ".txt";
