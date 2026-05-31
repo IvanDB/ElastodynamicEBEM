@@ -9,7 +9,7 @@ format longG
 warning off
 
 %Initialize the workspace
-utility.setupWorkspace(inputStruct);
+utility.setupWorkspace;
 
 %Build extern functions
 utility.autobuild(basePath);
