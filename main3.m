@@ -2,6 +2,8 @@
 clc
 clearvars -except inputStruct glbIndexFigures basePath
 
+disp("Start")
+
 import eebem.*
 format longG
 warning off
@@ -32,6 +34,10 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 %% CORE EXECUTION
 % Setup quadrature data
 coreQuadData = core.setupCore(quadID, quadSpecs{:});
+
+disp(pbParam)
+disp(domainMesh)
+disp(coreQuadData)
 
 return
 % Main call

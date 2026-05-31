@@ -45,3 +45,4 @@ codegen/
 outputData/*
 outputPlot/*
 tempData/*
+logs/*

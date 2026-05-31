@@ -3,7 +3,7 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; inputStruct.formID=[[FI]]; [[MT]] [[ML]] [[BV]] [[TM]]"
+baseTemplate="basePath=\"$basePath\"; inputStruct.pbName=[[PB]]; inputStruct.formID=[[FI]]; [[MT]] [[ML]] [[BV]] [[TM]]"
 quadTemplate="[[QT]] [[SE]] [[GE]] [[SI]] [[GI]] [[SG]] [[BD]]"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
@@ -27,7 +27,7 @@ for timeMult in "${timeMults[@]:--1}"; do
                     -e "s/\[\[FI\]\]/\"$formID\"/"  \
                     -e "s/\[\[TM\]\]/$tm/"          \
 		            -e "s/\[\[BV\]\]/$bv/"          \
-		            -e "s/\[\[MT\]\]/\"$mt\"/"      \
+		            -e "s/\[\[MT\]\]/$mt/"      \
 		            -e "s/\[\[ML\]\]/$ml/"          \
 		            <<< "$baseTemplate")
 
@@ -107,15 +107,14 @@ for i in "${!cmdBuffer[@]}"; do
     fi
     echo "Submitting job $name"
 
-    echo $cmd
-    sbatch  --job-name=$name                \
-            --output="logs/%j_%x.log"          \
+    export COMMAND="$cmd"
+    sbatch  --job-name="$name"              \
+            --output="logs/%j_%x.log"       \
             --qos=gpu                       \
             --partition=gpu                 \
             --nodes=1                       \
             --ntasks-per-node=$poolSize     \
             --mem=$RAMsize                  \
             --gres=gpu:$GPUtype:$GPUcount   \
-            --export=COMMAND="$cmd"         \
             "./launcher.sh"
 done

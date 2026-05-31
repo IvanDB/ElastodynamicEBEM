@@ -45,36 +45,44 @@ assert(isfield(inputStruct, "formID"), "Input error", "Formulation ID (formID) m
 assignin('base', "formSelected", inputStruct.formID);
 
 %Time parameters
+localStruct = struct();
 for fieldName = timeFields
     if isfield(inputStruct, fieldName)
-        assignin('base', "timeSpecs." + fieldName, inputStruct.(fieldName));
+        localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
+assignin('base', "timeSpecs", localStruct);
+
 
 %Space mesh data
+localStruct = struct();
 for fieldName = meshFields
     if isfield(inputStruct, fieldName)
-        assignin('base', "meshSpecs." + fieldName, inputStruct.(fieldName));
+        localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
+assignin('base', "meshSpecs", localStruct);
 
 %Quadrature data
+localStruct = struct();
 if isfield(inputStruct, "quadID")
     assignin('base', "quadID", inputStruct.quadID);
-    assignin('base', "quadSpecs", struct());
 else
-    assignin('base', "quadID", 0); %Default value
-    for fieldName = quadFields
-        if isfield(inputStruct, fieldName)
-            assignin('base', "quadSpecs." + fieldName, inputStruct.(fieldName));
-        end
+    assignin('base', "quadID", 0);
+end
+for fieldName = quadFields
+    if isfield(inputStruct, fieldName)
+        localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
+assignin('base', "quadSpecs", localStruct);
 
 %Configuration flags
+localStruct = struct();
 for fieldName = confFields
     if isfield(inputStruct, fieldName)
-        assignin('base', "glbFlags." + fieldName, inputStruct.(fieldName));
+        localStruct.(fieldName) = inputStruct.(fieldName);
     end
 end
+assignin('base', "glbFlags", localStruct);
 end
