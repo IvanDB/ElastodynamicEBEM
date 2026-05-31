@@ -34,11 +34,15 @@ end
 timeFields = ["betaVal", "TimeMult"];
 meshFields = ["meshType", "meshLevel"];
 quadFields = ["quadType", "numSRext", "numGHext", "numSRint", "numGHint", "numSNGLR", "numBOUND"];
-confFields = ["plotFigs", "saveFigs", "saveMatx"];
+confFields = ["plotFigs", "saveFigs", "saveTemp"];
 
 %Problem data
 assert(isfield(inputStruct, "pbName"), "Input error", "Problem name (pbName) must be specified in the input structure.")
 assignin('base', "pbSpecs.pbName", inputStruct.pbName);
+
+%Formulation data
+assert(isfield(inputStruct, "formID"), "Input error", "Formulation ID (formID) must be specified in the input structure.")
+assignin('base', "formSelected", inputStruct.formID);
 
 %Time parameters
 for fieldName = timeFields

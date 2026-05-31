@@ -3,7 +3,7 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; [[BV]] [[MT]] [[ML]]"
+baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; inputStruct.formID=[[FI]]; [[MT]] [[ML]] [[BV]] [[TM]]"
 quadTemplate="[[QT]] [[SE]] [[GE]] [[SI]] [[GI]] [[SG]] [[BD]]"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
@@ -12,20 +12,23 @@ if [ ${#pbNames[@]} -eq 0 ]; then
 fi
 
 for pbName in "${pbNames[@]}"; do
-for betaVal in "${betaVals[@]:--1}"; do
-for timeMult in "${timeMults[@]:--1}"; do
+for formID in "${formIDs[@]}"; do
 for meshType in "${meshTypes[@]:-""}"; do
 for meshLvl in "${meshLvls[@]:--1}"; do
+for betaVal in "${betaVals[@]:--1}"; do
+for timeMult in "${timeMults[@]:--1}"; do
 
     [[ $betaVal -eq -1 ]] && { bv=""; j_bv=""; } || { bv="inputStruct.beta=$betaVal;"; j_bv="-beta=$betaVal"; }
     [[ $timeMult -eq -1 ]] && { tm=""; j_tm=""; } || { tm="inputStruct.timeMult=$timeMult;"; j_tm="-tmult=$timeMult"; }
     [[ $meshType == "" ]] && { mt=""; j_mt=""; } || { mt="inputStruct.meshType=\"$meshType\";"; j_mt="-$meshType"; }
     [[ $meshLvl -eq -1 ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
 
-    baseData=$(sed  -e "s/\[\[PB\]\]/\"${pbName}\"/"    \
-		            -e "s/\[\[BV\]\]/$bv/"              \
-		            -e "s/\[\[MT\]\]/$mt/"              \
-		            -e "s/\[\[ML\]\]/$ml/"              \
+    baseData=$(sed  -e "s/\[\[PB\]\]/\"$pbName\"/"  \
+                    -e "s/\[\[TM\]\]/$tm/"          \
+		            -e "s/\[\[BV\]\]/$bv/"          \
+		            -e "s/\[\[MT\]\]/\"$mt\"/"      \
+		            -e "s/\[\[ML\]\]/$ml/"          \
+                    -e "s/\[\[FI\]\]/\"$fi\"/"      \
 		            <<< "$baseTemplate")
 
     if [ ${#quadIDs[@]} -ne 0 ]; then
@@ -33,7 +36,7 @@ for meshLvl in "${meshLvls[@]:--1}"; do
             cmdString="${baseData} inputStruct.quadID=$quadID;"
             cmdBuffer+=("$cmdString")
 
-            jobName="${pbName}-${meshType}_${meshLvl}-${betaVal}_\'ID$quadID\'"
+            jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${quadID}\'"
             nameBuffer+=("$jobName")
         done
         continue
@@ -67,7 +70,7 @@ for meshLvl in "${meshLvls[@]:--1}"; do
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
 
-        jobName="${pbName}${j_mt}${j_ml}_${j_qt}${j_bv}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
+        jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${j_qt}${j_bv}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
         nameBuffer+=("$jobName")
     done
     done
@@ -77,6 +80,7 @@ for meshLvl in "${meshLvls[@]:--1}"; do
     done
     done
 
+done
 done
 done
 done
@@ -98,20 +102,20 @@ for i in "${!cmdBuffer[@]}"; do
     if $saveFigs; then
         cmd="${cmd} inputStruct.saveFlag=true;"
     fi
-    if $saveMatx; then
-        cmd="${cmd} inputStruct.tmpmFlag=true;"
+    if $saveTemp; then
+        cmd="${cmd} inputStruct.saveTemp=true;"
     fi
     echo "Submitting job $name"
 
-    export COMMAND=${cmd}
-    echo $COMMAND
-    # sbatch  --job-name=$name                \
-    #         --output="logs/%j_%x.log"          \
-    #         --qos=gpu                       \
-    #         --partition=gpu                 \
-    #         --nodes=1                       \
-    #         --ntasks-per-node=$poolSize     \
-    #         --mem=$RAMsize                  \
-    #         --gres=gpu:$GPUtype:$GPUcount   \
-    #         "./launcher.sh"
+    echo $cmd
+    sbatch  --job-name=$name                \
+            --output="logs/%j_%x.log"          \
+            --qos=gpu                       \
+            --partition=gpu                 \
+            --nodes=1                       \
+            --ntasks-per-node=$poolSize     \
+            --mem=$RAMsize                  \
+            --gres=gpu:$GPUtype:$GPUcount   \
+            --export=COMMAND="$cmd"         \
+            "./launcher.sh"
 done
