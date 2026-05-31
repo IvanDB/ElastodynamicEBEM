@@ -82,9 +82,7 @@ assignin('base', "quadSpecs", namedargs2cell(localStruct));
 %Configuration flags
 localStruct = struct();
 for fieldName = confFields
-    if isfield(inputStruct, fieldName)
-        localStruct.(fieldName) = inputStruct.(fieldName);
-    end
+    localStruct.(fieldName) = isfield(inputStruct, fieldName);
 end
 assignin('base', "glbFlags", localStruct);
 end
