@@ -1,22 +1,24 @@
-function domainMesh = readSpaceMesh(basePath, domainType, inputStruct)
+function domainMesh = readSpaceMesh(basePath, meshFileName)
 arguments
-    basePath    (1, 1) string
-    domainType  (1, 1) string
-    inputStruct (1, 1) struct
+    basePath     (1, 1) string
+    meshFileName (1, 1) string
 end
+
+import eebem.utility.fileRead.*
+%Extract mesh name parts
+fileNameParts = split(meshFileName, ["_", "."]);
+domainName = fileNameParts(1);
+meshLev = str2double(fileNameParts(2));
 
 %Open mesh file
-meshFilePath = fullfile(basePath, "mesh", domainType, domainType + "_" + inputStruct.meshLevel + ".mesh");
+meshFilePath = fullfile(basePath, "mesh", domainName, meshFileName);
 meshFile = fopen(meshFilePath, 'r');
-if meshFile == -1
-    error("Impossibile aprire file di mesh")
-end
+assert(meshFile ~= -1, "Error opening mesh file")
 
-%Set values of the mesh structure
 domainMesh = struct();
-domainMesh.domainType = domainType;
-domainMesh.meshType = inputStruct.meshType;
-domainMesh.meshLevel = inputStruct.meshLevel;
+%Set mesh data
+domainMesh.name = domainName;
+domainMesh.lev = meshLev;
 
 %Skip headers
 fgets(meshFile);
@@ -52,7 +54,7 @@ domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 ind = 4;
 domainMesh.triangles(:, 4) = ind * ones(domainMesh.numTriangles, 1);
 
-if(domainType == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
+if(domainMesh.domainName == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
     domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);
 end
 

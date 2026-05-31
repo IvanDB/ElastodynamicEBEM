@@ -3,8 +3,8 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; [[MT]] [[ML]] [[BV]]"
-quadTemplate="[[SE]] [[GE]] [[SI]] [[GI]] [[SG]] [[BD]]"
+baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; [[BV]] [[MT]] [[ML]]"
+quadTemplate="[[QT]] [[SE]] [[GE]] [[SI]] [[GI]] [[SG]] [[BD]]"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
     echo "Select at least one problem"
@@ -12,22 +12,24 @@ if [ ${#pbNames[@]} -eq 0 ]; then
 fi
 
 for pbName in "${pbNames[@]}"; do
+for betaVal in "${betaVals[@]:--1}"; do
+for timeMult in "${timeMults[@]:--1}"; do
 for meshType in "${meshTypes[@]:-""}"; do
 for meshLvl in "${meshLvls[@]:--1}"; do
-for betaVal in "${betaVals[@]:--1}"; do
 
-    [[ $meshType == "" ]] && (mt=""; j_mt="") || (mt="inputStruct.meshType=\"$meshType\";"; j_mt="_$meshType")
-    [[ $meshLvl -eq -1 ]] && (ml=""; j_ml="") || (ml="inputStruct.meshLevel=$meshLvl;"; j_ml="_$meshLvl")
-    [[ $betaVal -eq -1 ]] && (bv=""; j_bv="") || (bv="inputStruct.beta=$betaVal;"; j_bv="_$betaVal")
+    [[ $betaVal -eq -1 ]] && { bv=""; j_bv=""; } || { bv="inputStruct.beta=$betaVal;"; j_bv="-beta=$betaVal"; }
+    [[ $timeMult -eq -1 ]] && { tm=""; j_tm=""; } || { tm="inputStruct.timeMult=$timeMult;"; j_tm="-tmult=$timeMult"; }
+    [[ $meshType == "" ]] && { mt=""; j_mt=""; } || { mt="inputStruct.meshType=\"$meshType\";"; j_mt="-$meshType"; }
+    [[ $meshLvl -eq -1 ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
 
     baseData=$(sed  -e "s/\[\[PB\]\]/\"${pbName}\"/"    \
+		            -e "s/\[\[BV\]\]/$bv/"              \
 		            -e "s/\[\[MT\]\]/$mt/"              \
 		            -e "s/\[\[ML\]\]/$ml/"              \
-		            -e "s/\[\[BV\]\]/$bv/"              \
 		            <<< "$baseTemplate")
 
-    if [ ${#quadID[@]} -ne 0 ]; then
-        for quadID in "${quadID[@]}"; do
+    if [ ${#quadIDs[@]} -ne 0 ]; then
+        for quadID in "${quadIDs[@]}"; do
             cmdString="${baseData} inputStruct.quadID=$quadID;"
             cmdBuffer+=("$cmdString")
 
@@ -37,21 +39,24 @@ for betaVal in "${betaVals[@]:--1}"; do
         continue
     fi
 
+    for quadType in "${quadTypes[@]:-""}"; do
     for numSRext in "${numsSRext[@]:--1}"; do
     for numGHext in "${numsGHext[@]:--1}"; do
     for numSRint in "${numsSRint[@]:--1}"; do
     for numGHint in "${numsGHint[@]:--1}"; do
     for numSNGLR in "${numsSNGLR[@]:--1}"; do
     for numBOUND in "${numsBOUND[@]:--1}"; do
-        
-        [[ $numSRext -eq -1 ]] && (se=""; j_se="") || (se="inputStruct.numSRext=$numSRext;"; j_se="_$numSRext")
-        [[ $numGHext -eq -1 ]] && (ge=""; j_ge="") || (ge="inputStruct.numGHext=$numGHext;"; j_ge="_$numGHext")
-        [[ $numSRint -eq -1 ]] && (si=""; j_si="") || (si="inputStruct.numSRint=$numSRint;"; j_si="_$numSRint")
-        [[ $numGHint -eq -1 ]] && (gi=""; j_gi="") || (gi="inputStruct.numGHint=$numGHint;"; j_gi="_$numGHint")
-        [[ $numSNGLR -eq -1 ]] && (sg=""; j_sg="") || (sg="inputStruct.numSNGLR=$numSNGLR;"; j_sg="_$numSNGLR")
-        [[ $numBOUND -eq -1 ]] && (bd=""; j_bd="") || (bd="inputStruct.numBOUND=$numBOUND;"; j_bd="_$numBOUND")
+    
+        [[ $quadType == "" ]] && { qt=""; j_qt=""; } || { qt="inputStruct.quadType=\"$quadType\";"; j_qt="$quadType"; }
+        [[ $numSRext -eq -1 ]] && { se=""; j_se=""; } || { se="inputStruct.numSRext=$numSRext;"; j_se="SE$numSRext"; }
+        [[ $numGHext -eq -1 ]] && { ge=""; j_ge=""; } || { ge="inputStruct.numGHext=$numGHext;"; j_ge="GE$numGHext"; }
+        [[ $numSRint -eq -1 ]] && { si=""; j_si=""; } || { si="inputStruct.numSRint=$numSRint;"; j_si="SI$numSRint"; }
+        [[ $numGHint -eq -1 ]] && { gi=""; j_gi=""; } || { gi="inputStruct.numGHint=$numGHint;"; j_gi="GI$numGHint"; }
+        [[ $numSNGLR -eq -1 ]] && { sg=""; j_sg=""; } || { sg="inputStruct.numSNGLR=$numSNGLR;"; j_sg="SG$numSNGLR"; }
+        [[ $numBOUND -eq -1 ]] && { bd=""; j_bd=""; } || { bd="inputStruct.numBOUND=$numBOUND;"; j_bd="BD$numBOUND"; }
 
-        quadData=$(sed  -e "s/\[\[SE\]\]/$se/" \
+        quadData=$(sed  -e "s/\[\[QT\]\]/$qt/" \
+                        -e "s/\[\[SE\]\]/$se/" \
                         -e "s/\[\[GE\]\]/$ge/" \
                         -e "s/\[\[SI\]\]/$si/" \
                         -e "s/\[\[GI\]\]/$gi/" \
@@ -62,7 +67,7 @@ for betaVal in "${betaVals[@]:--1}"; do
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
 
-        jobName="${pbName}${j_mt}${j_ml}${j_bv}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
+        jobName="${pbName}${j_mt}${j_ml}_${j_qt}${j_bv}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
         nameBuffer+=("$jobName")
     done
     done
@@ -70,7 +75,9 @@ for betaVal in "${betaVals[@]:--1}"; do
     done
     done
     done
+    done
 
+done
 done
 done
 done
@@ -85,7 +92,17 @@ for i in "${!cmdBuffer[@]}"; do
     cmd="${cmdBuffer[i]}"
     name="${nameBuffer[i]}"
 
+    if $plotFigs; then
+        cmd="${cmd} inputStruct.plotFlag=true;"
+    fi
+    if $saveFigs; then
+        cmd="${cmd} inputStruct.saveFlag=true;"
+    fi
+    if $saveMatx; then
+        cmd="${cmd} inputStruct.tmpmFlag=true;"
+    fi
     echo "Submitting job $name"
+
     export COMMAND=${cmd}
     echo $COMMAND
     # sbatch  --job-name=$name                \

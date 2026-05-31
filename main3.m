@@ -17,11 +17,14 @@ utility.autobuild(basePath);
 % parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
-problemFileName = constructProblemFileName(pbIndex, inputStruct);
+problemFileName = utility.fileRead.constructProblemFileName(pbIndex, pbSpecs{:});
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
-domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, inputStruct);
+meshFileName = utility.fileRead.constructMeshFileName(pbParam, meshSpecs{:});
+domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName);
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
+
+[pbParam, domainMesh] = utility.finalizeParameters(pbParam, domainMesh, timeSpecs{:});
 
 formSelected = "ID";
 %Check invalid configuration problems -> (Barilli working on it?) 
@@ -29,8 +32,7 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 
 %% CORE EXECUTION
 % Setup quadrature data
-coreQuadData = core.setupCore(quadID, quadStruct{:});
-disp(coreQuadData.methodSpecs.stringID)
+coreQuadData = core.setupCore(quadID, quadSpecs{:});
 
 return
 % Main call
