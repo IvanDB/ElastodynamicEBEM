@@ -6,7 +6,6 @@ end
 
 if ispc()
     warning("Windows support is WIP");
-    setupHPC(inputStruct);
     return
 end
 

@@ -24,7 +24,7 @@ pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
 meshFileName = utility.fileRead.constructMeshFileName(pbParam, meshSpecs{:});
 domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName);
-glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
+% glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
 
 [pbParam, domainMesh] = utility.finalizeParameters(pbParam, domainMesh, timeSpecs{:});
 
