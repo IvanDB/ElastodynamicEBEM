@@ -50,7 +50,7 @@ for betaVal in "${betaVals[@]:-1}"; do
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
 
-        jobName="${pbName}-${meshType}_${meshLvl}-${betaVal}_\'${numSRext}-Ge${numGHext}_Si${numSRint}-Gi${numGHint}_SG${numSNGLR}_BD${numBOUND}\'"
+        jobName="${pbName}-${meshType}_${meshLvl}-${betaVal}_'${numSRext}-${numGHext}_${numSRint}-${numGHint}_${numSNGLR}_${numBOUND}'"
         nameBuffer+=("$jobName")
     done
     done
