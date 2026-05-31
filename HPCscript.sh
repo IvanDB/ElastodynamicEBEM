@@ -24,11 +24,11 @@ for timeMult in "${timeMults[@]:--1}"; do
     [[ $meshLvl -eq -1 ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
 
     baseData=$(sed  -e "s/\[\[PB\]\]/\"$pbName\"/"  \
+                    -e "s/\[\[FI\]\]/\"$formID\"/"  \
                     -e "s/\[\[TM\]\]/$tm/"          \
 		            -e "s/\[\[BV\]\]/$bv/"          \
 		            -e "s/\[\[MT\]\]/\"$mt\"/"      \
 		            -e "s/\[\[ML\]\]/$ml/"          \
-                    -e "s/\[\[FI\]\]/\"$fi\"/"      \
 		            <<< "$baseTemplate")
 
     if [ ${#quadIDs[@]} -ne 0 ]; then
