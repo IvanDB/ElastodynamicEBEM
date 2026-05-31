@@ -78,7 +78,7 @@ for i in "${!cmdBuffer[@]}"; do
     export COMMAND=${cmd}
     sbatch  --job-name=$name                \
             --output="logs/%j.log"          \
-            --qos=gpu                       \     
+            --qos=gpu                       \
             --partition=gpu                 \
             --nodes=1                       \
             --ntasks-per-node=$poolSize     \
