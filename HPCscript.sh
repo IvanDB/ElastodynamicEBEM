@@ -3,8 +3,8 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; [[MT]] [[ML]] [[beta]]"
-quadTemplate="[[Se]]; inputStruct.numGHext=[[Ge]]; inputStruct.numSRint=[[Si]]; inputStruct.numGHint==[[Gi]]; inputStruct.numSNGLR==[[SG]]; inputStruct.numBOUND=[[BD]];"
+baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[ PB ]]; [[ MT ]] [[ ML ]] [[ beta ]]"
+quadTemplate="[[ Se ]]; inputStruct.numGHext=[[ Ge ]]; inputStruct.numSRint=[[ Si ]]; inputStruct.numGHint==[[ Gi ]]; inputStruct.numSNGLR==[[ SG ]]; inputStruct.numBOUND=[[ BD ]];"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
     echo "Select at least one problem"
@@ -16,9 +16,9 @@ for meshType in "${meshTypes[@]:-""}"; do
 for meshLvl in "${meshLvls[@]:--1}"; do
 for betaVal in "${betaVals[@]:--1}"; do
 
-    [[$meshType == ""]] && mt="" || mt="inputStruct.meshType=\"$meshType\";"
-    [[$meshLvl -eq -1]] && ml="" || ml="inputStruct.meshLevel=$meshLvl;"
-    [[$betaVal -eq -1]] && bv="" || bv="inputStruct.beta=$betaVal;"
+    [[ $meshType == "" ]] && mt="" || mt="inputStruct.meshType=\"$meshType\";"
+    [[ $meshLvl -eq -1 ]] && ml="" || ml="inputStruct.meshLevel=$meshLvl;"
+    [[ $betaVal -eq -1 ]] && bv="" || bv="inputStruct.beta=$betaVal;"
 
     baseData=$(sed  -e "s/\[\[PB\]\]/\"${pbName}\"/"    \
 		            -e "s/\[\[MT\]\]/$mt/"              \
@@ -44,12 +44,12 @@ for betaVal in "${betaVals[@]:--1}"; do
     for numSNGLR in "${numsSNGLR[@]:--1}"; do
     for numBOUND in "${numsBOUND[@]:--1}"; do
         
-        [[$numSRext -eq -1]] && se="" || se="inputStruct.numSRext=$numSRext;"
-        [[$numGHext -eq -1]] && ge="" || ge="inputStruct.numGHext=$numGHext;"
-        [[$numSRint -eq -1]] && si="" || si="inputStruct.numSRint=$numSRint;"
-        [[$numGHint -eq -1]] && gi="" || gi="inputStruct.numGHint=$numGHint;"
-        [[$numSNGLR -eq -1]] && sg="" || sg="inputStruct.numSNGLR=$numSNGLR;"
-        [[$numBOUND -eq -1]] && bd="" || bd="inputStruct.numBOUND=$numBOUND;"
+        [[ $numSRext -eq -1 ]] && se="" || se="inputStruct.numSRext=$numSRext;"
+        [[ $numGHext -eq -1 ]] && ge="" || ge="inputStruct.numGHext=$numGHext;"
+        [[ $numSRint -eq -1 ]] && si="" || si="inputStruct.numSRint=$numSRint;"
+        [[ $numGHint -eq -1 ]] && gi="" || gi="inputStruct.numGHint=$numGHint;"
+        [[ $numSNGLR -eq -1 ]] && sg="" || sg="inputStruct.numSNGLR=$numSNGLR;"
+        [[ $numBOUND -eq -1 ]] && bd="" || bd="inputStruct.numBOUND=$numBOUND;"
 
         quadData=$(sed  -e "s/\[\[Se\]\]/${se}/" \
                         -e "s/\[\[Ge\]\]/${ge}/" \
