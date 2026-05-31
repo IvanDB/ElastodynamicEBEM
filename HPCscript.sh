@@ -3,8 +3,8 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[ PB ]]; [[ MT ]] [[ ML ]] [[ beta ]]"
-quadTemplate="[[ Se ]]; inputStruct.numGHext=[[ Ge ]]; inputStruct.numSRint=[[ Si ]]; inputStruct.numGHint==[[ Gi ]]; inputStruct.numSNGLR==[[ SG ]]; inputStruct.numBOUND=[[ BD ]];"
+baseTemplate="basePath=\"$basePath\"; inputStruct.problemName=[[PB]]; [[MT]] [[ML]] [[beta]]"
+quadTemplate="[[Se]] [[Ge]] [[Si]] [[Gi]] [[SG]] [[BD]]"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
     echo "Select at least one problem"
