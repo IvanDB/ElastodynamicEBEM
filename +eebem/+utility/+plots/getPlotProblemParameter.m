@@ -55,12 +55,12 @@ switch pbParam.domainName
         nDim = 3;
         tVal = floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
         jVal = 0;
-        climCustom = true;
+        climCustom = false;
     case "DesCop-sphere"
         nDim = 3;
         tVal = 1 : 2 : pbParam.nT;
         jVal = [1, 3];
-        climCustom = true;
+        climCustom = false;
     case "elementoIndustriale"
         nDim = 3;
         tVal = 1;

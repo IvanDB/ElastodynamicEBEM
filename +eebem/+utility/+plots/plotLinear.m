@@ -57,7 +57,7 @@ for i = tVal
         daspect([1 1 1]);
         if climCustom
             if(j == 0)
-                clim(max(densityOnTriangles, [], "all"));
+                clim(max(densityOnTriangles, [], "all"));  %TODO: check and fix
             else
                 clim([min(densityOnTriangles(j:3:end, :), [], "all"), -min(densityOnTriangles(j:3:end, :), [], "all")]);
             end

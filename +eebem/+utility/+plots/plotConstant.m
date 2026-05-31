@@ -55,7 +55,7 @@ for i = tVal
         daspect([1 1 1]);
         if climCustom
             if(j == 0)
-                clim(max(density, [], "all"));
+                clim(max(density, [], "all"));  %TODO: check and fix
             else
                 clim([min(density(j:3:end, :), [], "all"), -min(density(j:3:end, :), [], "all")]);
             end
