@@ -87,6 +87,7 @@ for i in "${!cmdBuffer[@]}"; do
 
     echo "Submitting job $name"
     export COMMAND=${cmd}
+    echo $COMMAND
     # sbatch  --job-name=$name                \
     #         --output="logs/%j_%x.log"          \
     #         --qos=gpu                       \
