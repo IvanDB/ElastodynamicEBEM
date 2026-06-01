@@ -6,9 +6,9 @@ arguments
     timeSpecs.TimeMult (1, 1) double {mustBePositive} = 1
 end
 
-pbParam.betaVal = timeSpecs.betaVal;
+pbParam.beta = timeSpecs.betaVal;
 
 pbParam.Tfin = timeSpecs.TimeMult * pbParam.defTimeLimit;
-pbParam.nT = ceil(pbParam.defNumIntvls * domainMesh.lev * timeSpecs.betaVal);
+pbParam.nT = ceil(pbParam.defNumIntvls * domainMesh.lev * pbParam.beta);
 pbParam.deltaT = pbParam.Tfin / pbParam.nT;
 end

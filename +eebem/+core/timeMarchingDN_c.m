@@ -9,8 +9,8 @@ end
 import eebem.core.*
 
 %Save paths
-tmpPath = fullfile(basePath, "tempData", "DNc_" + domainMesh.name + domainMesh.lev + "_" + quadData.methodSpecs.stringID);
-outPath = fullfile(basePath, "outputData", "DNc_" + domainMesh.name + domainMesh.lev + "_" + quadData.methodSpecs.stringID);
+tmpPath = fullfile(basePath, "tempData", "DNc_" + domainMesh.name + domainMesh.lev + "_" + num2str(pbParam.beta) + "-" + quadData.methodSpecs.stringID);
+outPath = fullfile(basePath, "outputData", "DNc_" + domainMesh.name + domainMesh.lev + "_" + num2str(pbParam.beta) + "-" + quadData.methodSpecs.stringID);
 
 %GPUs inizialization
 nGPU = gpuDeviceCount("available");
