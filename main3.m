@@ -1,6 +1,6 @@
 %% INIT PHASE
 clc
-clearvars -except glbIndexFigures indProblem 
+clearvars -except glbIndexFigures indProblem problemFileName
 
 import eebem.*
 format longG
@@ -22,7 +22,7 @@ delete(gcp("nocreate"));
 parInfo = parpool("Processes");
 
 %% SETUP INPUT DATA
-problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
+%problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
 domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, pbParam.lev);

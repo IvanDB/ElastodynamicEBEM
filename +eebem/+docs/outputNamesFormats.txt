@@ -1,0 +1,14 @@
+Formato esteso		pbName_form_meshLev_re-ne-ri-ni-ns
+Formato semplice	pbName_form_meshLev
+
+Default = semplice
+
+
+pbName	: name of the problem
+form	: single character: 'I' (indirec formulation), 'D' (direct dirichlet formulation), 'N' (direct neumann formulation) or 'C' (direct neumann formulation with piecewise costant approx)  
+meshLev	: index value associated the refinment level of the spatial mesh	
+re	: number of subregions for external integrals		
+ne	: number of nodes for each external integral subregion		
+ri	: number of subregions for non singular internal integrals		
+ni	: number of nodes for each non singular internal integral subregion		
+ns	: number of nodes for each singular internal integral child triangle  	
