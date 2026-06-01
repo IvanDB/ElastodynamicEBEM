@@ -124,5 +124,6 @@ for i in "${!cmdBuffer[@]}"; do
             --ntasks-per-node=$poolSize     \
             --mem=$RAMsize                  \
             --gres=gpu:$GPUtype:$GPUcount   \
+            --time=1-00:00:00               \
             "./launcher.sh"
 done
