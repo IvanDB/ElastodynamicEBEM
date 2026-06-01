@@ -23,7 +23,7 @@ for meshLvl in "${meshLvls[@]:--1}"; do
 for betaVal in "${betaVals[@]:--1}"; do
 for timeMult in "${timeMults[@]:--1}"; do
 
-    [[ $betaVal -eq -1 ]] && { bv=""; j_bv=""; } || { bv="inputStruct.beta=$betaVal;"; j_bv="-beta=$betaVal"; }
+    [[ $betaVal -eq -1 ]] && { bv=""; j_bv=""; } || { bv="inputStruct.betaVal=$betaVal;"; j_bv="-beta=$betaVal"; }
     [[ $timeMult -eq -1 ]] && { tm=""; j_tm=""; } || { tm="inputStruct.timeMult=$timeMult;"; j_tm="-tmult=$timeMult"; }
     [[ $meshType == "" ]] && { mt=""; j_mt=""; } || { mt="inputStruct.meshType=\"$meshType\";"; j_mt="-$meshType"; }
     [[ $meshLvl -eq -1 ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
