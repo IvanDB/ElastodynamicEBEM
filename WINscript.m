@@ -3,7 +3,7 @@ cmdBuffer = generateCommandBuffer(parseConfigFile(basePath));
 
 for cmd = cmdBuffer'
    disp("Running " + cmd) 
-   eval(cmd + " main3;")
+   eval(cmd + " eebem.main;")
 end
 
 
