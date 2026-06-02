@@ -1,30 +1,17 @@
-if isunix()
-    assert(exist('inputStruct', 'var'), "Input error", "On Linux (HPC), an input structure must be provided. Please use the dedicated bash script.")
-    setupHPC(inputStruct);
-    return
+function setupWorkspace(inputStruct)
+arguments
+    inputStruct (1, 1) struct
 end
 
-if ispc()
-    warning("Windows support is WIP");
-    setupHPC(inputStruct);
-    return
-end
-
-assert(false, "OS different from Unix and Windows not supported yet.")
-return
-
-%Helper function
-
-function setupHPC(inputStruct)
-%Tecnical variables 
+%Technical variables 
 if ~evalin('base', "exist('glbIndexFigures', 'var')")
     assignin('base', 'glbIndexFigures', 0);
 end
 
 if ~evalin('base', "exist('basePath', 'var')")
     callStack = dbstack('-completenames');
-    assert(length(callStack) > 2, "Internal error", "setupWorkspace shouldn't be called directly but only from main3.") 
-    [basePath, ~, ~] = fileparts(callStack(3).file);
+    assert(length(callStack) > 1, "Internal error", "setupWorkspace shouldn't be called directly but only from main.") 
+    [basePath, ~, ~] = fileparts(callStack(2).file);
     assignin('base', 'basePath', basePath);
 end
 
