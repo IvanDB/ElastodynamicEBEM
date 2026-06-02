@@ -1,22 +1,20 @@
 %% INIT PHASE
-clc
-clearvars -except inputStruct glbIndexFigures basePath
-
-disp("Start")
+clearvars -except inputStruct glbIndexFigures basePath cmd cmdBuffer
 
 import eebem.*
 format longG
 warning off
 
 %Initialize the workspace
-utility.setupWorkspace;
+assert(exist('inputStruct', 'var'), "Input error", "An input structure must be provided. Please use the dedicated scripts.")
+utility.setupWorkspace(inputStruct);
 
 %Build extern functions
 utility.autobuild(basePath, glbFlags.aBldFlag);
 
 %Start parallel pool
 delete(gcp("nocreate"));
-parInfo = parpool("Processes");
+parInfo = parpool("Processes", 2);
 
 %% SETUP INPUT DATA
 problemFileName = utility.fileRead.constructProblemFileName(pbIndex, pbSpecs{:});
