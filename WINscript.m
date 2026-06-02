@@ -1,3 +1,4 @@
+clc
 basePath = fileparts(mfilename("fullpath"));
 cmdBuffer = generateCommandBuffer(parseConfigFile(basePath));
 
