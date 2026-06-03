@@ -45,7 +45,7 @@ for indT = 1 : numBlocksW
     for indNodeExt = 1 : numNodes
     disp(indNodeExt)
         parfor indNodeInt = 1 : numNodes
-            OutputMatrix{indNodeExt,indNodeInt,indT} = TestingForWKernel(indNodeExt, indNodeInt, indT, indSMatrix,...
+            OutputMatrix{indNodeExt,indNodeInt,indT} = Copy_of_TestingForWKernel(indNodeExt, indNodeInt, indT, indSMatrix,...
                     TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles);
         end
     end

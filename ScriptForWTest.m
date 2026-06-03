@@ -76,8 +76,13 @@ innerNode = 1;
 timeInstant = 1;
 quadData = core.setupCore(10);
 constData = core.calcConstValues(domainMesh, quadData);
-
+tic;
 testBlock = TestingForWKernel(outerNode, innerNode, timeInstant, indSMatrix,...
     TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles);
-
+toc
+tic;
+testBlock2 = Copy_of_TestingForWKernel(outerNode, innerNode, timeInstant, indSMatrix,...
+    TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles);
+toc
 disp(testBlock);
+disp(testBlock2);
