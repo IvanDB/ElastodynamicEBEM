@@ -9,6 +9,6 @@ end
 pbParam.beta = timeSpecs.betaVal;
 
 pbParam.Tfin = timeSpecs.TimeMult * pbParam.defTimeLimit;
-pbParam.nT = ceil(pbParam.defNumIntvls * domainMesh.lev * pbParam.beta);
+pbParam.nT = ceil(pbParam.defNumIntvls * (2 ^ (domainMesh.lev - 1)) * pbParam.beta);
 pbParam.deltaT = pbParam.Tfin / pbParam.nT;
 end
