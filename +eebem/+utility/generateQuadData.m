@@ -1,4 +1,4 @@
-function quadData = setupCore(methodId, methodSpecs)
+function quadData = generateQuadData(methodId, methodSpecs)
 arguments
     methodId (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
 
@@ -52,7 +52,7 @@ end
 methodSpecs.numEXT = methodSpecs.numSRext * methodSpecs.numGHext;
 methodSpecs.numINT = methodSpecs.numSRint * methodSpecs.numGHint;
 
-methodSpecs.stringID = sprintf("%s_%d-%d_%d-%d_%d_%d", methodSpecs.quadType, methodSpecs.numSRext, methodSpecs.numGHext, ...
+methodSpecs.stringID = sprintf("%s-%d-%d-%d-%d-%d-%d", methodSpecs.quadType, methodSpecs.numSRext, methodSpecs.numGHext, ...
                             methodSpecs.numSRint, methodSpecs.numGHint, methodSpecs.numSNGLR, methodSpecs.numBOUND);
 
 
