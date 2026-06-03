@@ -50,9 +50,9 @@ for indT = 1 : numBlocksW
         end
     end
 end
-save("W_matrix.m", "OutputMatrix");
-OutputMatrix{:,:,numBlocksW+1:pbParam.nT} = zeros(3,3);
-matrixIGamma = kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 6, eye(3));
+save("W_matrix.mat", "OutputMatrix");
+%OutputMatrix{:,:,numBlocksW+1:pbParam.nT} = zeros(3,3);
+matrixIGamma = 1/deltaT*kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 6, eye(3));
 gV = core.calcBoundDataNeumann(pbParam, domainMesh);
 
 displacement = zeros(3*domainMesh.numVertices, pbParam.nT);

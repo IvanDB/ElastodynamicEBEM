@@ -72,8 +72,8 @@ end
 
 % scelta dei nodi e dell'istante temporale (che blocchetto della matriciona voglio calcolare)
 outerNode = 1;
-innerNode = 1;
-timeInstant = 1;
+innerNode = 9;
+timeInstant = 8;
 quadData = core.setupCore(10);
 constData = core.calcConstValues(domainMesh, quadData);
 tic;

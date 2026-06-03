@@ -40,7 +40,7 @@ rho = pbParam.rho;
 deltaT = pbParam.Tfin/pbParam.nT;
 cS = pbParam.velS;
 cP = pbParam.velP;
-kernelCoeffs = [1,-3,3,1]; % I coefficienti C_\eta
+kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
 timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
 outerTriangles = TriangPerNodes(outerNode, :); % Trovo gli indici dei triangoli che hanno outerNode come vertice 
 innerTriangles = TriangPerNodes(innerNode, :); % Trovo gli indici dei triangoli che hanno innerNode come Vertice
@@ -132,7 +132,7 @@ for i = 1 : maxNumTriangles % Ciclo sui triangoli esterni
 
         for innerGaussHammerIndex = 1 : length(quadData.INTn)
             %devo calcolare il peso e le coordinate del dodo corrente
-            currentInnerGaussWeight = quadData.INTw(mod(innerGaussHammerIndex,3)+1)*domainMesh.area(currentInnerTriangle); % Peso del nodo corrente sul triangolo corrente
+            currentInnerGaussWeight = quadData.INTw(mod(innerGaussHammerIndex-1,3)+1)*domainMesh.area(currentInnerTriangle); % Peso del nodo corrente sul triangolo corrente
             %INtw e INTn li tirerò fuori da quad data
             temporaryStandardNode = quadData.INTn(innerGaussHammerIndex,:); % Nodo su triangolo di riferimento
 
@@ -351,7 +351,7 @@ deltaT = pbParam.Tfin/pbParam.nT;
 cS = pbParam.velS;
 cP = pbParam.velP;
 
-kernelCoeffs = [1,-3,3,1]; % I coefficienti C_\eta
+kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
 timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
 temporalInstants = timeInstant + timeCoeffs;
 
