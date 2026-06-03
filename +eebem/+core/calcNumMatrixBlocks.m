@@ -12,7 +12,7 @@ arguments (Output)
 end
 
 numV = domainMesh.numVertices;
-deltaT = pbParam.Tfin / pbParam.nT;
+deltaT = pbParam.deltaT;
 
 dists = zeros(numV, numV);
 parfor indExt = 1 : numV

@@ -9,10 +9,9 @@ arguments (Output)
     g function_handle
 end
 
-switch pbParam.domainType
-    case {"barH1-symm", "barH1-asym", "barH3-symm", "barH3-asym"}
-        h = 1 * (strcmp(pbParam.domainType, "barH1-symm") + strcmp(pbParam.domainType, "barH1-asym")) + ...
-            3 * (strcmp(pbParam.domainType, "barH3-symm") + strcmp(pbParam.domainType, "barH3-asym"));
+switch pbParam.domainName
+    case {"barH1", "barH3"}
+        h = 1 * strcmp(pbParam.domainName, "barH1") + 3 * strcmp(pbParam.domainName, "barH3");
         cP = pbParam.velP;
         hat_k = ceil((cP * pbParam.Tfin) / (2 .* h)) - 1;
         k_val = (0 : hat_k)';
@@ -20,7 +19,7 @@ switch pbParam.domainType
                                         - (cP.*t - 2.*h.*(k_val+1) + (h-x(3))) .* ((cP.*t - 2.*h.*(k_val+1) + (h-x(3))) > 0)));
         g = @(x, t) [0; 0; sol_an(x, t)];
 
-    case {"DesCop-cube-symm", "DesCop-cube-asym"}
+    case "DesCop-cube"
         a = 0.1;
         b = 100;
         cP = pbParam.velP;
@@ -74,7 +73,7 @@ switch pbParam.domainType
         ondaIncid = @(x, t) exp(-20 .* ((x(1) - 2 + cP.*t - 0.475).^2));
         g = @(x, t) [ondaIncid(x, t); 0; 0];
 
-    case 'elementoIndustriale'
+    case "elementoIndustriale"
         g = @(x, t) [0, 0, 0];
 
     otherwise

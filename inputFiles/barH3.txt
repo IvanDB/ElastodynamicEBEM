@@ -1,0 +1,18 @@
+%Mass density 
+1
+%Sheer module
+0.5
+%Poisson's ratio
+0
+%Lamè parameter lambda
+0
+%Final time istant
+36
+%Base number of time intervals
+72
+%Default mesh type
+symm
+%Integral equation type 
+EFIE
+%Boundary datum type
+DIR

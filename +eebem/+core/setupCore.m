@@ -2,7 +2,7 @@ function quadData = setupCore(methodId, methodSpecs)
 arguments
     methodId (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
 
-    methodSpecs.quadType (1, 1) {mustBeText} = "FN"
+    methodSpecs.quadType (1, 1) string {mustBeText} = "FN"
 
     methodSpecs.numSRext (1, 1) double {mustBeInteger, mustBePositive} = 16
     methodSpecs.numGHext (1, 1) double {mustBeInteger, mustBePositive} = 1

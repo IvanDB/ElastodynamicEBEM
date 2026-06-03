@@ -1,83 +1,57 @@
 function pbParam = readInputFile(basePath, problemFileName)
-% INPUT 
-%   - problemFileName: stringa contenente il nome del file di input
-%               contenete i dati del problema
-%   - methodFileName: stringa contenente il nome del file di input
-%               contenete i dati del metodo risolutivo
-%
-% OUTPUT:
-%   - pbParam: struct contenente i parametri del problema
+arguments
+    basePath        (1, 1) string
+    problemFileName (1, 1) string
+end
 
 import eebem.utility.fileRead.*
 
-%% APERTURA FILE PROBLEMA
-problemFile = fopen(fullfile(basePath, "inputFiles", problemFileName), 'r');
-if problemFile == -1
-    error("Impossibile aprire file coi dati del problema")
-end
+%Open problem file
+problemFilePath = fullfile(basePath, "inputFiles", problemFileName);
+problemFile = fopen(problemFilePath, 'r');
+assert(problemFile ~= -1, "Error opening problem file")
 
-%% LETTURA PARAMETRI FISICI del PROBLEMA
-%Lettura DENSITA' di MASSA
-fgets(problemFile);                          %Lettura riga di intestazione
-pbParam.rho = sscanf(fgets(problemFile), '%f');    %Lettura valore
-    
-%Lettura MODULO di TAGLIO (mu)
-fgets(problemFile);                          %Lettura riga di intestazione
-pbParam.mu = sscanf(fgets(problemFile), '%f');     %Lettura valore
+pbParam = struct();
+%Set problem name
+pbParam.domainName = extractBefore(problemFileName, ".txt");
 
-%Lettura RAPPORTO di POISSON (nu)
-fgets(problemFile);                          %Lettura riga di intestazione
-pbParam.nu = sscanf(fgets(problemFile), '%f');     %Lettura valore
-    
-%Lettura PARAMETRO di LAME' (lambda)
-fgets(problemFile);                          %Lettura riga di intestazione
-pbParam.lambda = sscanf(fgets(problemFile), '%f'); %Lettura valore
-%lamba = 2*mu*nu / (1 - 2*nu)
+%Read physical parameters.
+fgets(problemFile);
+pbParam.rho = sscanf(fgets(problemFile), '%f');
 
-%Calcolo della VELOCITA' c_P delle ONDE P
-pbParam.velP = sqrt((pbParam.lambda+2*pbParam.mu)/pbParam.rho);
-%c_P = sqrt((lamba + 2*mu) / rho)
-    
-%Calcolo della VELOCITA' c_S delle ONDE S
-pbParam.velS = sqrt(pbParam.mu/pbParam.rho);
-%c_S = sqrt(mu / rho) 
+fgets(problemFile);
+pbParam.mu = sscanf(fgets(problemFile), '%f');
+
+fgets(problemFile);
+pbParam.nu = sscanf(fgets(problemFile), '%f');
+
+fgets(problemFile);
+pbParam.lambda = sscanf(fgets(problemFile), '%f');
+
+%Calc speeds of P and S waves
+pbParam.velP = sqrt((pbParam.lambda + 2*pbParam.mu) / pbParam.rho); % c_P = sqrt((lamba + 2*mu) / rho)
+pbParam.velS = sqrt(pbParam.mu/pbParam.rho);                        % c_S = sqrt(mu / rho) 
      
-%% LETTURA PARAMETRI DISCRETIZZAZIONE TEMPORALE
-%Lettura ISTANTE TEMPO FINALE                
-fgets(problemFile);                                 %Lettura riga di intestazione
-pbParam.Tfin = sscanf(fgets(problemFile), '%f');   %Lettura valore
+%Read default space/time discretization parameters           
+fgets(problemFile);       
+pbParam.defTimeLimit = sscanf(fgets(problemFile), '%f');
 
-%Lettura NUMERO SOTTOINTERVALLI TEMPORALI
-fgets(problemFile);                                 %Lettura riga di intestazione
-pbParam.nT = sscanf(fgets(problemFile), '%d');      %Lettura valore
+fgets(problemFile);       
+pbParam.defNumIntvls = sscanf(fgets(problemFile), '%d');
 
-pbParam.deltaT = pbParam.Tfin / pbParam.nT;
-    
-%% LETTURA PARAMETRI DISCRETIZZAZIONE SPAZIALE
-%Lettura del NOME del FILE MESH
-fgets(problemFile);                                 %Lettura riga di intestazione
-pbParam.domainType = sscanf(fgets(problemFile), '%s'); %Lettura valore
+fgets(problemFile);       
+pbParam.defMeshType = sscanf(fgets(problemFile), '%s');
 
-%Lettura LIVELLO RAFFINAMENTO
-fgets(problemFile);                                 %Lettura riga di intestazione
-pbParam.lev = sscanf(fgets(problemFile), '%d');     %Lettura valore
+%Other parameters (WIP)
+fgets(problemFile);       
+pbParam.BIE = sscanf(fgets(problemFile), '%s'); 
 
-%% LETTURA PARAMETRI EQUAZIONE INTEGRALE
-%Lettura del TIPO di EQUAZIONE INTEGRALE
-fgets(problemFile);                                 %Lettura riga di intestazione
-pbParam.BIE = sscanf(fgets(problemFile), '%s');     %Lettura valore
+fgets(problemFile); 
+pbParam.BOU = sscanf(fgets(problemFile), '%s'); 
 
-%Lettura del TIPO di DATO al BORDO
-fgets(problemFile);                           %Lettura riga di intestazione
-pbParam.BOU = sscanf(fgets(problemFile), '%s');      %Lettura valore
-
-if(pbParam.BOU == "TEST")
-    fgets(problemFile);                           %Lettura riga di intestazione
-    pbParam.MTDTN = sscanf(fgets(problemFile),'%s');    %Lettura valore
-end
-
-%% CHIUSURA FILE
+%Close problem file
 fclose(problemFile);
 
+%Check for unsupported configurations - TODO: need refactoring
 checkImplementation(pbParam);
 return
