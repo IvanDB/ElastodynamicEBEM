@@ -40,7 +40,7 @@ rho = pbParam.rho;
 deltaT = pbParam.Tfin/pbParam.nT;
 cS = pbParam.velS;
 cP = pbParam.velP;
-kernelCoeffs = [1,-3,3,1]; % I coefficienti C_\eta
+kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
 timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
 outerTriangles = TriangPerNodes(outerNode, :); % Trovo gli indici dei triangoli che hanno outerNode come vertice 
 innerTriangles = TriangPerNodes(innerNode, :); % Trovo gli indici dei triangoli che hanno innerNode come Vertice
@@ -345,7 +345,7 @@ deltaT = pbParam.Tfin/pbParam.nT;
 cS = pbParam.velS;
 cP = pbParam.velP;
 
-kernelCoeffs = [1,-3,3,1]; % I coefficienti C_\eta
+kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
 timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
 temporalInstants = timeInstant + timeCoeffs;
 

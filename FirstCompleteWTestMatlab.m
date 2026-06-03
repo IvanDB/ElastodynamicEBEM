@@ -39,11 +39,11 @@ for t = 1:numTriangles
     end
 end
 [~, ~, numBlocksW] = core.calcNumMatrixBlocks(pbParam, domainMesh);
-    disp(numBlocksW)
+
+disp(numBlocksW)
 for indT = 1 : numBlocksW
     disp(indT)
     for indNodeExt = 1 : numNodes
-    disp(indNodeExt)
         parfor indNodeInt = 1 : numNodes
             OutputMatrix{indNodeExt,indNodeInt,indT} = Copy_of_TestingForWKernel(indNodeExt, indNodeInt, indT, indSMatrix,...
                     TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles);
@@ -51,8 +51,9 @@ for indT = 1 : numBlocksW
     end
 end
 save("W_matrix.mat", "OutputMatrix");
+
 %OutputMatrix{:,:,numBlocksW+1:pbParam.nT} = zeros(3,3);
-matrixIGamma = 1/deltaT*kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 6, eye(3));
+matrixIGamma = (1/pbParam.deltaT) .* kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 3, eye(3))';
 gV = core.calcBoundDataNeumann(pbParam, domainMesh);
 
 displacement = zeros(3*domainMesh.numVertices, pbParam.nT);
@@ -62,7 +63,6 @@ matrixSist = cell2mat(OutputMatrix(:, :, 1));
 for currInd = 1 : pbParam.nT
     rhs = matrixIGamma*gV{currInd};
 
-    
     endInd = min(currInd, numBlocksW);
 
     for indMat = 2 : endInd
@@ -71,4 +71,5 @@ for currInd = 1 : pbParam.nT
 
     displacement(:, currInd) = matrixSist \ rhs;
 end
+save("W_density.mat", "displacement");
 glbIndexFigures = utility.plots.plotLinear(".", pbParam, domainMesh, displacement, 0);
