@@ -1,4 +1,4 @@
-function [numBlocksV, numBlocksK] = calcNumMatrixBlocks(pbParam, domainMesh)
+function [numBlocksV, numBlocksK, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh)
 %CALCNUMMATRIXBLOCKS Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
@@ -9,6 +9,7 @@ end
 arguments (Output)
     numBlocksV (1, 1) {mustBeInteger, mustBePositive}
     numBlocksK (1, 1) {mustBeInteger, mustBePositive}
+    numBlocksW (1, 1) {mustBeInteger, mustBePositive}
 end
 
 numV = domainMesh.numVertices;
@@ -29,4 +30,5 @@ maxIndTempK = ceil(maxDist / (pbParam.velS * deltaT)) + 2;
 
 numBlocksV = min(pbParam.nT, maxIndTempV);
 numBlocksK = min(pbParam.nT, maxIndTempK);
+numBlocksW = numBlocksK;
 end

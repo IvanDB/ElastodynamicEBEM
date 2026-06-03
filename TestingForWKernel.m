@@ -98,7 +98,7 @@ for i = 1 : maxNumTriangles % Ciclo sui triangoli esterni
 
         % Per il nucleo mi servono anche le normali dei triangoli esterno
         % ed intrno correnti
-
+        % coordNodo == currentInnerVerts(1,:)
         
         currentOuterNormal = domainMesh.normal(currentOuterTriangle,:); % Normale del triangolo esterno
 
