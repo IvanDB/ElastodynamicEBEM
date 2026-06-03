@@ -16,7 +16,7 @@ if ~evalin('base', "exist('basePath', 'var')")
 end
 
 %Field lists
-timeFields = ["betaVal", "TimeMult"];
+timeFields = ["betaVal", "timeMult"];
 meshFields = ["meshType", "meshLevel"];
 quadFields = ["quadType", "numSRext", "numGHext", "numSRint", "numGHint", "numSNGLR", "numBOUND"];
 confFields = ["aBldFlag", "plotFigs", "saveFigs", "saveTemp"];

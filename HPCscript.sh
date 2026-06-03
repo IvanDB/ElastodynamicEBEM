@@ -3,7 +3,7 @@
 basePath=$(pwd)
 source "$basePath/parameterLists.config"
 
-baseTemplate="basePath=\"$basePath\"; inputStruct.pbName=[[PB]]; inputStruct.formID=[[FI]]; [[MT]] [[ML]] [[BV]] [[TM]]"
+baseTemplate="basePath=\"$basePath\"; inputStruct.pbName=[[PB]]; inputStruct.formID=[[FI]]; [[MT]] [[ML]] [[BM]] [[TM]]"
 quadTemplate="[[QT]] [[SE]] [[GE]] [[SI]] [[GI]] [[SG]] [[BD]]"
 
 if [ ${#pbNames[@]} -eq 0 ]; then
@@ -20,18 +20,18 @@ for pbName in "${pbNames[@]}"; do
 for formID in "${formIDs[@]}"; do
 for meshType in "${meshTypes[@]:-""}"; do
 for meshLvl in "${meshLvls[@]:--1}"; do
-for betaVal in "${betaVals[@]:--1}"; do
+for betaMult in "${betaMults[@]:--1}"; do
 for timeMult in "${timeMults[@]:--1}"; do
 
-    [[ $betaVal -eq -1 ]] && { bv=""; j_bv=""; } || { bv="inputStruct.betaVal=$betaVal;"; j_bv="-beta=$betaVal"; }
-    [[ $timeMult -eq -1 ]] && { tm=""; j_tm=""; } || { tm="inputStruct.timeMult=$timeMult;"; j_tm="-tmult=$timeMult"; }
-    [[ $meshType == "" ]] && { mt=""; j_mt=""; } || { mt="inputStruct.meshType=\"$meshType\";"; j_mt="-$meshType"; }
-    [[ $meshLvl -eq -1 ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
+    [[ "$betaMult" == "-1" ]] && { bm=""; j_bm=""; } || { bm="inputStruct.betaMult=$betaMult;"; j_bm="-beta=$betaVal"; }
+    [[ "$timeMult" == "-1" ]] && { tm=""; j_tm=""; } || { tm="inputStruct.timeMult=$timeMult;"; j_tm="-tmult=$timeMult"; }
+    [[ $meshType == "" ]]     && { mt=""; j_mt=""; } || { mt="inputStruct.meshType=\"$meshType\";"; j_mt="-$meshType"; }
+    [[ "$meshLvl"  == "-1" ]] && { ml=""; j_ml=""; } || { ml="inputStruct.meshLevel=$meshLvl;"; j_ml="-lev$meshLvl"; }
 
     baseData=$(sed  -e "s/\[\[PB\]\]/\"$pbName\"/"  \
                     -e "s/\[\[FI\]\]/\"$formID\"/"  \
                     -e "s/\[\[TM\]\]/$tm/"          \
-		            -e "s/\[\[BV\]\]/$bv/"          \
+		            -e "s/\[\[BM\]\]/$bm/"          \
 		            -e "s/\[\[MT\]\]/$mt/"      \
 		            -e "s/\[\[ML\]\]/$ml/"          \
 		            <<< "$baseTemplate")
@@ -41,7 +41,7 @@ for timeMult in "${timeMults[@]:--1}"; do
             cmdString="${baseData} inputStruct.quadID=$quadID;"
             cmdBuffer+=("$cmdString")
 
-            jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${quadID}\'"
+            jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bm}_${quadID}\'"
             nameBuffer+=("$jobName")
         done
         continue
@@ -75,7 +75,7 @@ for timeMult in "${timeMults[@]:--1}"; do
         cmdString="${baseData} ${quadData}"
 	    cmdBuffer+=("$cmdString")
 
-        jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bv}_${j_qt}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
+        jobName="${pbName}-${formID}${j_mt}${j_ml}${j_tm}${j_bm}_${j_qt}${j_se}${j_ge}${j_si}${j_gi}${j_sg}${j_bd}"
         nameBuffer+=("$jobName")
     done
     done
