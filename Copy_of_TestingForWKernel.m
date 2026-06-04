@@ -132,7 +132,7 @@ for i = 1 : maxNumTriangles % Ciclo sui triangoli esterni
 
         for innerGaussHammerIndex = 1 : length(quadData.INTn)
             %devo calcolare il peso e le coordinate del dodo corrente
-            currentInnerGaussWeight = quadData.INTw(mod(innerGaussHammerIndex,3)+1)*domainMesh.area(currentInnerTriangle); % Peso del nodo corrente sul triangolo corrente
+            currentInnerGaussWeight = quadData.INTw(mod(innerGaussHammerIndex-1,3)+1)*domainMesh.area(currentInnerTriangle); % Peso del nodo corrente sul triangolo corrente
             %INtw e INTn li tirerò fuori da quad data
             temporaryStandardNode = quadData.INTn(innerGaussHammerIndex,:); % Nodo su triangolo di riferimento
 

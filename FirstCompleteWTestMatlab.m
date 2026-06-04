@@ -42,10 +42,13 @@ end
 
 disp(numBlocksW)
 for indT = 1 : numBlocksW
-    disp(indT)
+    disp("Current block: "+num2str(indT)+" out of "+num2str(numBlocksW))
     for indNodeExt = 1 : numNodes
+
+    disp("      Performed "+num2str(indNodeExt)+" nodes out of "+num2str(numNodes))
+
         parfor indNodeInt = 1 : numNodes
-            OutputMatrix{indNodeExt,indNodeInt,indT} = Copy_of_TestingForWKernel(indNodeExt, indNodeInt, indT, indSMatrix,...
+            OutputMatrix{indNodeExt,indNodeInt,indT} = Copy_of_TestingForWKernel(indNodeExt, indNodeInt, indT-1, indSMatrix,...
                     TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles);
         end
     end
@@ -53,7 +56,9 @@ end
 save("W_matrix.mat", "OutputMatrix");
 
 %OutputMatrix{:,:,numBlocksW+1:pbParam.nT} = zeros(3,3);
-matrixIGamma = (1/pbParam.deltaT) .* kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 3, eye(3))';
+
+matrixIGamma = kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 3, eye(3))';
+
 gV = core.calcBoundDataNeumann(pbParam, domainMesh);
 
 displacement = zeros(3*domainMesh.numVertices, pbParam.nT);
@@ -62,6 +67,9 @@ matrixSist = cell2mat(OutputMatrix(:, :, 1));
 
 for currInd = 1 : pbParam.nT
     rhs = matrixIGamma*gV{currInd};
+
+
+
 
     endInd = min(currInd, numBlocksW);
 
