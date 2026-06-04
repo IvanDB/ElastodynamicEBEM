@@ -57,18 +57,18 @@ for i = tVal
         daspect([1 1 1]);
         if climCustom
             if(j == 0)
-                clim(max(densityOnTriangles, [], "all"));
+                clim(max(densityOnTriangles, [], "all"));  %TODO: check and fix
             else
                 clim([min(densityOnTriangles(j:3:end, :), [], "all"), -min(densityOnTriangles(j:3:end, :), [], "all")]);
             end
         end
     
         % Export image
-        folderPath = fullfile(basePath, "outputPlot", pbParam.domainType);
+        folderPath = fullfile(basePath, "outputPlot", pbParam.domainName);
         if(~exist(folderPath, 'dir'))
             mkdir(folderPath);
         end
-        figName = fullfile(folderPath, pbParam.domainType + "-" + pbParam.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
+        figName = fullfile(folderPath, pbParam.domainName + "-" + domainMesh.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
         exportgraphics(fig, figName + ".svg", ContentType = "vector")
         exportgraphics(fig, figName + ".jpg", ContentType = "image")
     end

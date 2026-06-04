@@ -1,18 +1,15 @@
-function displacement = timeMarchingDN_c(basePath, pbParam, domainMesh, quadData)
+function displacement = timeMarchingDN_c(basePath, pbParam, domainMesh, quadData, fullFileNames)
 arguments (Input)
     basePath    (1, 1) string
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
+    fullFileNames (1, 1) struct
 end
 
 import eebem.core.*
 
-%Save paths
-tmpPath = fullfile(basePath, "tempData", "DNc_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-outPath = fullfile(basePath, "outputData", "DNc_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-
-%GPUs inizialization
+%GPUs initialization
 nGPU = gpuDeviceCount("available");
 gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
@@ -57,10 +54,10 @@ for currInd = 1 : pbParam.nT
 end
 
 %Save on disk
-tmpFlag = false;
+tmpFlag = true;
 if(tmpFlag)
-    save(tmpPath + "_matrix", 'matrixV', 'matrixK', 'matrixIGamma');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'matrixIGamma', 'betaV');
 end
-save(outPath + "_displacement", 'displacement');
+save(fullFileNames.outFullFilename, 'displacement');
 
 return
