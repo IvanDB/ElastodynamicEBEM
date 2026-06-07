@@ -12,7 +12,7 @@ function meshFileName = constructMeshFileName(pbParam, meshSpecs)
 
     meshFileName = pbParam.domainName;
     if(meshSpecs.meshType ~= "")
-        meshFileName = meshFileName + "-" + meshSpecs.meshType;
+        meshFileName = meshFileName + "_" + meshSpecs.meshType;
     end
     meshFileName = meshFileName + "_" + meshSpecs.meshLevel + ".mesh";
 end
