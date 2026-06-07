@@ -73,10 +73,12 @@ switch pbParam.domainName
         ondaIncid = @(x, t) exp(-20 .* ((x(1) - 2 + cP.*t - 0.475).^2));
         g = @(x, t) [ondaIncid(x, t); 0; 0];
 
-    case "elementoIndustriale"
-        g = @(x, t) [0, 0, 0];
-
     otherwise
-        error("Problema non codificato")
+        fileName = pbParam.domainName + "_D.m";
+        assert(exist(fullfile(".", "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
+        func = str2func(extractBefore(fileName, "."));
+        addpath("pbData\")
+        g = feval(func, pbParam);
+        rmpath("pbData\")
 end
 end

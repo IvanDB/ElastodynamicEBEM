@@ -60,10 +60,12 @@ switch pbParam.domainName
         
         g = @(x, t, n) p0 * (exp(-a * t) - exp(-b * t)) .* n';
 
-    case "elementoIndustriale"
-        g = @(x, t, n) [0; 0; ((x(3) > -0.002) - (x(3) < -0.35)) * (abs(n(3)) > 0.5)];
-    
     otherwise
-        error("Problem not encoded")
+        fileName = pbParam.domainName + "_N.m";
+        assert(exist(fullfile(".", "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
+        func = str2func(extractBefore(fileName, "."));
+        addpath("pbData\")
+        g = feval(func, pbParam);
+        rmpath("pbData\")
 end
 end
