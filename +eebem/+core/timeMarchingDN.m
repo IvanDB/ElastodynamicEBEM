@@ -31,7 +31,7 @@ matrixK = calcMatrixK(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadDat
 matrixIGamma = kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 6, eye(3));
 
 % Datum vectors calculations
-betaV = calcBetaV(pbParam, domainMesh, matrixV);
+betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath);
 
 % Time-marching process
 displacement = zeros(3*domainMesh.numVertices, pbParam.nT);

@@ -25,7 +25,7 @@ matrixSpecsV = calcMatrixSpecs(nGPU, avMem, blockSizesV, numBlocksV);
 matrixV = calcMatrixV(matrixSpecsV, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
 % Datum vectors calculations
-betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs);
+betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
 
 % Time-marching process
 density = zeros(3*domainMesh.numTriangles, pbParam.nT);

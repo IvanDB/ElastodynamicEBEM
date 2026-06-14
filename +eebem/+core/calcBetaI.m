@@ -1,4 +1,4 @@
-function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs)
+function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs, basePath)
 %CALCBETAISummary of this function goes here
 %   Detailed explanation goes here
 arguments
@@ -6,13 +6,14 @@ arguments
     domainMesh  struct
     constValues cell
     methodSpecs struct
+    basePath    (1, 1) string = "."
 end
 
 import eebem.core.*
 
 numT = domainMesh.numTriangles;
 
-gI = getDatumHandleDirichlet(pbParam);
+gI = getDatumHandleDirichlet(pbParam, basePath);
 
 betaI = cell(pbParam.nT, 1);
 parfor indTemp = 1 : pbParam.nT

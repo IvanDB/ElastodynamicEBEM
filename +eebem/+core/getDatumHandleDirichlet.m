@@ -1,8 +1,9 @@
-function g = getDatumHandleDirichlet(pbParam)
+function g = getDatumHandleDirichlet(pbParam, basePath)
 %GETDATUMHANDLEDIRICHLET Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
-    pbParam struct
+    pbParam  (1, 1) struct
+    basePath (1, 1) string = "."
 end
 
 arguments (Output)
@@ -75,10 +76,10 @@ switch pbParam.domainName
 
     otherwise
         fileName = pbParam.domainName + "_D.m";
-        assert(exist(fullfile(".", "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
+        assert(exist(fullfile(basePath, "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
         func = str2func(extractBefore(fileName, "."));
-        addpath("pbData\")
+        addpath(fullfile(basePath, "pbData"))
         g = feval(func, pbParam);
-        rmpath("pbData\")
+        rmpath(fullfile(basePath, "pbData"))
 end
 end
