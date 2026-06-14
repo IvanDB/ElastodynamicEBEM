@@ -63,7 +63,7 @@ switch pbParam.domainName
         climCustom = false;
     case "industrialComponent"
         nDim = 3;
-        tVal = 1 : 100 : pbParam.nT;
+        tVal = [1 : 1 : 9, 10 : 10 : 99, 100 : 100 : pbParam.nT];
         jVal = 1 : 3;
         climCustom = false;
     case "ConeBall"
