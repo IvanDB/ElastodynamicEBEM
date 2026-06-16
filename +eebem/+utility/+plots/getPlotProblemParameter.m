@@ -61,10 +61,17 @@ switch pbParam.domainName
         tVal = 1 : 2 : pbParam.nT;
         jVal = [1, 3];
         climCustom = false;
-    case "elementoIndustriale"
+    case "industrialComponent"
         nDim = 3;
-        tVal = 1;
-        jVal = 3;
+        tVal = [1 : 1 : 9, 10 : 10 : 99, 100 : 100 : pbParam.nT];
+        jVal = 1 : 3;
         climCustom = false;
+    case "ConeBall"
+        nDim = 3;
+        tVal = pbParam.nT;
+        jVal = 1 : 3;
+        climCustom = false;
+    otherwise
+        warning("Problem plots specs not set. Loading from file in not available.")
 end
 end

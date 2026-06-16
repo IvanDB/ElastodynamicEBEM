@@ -34,13 +34,23 @@ pbParam.velS = sqrt(pbParam.mu/pbParam.rho);                        % c_S = sqrt
      
 %Read default space/time discretization parameters           
 fgets(problemFile);       
-pbParam.defTimeLimit = sscanf(fgets(problemFile), '%f');
+pbParam.defaultValues.timeLimit = sscanf(fgets(problemFile), '%f');
 
 fgets(problemFile);       
-pbParam.defNumIntvls = sscanf(fgets(problemFile), '%d');
+pbParam.defaultValues.numIntvls = sscanf(fgets(problemFile), '%d');
+
+fgets(problemFile);
+pbParam.STcoupling = strcmpi(strtrim(fgets(problemFile)), "true");
+
+fgets(problemFile);
+pbParam.meshName = sscanf(fgets(problemFile), '%s');
+%If the no meshName is provided use domainName
+if(pbParam.meshName == "")
+    pbParam.meshName = pbParam.domainName;
+end
 
 fgets(problemFile);       
-pbParam.defMeshType = sscanf(fgets(problemFile), '%s');
+pbParam.defaultValues.meshType = sscanf(fgets(problemFile), '%s');
 
 %Other parameters (WIP)
 fgets(problemFile);       

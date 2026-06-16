@@ -10,6 +10,10 @@
 36
 %Base number of time intervals
 72
+%Space-time refinement coupling
+true
+%Mesh name
+
 %Default mesh type
 symm
 %Integral equation type 

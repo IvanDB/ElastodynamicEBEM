@@ -1,10 +1,15 @@
-function boundDataNeumann = calcBoundDataNeumann(pbParam, domainMesh)
+function boundDataNeumann = calcBoundDataNeumann(pbParam, domainMesh, basePath)
 %CALCBOUNDNEUMANN Summary of this function goes here
 %   Detailed explanation goes here
+arguments (Input)
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    basePath    (1, 1) string = "."
+end
 
 import eebem.core.*
 
-g = getDatumHandleNeumann(pbParam);
+g = getDatumHandleNeumann(pbParam, basePath);
 
 boundDataNeumann = cell(pbParam.nT, 1);
 for indTemp = 1 : pbParam.nT

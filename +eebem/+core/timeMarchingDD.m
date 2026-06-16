@@ -29,8 +29,8 @@ matrixSpecsK = calcMatrixSpecs(nGPU, avMem, blockSizesK, numBlocksK);
 matrixK = calcMatrixK(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
 % Datum vectors calculations
-betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs);
-betaK = calcBetaK(pbParam, domainMesh, matrixK);
+betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
+betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath);
 
 % Time-marching process
 traction = zeros(3*domainMesh.numTriangles, pbParam.nT);

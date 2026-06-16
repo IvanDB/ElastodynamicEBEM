@@ -68,9 +68,11 @@ for i = tVal
         if(~exist(folderPath, 'dir'))
             mkdir(folderPath);
         end
-        figName = fullfile(folderPath, pbParam.domainName + "-" + domainMesh.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
+        figName = fullfile(folderPath, "L " + pbParam.domainName + "-" + domainMesh.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
         exportgraphics(fig, figName + ".svg", ContentType = "vector")
         exportgraphics(fig, figName + ".jpg", ContentType = "image")
+        close(fig);
+        disp("done " + figName)
     end
 end
 end

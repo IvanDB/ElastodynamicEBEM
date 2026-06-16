@@ -1,8 +1,9 @@
-function g = getDatumHandleDirichlet(pbParam)
+function g = getDatumHandleDirichlet(pbParam, basePath)
 %GETDATUMHANDLEDIRICHLET Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
-    pbParam struct
+    pbParam  (1, 1) struct
+    basePath (1, 1) string = "."
 end
 
 arguments (Output)
@@ -73,10 +74,12 @@ switch pbParam.domainName
         ondaIncid = @(x, t) exp(-20 .* ((x(1) - 2 + cP.*t - 0.475).^2));
         g = @(x, t) [ondaIncid(x, t); 0; 0];
 
-    case "elementoIndustriale"
-        g = @(x, t) [0, 0, 0];
-
     otherwise
-        error("Problema non codificato")
+        fileName = pbParam.domainName + "_D.m";
+        assert(exist(fullfile(basePath, "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
+        func = str2func(extractBefore(fileName, "."));
+        addpath(fullfile(basePath, "pbData"))
+        g = feval(func, pbParam);
+        rmpath(fullfile(basePath, "pbData"))
 end
 end

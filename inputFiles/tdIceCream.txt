@@ -1,21 +1,21 @@
 %Mass density 
 1
 %Sheer module
-0.5
+0.25
 %Poisson's ratio
-0
+0.333333333333333
 %Lamè parameter lambda
-0
+0.5
 %Final time istant
-36
+1
 %Base number of time intervals
-144
+8
 %Space-time refinement coupling
 true
 %Mesh name
 
 %Default mesh type
-symm
+B1
 %Integral equation type 
 EFIE
 %Boundary datum type

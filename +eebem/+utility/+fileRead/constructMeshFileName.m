@@ -7,12 +7,12 @@ function meshFileName = constructMeshFileName(pbParam, meshSpecs)
 
     %If no mesh type is provided we use the default one for the problem
     if(meshSpecs.meshType == "")
-        meshSpecs.meshType = pbParam.defMeshType;
+        meshSpecs.meshType = pbParam.defaultValues.meshType;
     end
 
-    meshFileName = pbParam.domainName;
+    meshFileName = pbParam.meshName;
     if(meshSpecs.meshType ~= "")
-        meshFileName = meshFileName + "-" + meshSpecs.meshType;
+        meshFileName = meshFileName + "_" + meshSpecs.meshType;
     end
     meshFileName = meshFileName + "_" + meshSpecs.meshLevel + ".mesh";
 end
