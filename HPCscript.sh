@@ -101,6 +101,9 @@ for i in "${!cmdBuffer[@]}"; do
     cmd="${cmdBuffer[i]}"
     name="${nameBuffer[i]}"
 
+    if $poolFlag; then
+        cmd="${cmd} inputStruct.poolFlag=true;"
+
     if $aBldFlag; then
         cmd="${cmd} inputStruct.aBldFlag=true;"
     fi

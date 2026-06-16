@@ -10,11 +10,13 @@ assert(exist('inputStruct', 'var'), "Input error", "An input structure must be p
 utility.setupWorkspace(inputStruct);
 
 %Build extern functions
-utility.autobuild(basePath, glbFlags.aBldFlag);
+utility.autobuild(basePath, glbFlags.autoBuild);
 
 %Start parallel pool
-delete(gcp("nocreate"));
-parInfo = parpool("Processes");
+if(glbFlags.usePool)
+    delete(gcp("nocreate"));
+    parInfo = parpool("Processes");
+end
 
 %% SETUP INPUT DATA
 problemFileName = utility.fileRead.constructProblemFileName(pbIndex, pbSpecs{:});

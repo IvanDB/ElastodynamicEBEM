@@ -13,7 +13,7 @@ import eebem.core.*
 gV = calcBoundDataNeumann(pbParam, domainMesh, basePath);
 
 betaV = cell(pbParam.nT, 1);
-for indTemp = 1 : pbParam.nT
+parfor indTemp = 1 : pbParam.nT
     betaV{indTemp} = zeros(3*domainMesh.numTriangles, 1);
     for j = 1 : indTemp
         betaV{indTemp} = betaV{indTemp} + matrixV{indTemp - j + 1} * gV{j};

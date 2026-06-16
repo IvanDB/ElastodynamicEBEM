@@ -19,7 +19,7 @@ end
 timeFields = ["betaMult", "timeMult"];
 meshFields = ["meshType", "meshLevel"];
 quadFields = ["quadType", "numSRext", "numGHext", "numSRint", "numGHint", "numSNGLR", "numBOUND"];
-confFields = ["aBldFlag", "plotFigs", "saveFigs", "saveTemp"];
+confFields = ["usePool", "autoBuild", "plotFigs", "saveFigs", "saveTemp"];
 
 %Problem data
 assert(isfield(inputStruct, "pbName"), "Input error", "A problem name (pbName) must be specified in the input structure.")
