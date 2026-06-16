@@ -12,6 +12,8 @@
 1000
 %Space-time refinement coupling
 true
+%Mesh name
+
 %Default mesh type
 simple
 %Integral equation type 
