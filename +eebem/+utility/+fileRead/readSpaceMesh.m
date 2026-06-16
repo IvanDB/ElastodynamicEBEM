@@ -8,8 +8,12 @@ import eebem.utility.fileRead.*
 %Extract mesh name parts
 fileNameParts = split(meshFileName, ["_", "."]);
 domainName = fileNameParts(1);
-meshType = fileNameParts(2);
-meshLev = str2double(fileNameParts(3));
+meshName = domainName;
+if(length(fileNameParts) > 2)
+    meshType = fileNameParts(end-2);
+    meshName = meshName + "_" + meshType;
+end
+meshLev = str2double(fileNameParts(end-1));
 
 %Open mesh file
 meshFilePath = fullfile(basePath, "mesh", domainName, meshFileName);
@@ -18,7 +22,7 @@ assert(meshFile ~= -1, "Error opening mesh file")
 
 domainMesh = struct();
 %Set mesh data
-domainMesh.name = domainName + "_" + meshType;      % TODO: decide convention 
+domainMesh.name = meshName;      % TODO: decide convention 
 domainMesh.lev = meshLev;
 
 %Skip headers
