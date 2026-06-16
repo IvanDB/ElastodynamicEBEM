@@ -24,7 +24,9 @@ pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
 meshFileName = utility.fileRead.constructMeshFileName(pbParam, meshSpecs{:});
 domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName);
-% glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
+
+glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures, glbFlags);
+
 
 [pbParam, domainMesh] = utility.finalizeParameters(pbParam, domainMesh, timeSpecs{:});
 
@@ -34,6 +36,8 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 %% CORE EXECUTION
 % Setup quadrature data
 coreQuadData = utility.generateQuadData(quadID, quadSpecs{:});
+assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
+                                                                    coreQuadData.methodSpecs.quadType, formSelected))
 
 %Construct full file names
 fullFileNames = utility.generateFilenames(basePath, formSelected, pbParam, domainMesh, coreQuadData.methodSpecs.stringID);
@@ -41,36 +45,16 @@ fullFileNames = utility.generateFilenames(basePath, formSelected, pbParam, domai
 % Main call
 switch formSelected
     case "ID"
-        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) for the ID formulation is WIP", ...
-                                                        coreQuadData.methodSpecs.quadType))
-
-        density = core.timeMarchingID(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
-
-        glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, density, glbIndexFigures);
+        solution = core.timeMarchingID(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "DD"
-        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
-                                                        coreQuadData.methodSpecs.quadType, formSelected))
-
-        traction = core.timeMarchingDD(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
-
-        glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, traction, glbIndexFigures);
+        solution = core.timeMarchingDD(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "DN"
-        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
-                                                        coreQuadData.methodSpecs.quadType, formSelected))
-
-        displacement = core.timeMarchingDN(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
-        
-        glbIndexFigures = utility.plots.plotLinear(basePath, pbParam, domainMesh, displacement, glbIndexFigures);
+        solution = core.timeMarchingDN(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "DNc"
-        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
-                                                        coreQuadData.methodSpecs.quadType, formSelected))
-
-        displacement = core.timeMarchingDN_c(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
-        
-        glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, displacement, glbIndexFigures);
+        solution = core.timeMarchingDN_c(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "IN"
         assert(false, "Coming soon...")
@@ -78,6 +62,9 @@ switch formSelected
     otherwise
         error("Unrecognized formulation")
 end
+
+%Plot
+glbIndexFigures = utility.plots.plotSolutions(formSelected, pbParam, domainMesh, solution, glbIndexFigures, glbFlags, basePath);
 
 %% POST PROCESSING EXECUTION
 assert(true, "Post processing in WIP")

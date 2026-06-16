@@ -113,12 +113,11 @@ domainMesh.curl(:, 2, :) = -(vg1 ./ (2*domainMesh.area))';
 domainMesh.curl(:, 3, :) =  (vg3 ./ (2*domainMesh.area))';
 
 %Vertex matrix
-domainMesh.indSMmatrix = zeros(domainMesh.numTriangles, domainMesh.numVertices, 'int32');
-for indS = 1 : domainMesh.numVertices
-    for indM = 1 : domainMesh.numTriangles
-        [~, domainMesh.indSMmatrix(indM, indS)] = ismember(indS, domainMesh.triangles(indM, 1 : 3));
-    end
+indSMmatrix = zeros(domainMesh.numTriangles, domainMesh.numVertices, 'int32');
+parfor indM = 1 : domainMesh.numTriangles
+    [~, indSMmatrix(indM, :)] = ismember(1 : domainMesh.numVertices, domainMesh.triangles(indM, 1 : 3));
 end
+domainMesh.indSMmatrix = indSMmatrix;
 
 %Other useful information about the mesh
 domainMesh = calcParamMesh(domainMesh); % --> TODO: refactor all section

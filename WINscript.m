@@ -1,4 +1,5 @@
-clc; clear;
+clc
+clearvars -except glbIndexFigures
 
 basePath = fileparts(mfilename("fullpath"));
 cmdBuffer = generateCommandBuffer(parseConfigFile(basePath));
