@@ -12,6 +12,8 @@
 144
 %Space-time refinement coupling
 true
+%Mesh name
+
 %Default mesh type
 symm
 %Integral equation type 

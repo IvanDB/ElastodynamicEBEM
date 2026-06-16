@@ -12,6 +12,8 @@
 8
 %Space-time refinement coupling
 true
+%Mesh name
+
 %Default mesh type
 B1
 %Integral equation type 
