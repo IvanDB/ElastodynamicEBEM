@@ -10,6 +10,9 @@ pbParam.beta = timeSpecs.betaMult;
 pbParam.tMlt = timeSpecs.timeMult;
 
 pbParam.Tfin = pbParam.tMlt * pbParam.defTimeLimit;
-pbParam.nT = ceil(pbParam.defNumIntvls * (2 ^ (domainMesh.lev - 1)) * pbParam.beta * pbParam.tMlt);
+
+spaceTimeCouplingFactor = 2 ^ (pbParam.STcoupling * (domainMesh.lev - 1));
+pbParam.nT = ceil(pbParam.defNumIntvls * spaceTimeCouplingFactor * pbParam.beta * pbParam.tMlt);
+
 pbParam.deltaT = pbParam.Tfin / pbParam.nT;
 end

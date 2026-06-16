@@ -10,6 +10,8 @@
 0.12
 %Base number of time intervals
 1000
+%Space-time refinement coupling
+true
 %Default mesh type
 simple
 %Integral equation type 

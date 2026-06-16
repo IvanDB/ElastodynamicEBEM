@@ -10,6 +10,8 @@
 1
 %Base number of time intervals
 8
+%Space-time refinement coupling
+true
 %Default mesh type
 B1
 %Integral equation type 

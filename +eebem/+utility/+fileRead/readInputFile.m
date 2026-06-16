@@ -39,6 +39,9 @@ pbParam.defTimeLimit = sscanf(fgets(problemFile), '%f');
 fgets(problemFile);       
 pbParam.defNumIntvls = sscanf(fgets(problemFile), '%d');
 
+fgets(problemFile);
+pbParam.STcoupling = strcmpi(strtrim(fgets(problemFile)), "true");
+
 fgets(problemFile);       
 pbParam.defMeshType = sscanf(fgets(problemFile), '%s');
 
