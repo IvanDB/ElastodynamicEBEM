@@ -103,7 +103,7 @@ for i in "${!cmdBuffer[@]}"; do
 
     if $poolFlag; then
         cmd="${cmd} inputStruct.poolFlag=true;"
-
+    fi
     if $aBldFlag; then
         cmd="${cmd} inputStruct.aBldFlag=true;"
     fi
