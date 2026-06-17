@@ -44,7 +44,7 @@ if(glbFlags.saveFigs)
     if(~exist(figName + ".jpg", "file"))
         exportgraphics(fig, figName + ".jpg", ContentType = "image")
     end
-    if(~exist(figName + ".svg", "file")) %ispc && 
+    if(ispc && ~exist(figName + ".svg", "file"))
         exportgraphics(fig, figName + ".svg", ContentType = "vector")
     end
 end

@@ -93,7 +93,7 @@ for i = tVal
             end
             
             figPath = fullfile(folderPath, figName + ".svg");
-            if(~exist(figPath, "file")) %ispc && 
+            if(ispc && ~exist(figPath, "file")) %
                 exportgraphics(fig, figPath, ContentType = "vector")
             end
         end
