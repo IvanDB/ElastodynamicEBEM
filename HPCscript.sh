@@ -102,16 +102,16 @@ for i in "${!cmdBuffer[@]}"; do
     name="${nameBuffer[i]}"
 
     if $poolFlag; then
-        cmd="${cmd} inputStruct.poolFlag=true;"
+        cmd="${cmd} inputStruct.usePool=true;"
     fi
     if $aBldFlag; then
-        cmd="${cmd} inputStruct.aBldFlag=true;"
+        cmd="${cmd} inputStruct.autoBuild=true;"
     fi
     if $plotFigs; then
-        cmd="${cmd} inputStruct.plotFlag=true;"
+        cmd="${cmd} inputStruct.plotFigs=true;"
     fi
     if $saveFigs; then
-        cmd="${cmd} inputStruct.saveFlag=true;"
+        cmd="${cmd} inputStruct.saveFigs=true;"
     fi
     if $saveTemp; then
         cmd="${cmd} inputStruct.saveTemp=true;"
