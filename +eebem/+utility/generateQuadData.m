@@ -59,10 +59,11 @@ methodSpecs.stringID = sprintf("%s-%d-%d-%d-%d-%d-%d", methodSpecs.quadType, met
 assert(isSquare(methodSpecs.numSRext) && isGHvalid(methodSpecs.numGHext), "External quadrature data not valid.")
 [quadData.EXTn, quadData.EXTw] = GaussHammerComposite(methodSpecs.numSRext, methodSpecs.numGHext);
 
-assert(isSquare(methodSpecs.numSRint) && isGHvalid(methodSpecs.numGHint), "External quadrature data not valid.")
+assert(isSquare(methodSpecs.numSRint) && isGHvalid(methodSpecs.numGHint), "Internal quadrature data not valid.")
 [quadData.INTn, quadData.INTw] = GaussHammerComposite(methodSpecs.numSRint, methodSpecs.numGHint);
 
-%[quadData.G2Dn, quadData.G2Dw] = doppioGauss1D(methodSpecs.numSNGLR);
+assert(isSquare(methodSpecs.numSNGLR), "Singular quadrature data not valid.")
+[quadData.G1Dn, quadData.G1Dw] = Gauss1D(1, sqrt(methodSpecs.numSNGLR), 0, 0);
 
 quadData.methodSpecs = methodSpecs;
 end

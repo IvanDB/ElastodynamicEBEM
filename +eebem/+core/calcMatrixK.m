@@ -71,7 +71,7 @@ for indIter = 1 : matrixSpecs.numIter
         %Ciclo sull'indice di riga
         parfor indBlock = 1 : matrixSpecs.blockSizes2D(1)
             for indV = 1 : 3
-                matrixSubBlocksSING(:, :, indV, indBlock, indTemp) = calcSingSubBlockK(pbParam, domainMesh, quadData.methodSpecs, constValues{indBlock}, istTemp, indBlock, indV);
+                matrixSubBlocksSING(:, :, indV, indBlock, indTemp) = calcSingSubBlockK(pbParam, domainMesh, quadData.methodSpecs, constValues{indBlock}, quadData.G1Dn, quadData.G1Dw, istTemp, indBlock, indV);
             end
         end
     end

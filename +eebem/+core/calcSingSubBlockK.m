@@ -1,4 +1,4 @@
-function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constValuesCurr, indTemp, indM, indV)
+function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp, indM, indV)
 %CALCSINGSUBBLOCKK Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,6 +7,8 @@ arguments (Input)
     domainMesh
     methodSpecs
     constValuesCurr
+    G1Dn
+    G1Dw
     indTemp
     indM
     indV
@@ -47,8 +49,8 @@ for indZeta = 1 : 4
                 rInt = pbParam.velS * currT;
                 rExt = pbParam.velP * currT;
 
-                [G2DCnodes, G2DCweights] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, methodSpecs.numSNGLR);
-                intgIntSing = intgIntSing + kernelK(length(G2DCweights), G2DCnodes, G2DCweights, nodoExt, currT, pbParam.velP, pbParam.velS, pbParam.lambda, pbParam.mu, pbParam.rho, ...
+                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn, G1Dw);
+                intgIntSing = intgIntSing + kernelK(length(G2DCw), G2DCn, G2DCw, nodoExt, currT, pbParam.velP, pbParam.velS, pbParam.lambda, pbParam.mu, pbParam.rho, ...
                                                             vettVMS, constValuesCurr.matCoeff, constValuesCurr.vetCoeff, indV, normInt);
             end
 

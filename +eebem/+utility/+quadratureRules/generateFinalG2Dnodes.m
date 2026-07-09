@@ -1,4 +1,4 @@
-function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, numNodes)
+function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, nodiStd, pesiStd)
 
 import eebem.utility.quadratureRules.*
 
@@ -15,8 +15,7 @@ p = p / norm(p);
 
 alpha2D = acos(dot(v13, v23));
 
-numNodes1D = sqrt(numNodes);
-[nodiStd, pesiStd] = Gauss1D(1, numNodes1D, 0, 0);
+numNodes1D = length(pesiStd);
 
 %Map to real alpha
 nodiT = (nodiStd' + 1) ./ 2 .* alpha2D;
