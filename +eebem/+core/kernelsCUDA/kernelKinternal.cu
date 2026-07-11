@@ -1,305 +1,156 @@
-__device__ void nucleoKL(double nuKL[3][3], const double x[3], const double n[3], const double r, const double t, const double cP, const double cS, const double lambda, const double mu);
-__device__ void nucleoKT(double nuKT[3][3], const double x[3], const double n[3], const double r, const double t, const double cP, const double cS, const double lambda, const double mu);
-__device__ void nucleoKLT(double nuKLT[3][3], const double x[3], const double n[3], const double r, const double t, const double nodeInt[3], const double matCoeff[3][3], const double vetCoeff[3], const int indSM, const double cP, const double cS, const double lambda, const double mu);
+#include "commonRoutines.cuh"
 
-__device__ bool isBlockNull(const double *vertsT, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen);
-__device__ double dotProd3D(const double vettA[3], const double vettB[3]);
-
-__global__ void kernelKinternal(double *matrix, const double deltaT, const double velP, const double velS, const double lambda, const double mu, const double rho, const double const4PiDeltaT,
-                          const double *stdGHw, const double *stdGHnx, const double *stdGHny, const double *stdGHnz, const int numPointExt,
-                          const double *stdGHCw, const double *stdGHCnx, const double *stdGHCny, const double *stdGHCnz,
-                          const double *vertsT, const double *areeT, const double *normT, const int offsetZ, const int numBlocks, const double maxLen)  
+__global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT, const double velP, const double velS, const double lambda, const double mu, const double rho, const double const4PiDeltaT,
+                          const double* __restrict__ stdExtW, const double* __restrict__ stdExtNx, const double* __restrict__ stdExtNy, const double* __restrict__ stdExtNz, const int numPointExt,
+                          const double* __restrict__ stdIntW, const double* __restrict__ stdIntNx, const double* __restrict__ stdIntNy, const double* __restrict__ stdIntNz,
+                          const double* __restrict__ vertsT, const double* __restrict__ areeT, const double* __restrict__ normT, const int offsetZ, const int numBlocks, const double maxLen)  
 {
-    //Evito i blocchi singolari
+    //Skip diagonal blocks
     if(blockIdx.x == blockIdx.y)
-        return;
+       return;
 
-    //Controllo di non aver sforato l'indice temporale
+    //Time instant check
     if(offsetZ + blockIdx.z >= numBlocks)
         return;
 
-    //Controllo condizione teorica necessità di calcolo dell'intero blocco
-    if (isBlockNull(vertsT, deltaT, velP, velS, offsetZ + blockIdx.z, maxLen))
-        return;
+    //Spatial condition check
+    if(isKBlockNull_costant(vertsT, deltaT, velP, velS, offsetZ + blockIdx.z, maxLen))
+       return;
 
+    //Shared memory initialization
     extern __shared__ double matrixSubBlock[][3][3];
-    int k, i, j, l;
-
-    const unsigned int sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
-
-    // Inizializzazione shared memory
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
+    const size_t sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
             matrixSubBlock[sharedBaseInd][i][j] = 0;
 
-    //Dichiarazione variabili
-    double vertsTempExt[3][3];
-    double vertsTempInt[3][3];
-    double nodoTempExt[3];
-    double nodoTempInt[3];
+    //Field triangle normal
+    double intNormVect[3];
+    for(size_t i = 0; i < 3; i++)
+        intNormVect[i] = normT[3*blockIdx.y + i];
 
-    //Lettura vertici triangolo esterno
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-            vertsTempExt[i][j] = vertsT[9*blockIdx.x + 3*j + i];   
+    //Field triangle verteces
+    double intVerts[3][3];
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
+            intVerts[i][j] = vertsT[9*blockIdx.y + 3*j + i];
 
-    //Estrazione vettore normale corrente
-    double normIntCurr[3];
-    for (i = 0; i < 3; i++)
-        normIntCurr[i] = normT[3*blockIdx.y + i];
+    //Field node
+    const double stdNodeI[] = {stdIntNx[threadIdx.x*blockDim.y + threadIdx.y],
+                               stdIntNy[threadIdx.x*blockDim.y + threadIdx.y],
+                               stdIntNz[threadIdx.x*blockDim.y + threadIdx.y]};
 
-    //Calcolo peso nodo GHC corrente
-    double pesoInt = stdGHCw[threadIdx.y] * areeT[blockIdx.y];
+    const double intNode[3] = {stdNodeI[0] * intVerts[0][0] + stdNodeI[1] * intVerts[1][0] + stdNodeI[2] * intVerts[2][0],
+                               stdNodeI[0] * intVerts[0][1] + stdNodeI[1] * intVerts[1][1] + stdNodeI[2] * intVerts[2][1],
+                               stdNodeI[0] * intVerts[0][2] + stdNodeI[1] * intVerts[1][2] + stdNodeI[2] * intVerts[2][2]};
 
-    // Lettura vertici triangolo interno
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-            vertsTempInt[i][j] = vertsT[9*blockIdx.y + 3*j + i];
+    //Field weight
+    const double intWeight = stdIntW[threadIdx.y] * areeT[blockIdx.y];
 
-    // Lettura coordinate nodo GHC corrente su triangolo stardard
-    nodoTempInt[0] = stdGHCnx[threadIdx.x*blockDim.y + threadIdx.y];
-    nodoTempInt[1] = stdGHCny[threadIdx.x*blockDim.y + threadIdx.y];
-    nodoTempInt[2] = stdGHCnz[threadIdx.x*blockDim.y + threadIdx.y];
+    //Source triangle verteces
+    double vertsExt[3][3];
+    for(size_t i = 0; i < 3; i++)
+        for(size_t j = 0; j < 3; j++)
+            vertsExt[i][j] = vertsT[9*blockIdx.x + 3*j + i];   
 
-    //Mappaggio nodo GHC corrente su triangolo interno corrente
-    double nodoGHCcurr[3];
-    nodoGHCcurr[0] = nodoTempInt[0] * vertsTempInt[0][0] + nodoTempInt[1] * vertsTempInt[1][0] + nodoTempInt[2] * vertsTempInt[2][0];
-    nodoGHCcurr[1] = nodoTempInt[0] * vertsTempInt[0][1] + nodoTempInt[1] * vertsTempInt[1][1] + nodoTempInt[2] * vertsTempInt[2][1];
-    nodoGHCcurr[2] = nodoTempInt[0] * vertsTempInt[0][2] + nodoTempInt[1] * vertsTempInt[1][2] + nodoTempInt[2] * vertsTempInt[2][2];
+    //Eta costants
+    const double etaCoeffs[4] = {-1, 3, -3, 1};
+    const double etaValues[4] = {-2, -1, 0, 1};
 
-    //Ciclo sui numPointExt nodi del triangolo esterno
-    for(l = 0; l < numPointExt; l++)
+    //Loop over source nodes
+    for(size_t l = 0; l < numPointExt; l++)
     {
-        // Calcolo peso nodo GH triangolo esterno
-        double pesoExt = stdGHw[l] * areeT[blockIdx.x];
+        //Source weight
+        double extWeight = stdExtW[l] * areeT[blockIdx.x];
 
-        //Lettura nodo GH corrente su triangolo standard
-        nodoTempExt[0] = stdGHnx[l];
-        nodoTempExt[1] = stdGHny[l];
-        nodoTempExt[2] = stdGHnz[l];
+        //Source node
+        const double stdNodeE[3] = {stdExtNx[l], stdExtNy[l], stdExtNz[l]};
 
-        //Mappaggio nodo GH corrente su triangolo esterno
-        double nodoGHcurr[3];
-        nodoGHcurr[0] = nodoTempExt[0] * vertsTempExt[0][0] + nodoTempExt[1] * vertsTempExt[1][0] + nodoTempExt[2] * vertsTempExt[2][0];
-        nodoGHcurr[1] = nodoTempExt[0] * vertsTempExt[0][1] + nodoTempExt[1] * vertsTempExt[1][1] + nodoTempExt[2] * vertsTempExt[2][1];
-        nodoGHcurr[2] = nodoTempExt[0] * vertsTempExt[0][2] + nodoTempExt[1] * vertsTempExt[1][2] + nodoTempExt[2] * vertsTempExt[2][2];
+        const double extNode[] = {stdNodeE[0] * vertsExt[0][0] + stdNodeE[1] * vertsExt[1][0] + stdNodeE[2] * vertsExt[2][0],
+                                  stdNodeE[0] * vertsExt[0][1] + stdNodeE[1] * vertsExt[1][1] + stdNodeE[2] * vertsExt[2][1],
+                                  stdNodeE[0] * vertsExt[0][2] + stdNodeE[1] * vertsExt[1][2] + stdNodeE[2] * vertsExt[2][2]};
 
-        //Calcolo coordinate vettore differenza
-        double point[3];
-        point[0] = nodoGHcurr[0] - nodoGHCcurr[0];
-        point[1] = nodoGHcurr[1] - nodoGHCcurr[1];
-        point[2] = nodoGHcurr[2] - nodoGHCcurr[2];
+        //Space vector
+        const double point[] = {extNode[0] - intNode[0],
+                                extNode[1] - intNode[1],
+                                extNode[2] - intNode[2]};
 
-        //Calcolo norma vettore differenza
-        double pointNorm = sqrt(point[0]*point[0] + point[1]*point[1] + point[2]*point[2]);
+        const double pointNorm = norm2(point);
 
-        //Inizializzazione variabili
-        double istTemp = 0;
-        double tempValues[3][3];
-        const int coeffNucleo[4] = {-1, 3, -3, 1};
-        const int coeffTemp[4] = {-2, -1, 0, 1};
-
-        //Ciclo sui 4 istanti temporali
-        for (k = 0; k < 4; k++)
+        //Loop over eta values
+        for(size_t k = 0; k < 4; k++)
         {
-            // Calcolo istante temporale corrente
-            istTemp = deltaT * (offsetZ + double(blockIdx.z) + coeffTemp[k]);
+            const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) + etaValues[k]);
 
-            //Check necessità di calcolo
-            if(istTemp <= 0)
+            if(timeInstant <= 0)
                continue;
 
-            //Inizializzazione componenti nucleo totale
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
-                    tempValues[i][j] = 0;
+            double tempValues[3][3] = {0.};
 
-            //Aggiunta delle delle 9 componenti dei nuclei KT e KL
-            nucleoKT(tempValues, point, normIntCurr, pointNorm, istTemp, velP, velS, lambda, mu);
-            nucleoKL(tempValues, point, normIntCurr, pointNorm, istTemp, velP, velS, lambda, mu);
+            //Add KL and KT sub-kernels
+            nuKT(tempValues, point, intNormVect, pointNorm, timeInstant, velP, velS, lambda, mu);
+            nuKL(tempValues, point, intNormVect, pointNorm, timeInstant, velP, velS, lambda, mu);
             
-            //Somma pesata dei valori del nucleo alla shared memory
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
-                    matrixSubBlock[sharedBaseInd][i][j] += pesoExt * pesoInt * coeffNucleo[k] * tempValues[i][j]; 
+            //Add to shared memory
+            for(size_t i = 0; i < 3; i++)
+                for(size_t j = 0; j < 3; j++)
+                    matrixSubBlock[sharedBaseInd][i][j] += extWeight * intWeight * etaCoeffs[k] * tempValues[i][j]; 
         }
     }
 
-    //Sync prima di inziare la riduzione
     __syncthreads();
+    
+    size_t sharedOffInd;
 
-    unsigned int xDim, yDim, sharedOffInd;
-
-    //Primo step per scendere a potenza di 2 in y
-    yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
+    //First step to bring y dimension to power of 2
+    size_t yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
     sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
 
     if(threadIdx.y + yDim < blockDim.y)
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
+        for(size_t i = 0; i < 3; ++i)
+            for(size_t j = 0; j < 3; ++j)
                 matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
     __syncthreads();
 
-    //Iterazione per scendere ad 1 in y
+    //Loop to reduce in y dimension
     yDim /= 2;
     while(yDim > 0)
     {
         sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
         if(threadIdx.y < yDim)
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
+            for(size_t i = 0; i < 3; ++i)
+                for(size_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
         yDim /= 2;
     }
 
-    //Iterazione per scendere ad 1 in x (x è sempre potenza di 2)
-    xDim = blockDim.x/2;
+    //Loop to reduce in x dimension (x size is assumed to be a power of 2)
+    size_t xDim = blockDim.x/2;
     while(xDim > 0)
     {
         sharedOffInd = (threadIdx.x + xDim) * blockDim.y + threadIdx.y;
         if(threadIdx.x < xDim)
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
+            for(size_t i = 0; i < 3; ++i)
+                for(size_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
         xDim /= 2;
     }
 
-    // Salvataggio dati in memoria globale
-    unsigned long ind;
+    //Save in global memory
     if(threadIdx.x == 0 && threadIdx.y == 0)
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
+        for(size_t i = 0; i < 3; ++i)
+            for(size_t j = 0; j < 3; ++j)
             {
-                ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
+                const size_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
                 //matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
                 if(abs(matrixSubBlock[0][i][j]) > pow(10.0, -14))
                     matrix[ind] += matrixSubBlock[0][i][j] / const4PiDeltaT;
             }
-
     
-}
-
-__device__ bool isBlockNull(const double *vertsT, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen)
-{
-    int i, j;
-
-    double vertsS[3][3];
-    double vertsF[3][3];
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-        {
-            vertsS[i][j] = vertsT[9*blockIdx.x + 3*j + i];
-            vertsF[i][j] = vertsT[9*blockIdx.y + 3*j + i];
-        }
-        
-
-    double distMax = 0;
-    double distMin = 100; //Mettere valore vicino a +Inf;
-    double distCurr;
-
-    double vettDist[3];
-
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-        {
-            vettDist[0] = vertsS[i][0] - vertsF[j][0];
-            vettDist[1] = vertsS[i][1] - vertsF[j][1];
-            vettDist[2] = vertsS[i][2] - vertsF[j][2];
-            distCurr = sqrt(vettDist[0]*vettDist[0] + vettDist[1]*vettDist[1] + vettDist[2]*vettDist[2]);
-            if (distCurr > distMax)
-                distMax = distCurr;
-            if (distCurr < distMin)
-                distMin = distCurr;
-        }
     
-    return ((indTemp - 2) * cS * deltaT > distMax) || ((indTemp + 1) * cP * deltaT < distMin - maxLen);
-}
-
-
-__device__ double dotProd3D(const double vettA[3], const double vettB[3])
-{
-    return vettA[0]*vettB[0] + vettA[1]*vettB[1] + vettA[2]*vettB[2];
-}
-
-
-__device__ void nucleoKLT(double nuKLT[3][3], const double x[3], const double n[3], const double r, const double t, const double nodeInt[3], const double matCoeff[3][3], const double vetCoeff[3], const int indSM, 
-                                    const double cP, const double cS, const double lambda, const double mu)
-{
-    // Calcolo nucleo KL
-    nucleoKL(nuKLT, x, n, r, t, cP, cS, lambda, mu);
-
-    // Calcolo nuckeo KT
-    nucleoKT(nuKLT, x, n, r, t, cP, cS, lambda, mu);
-}
-
-
-__device__ void nucleoKL(double nuKL[3][3], const double x[3], const double n[3], const double r, const double t, const double cP, const double cS, const double lambda, const double mu)
-{
-    nuKL[0][0] += (lambda/(lambda + mu)) * x[0] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[0] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                                + dotProd3D(x, n) / pow(r, 3) * (t - (r/cS)) * ((t - (r/cS)) > 0);
-
-    nuKL[0][1] += (lambda/(lambda + mu)) * x[0] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[1] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[0][2] += (lambda/(lambda + mu)) * x[0] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[2] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[1][0] += (lambda/(lambda + mu)) * x[1] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[0] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[1][1] += (lambda/(lambda + mu)) * x[1] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[1] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                                + dotProd3D(x, n) / pow(r, 3) * (t - (r/cS)) * ((t - (r/cS)) > 0);
-
-    nuKL[1][2] += (lambda/(lambda + mu)) * x[1] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[2] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[2][0] += (lambda/(lambda + mu)) * x[2] * n[0] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[0] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[2][1] += (lambda/(lambda + mu)) * x[2] * n[1] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[1] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0));
-
-    nuKL[2][2] += (lambda/(lambda + mu)) * x[2] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                        +  (mu / (lambda + mu)) * x[2] * n[2] / pow(r, 3) * ((t - (r/cP)) * ((t - (r/cP)) > 0) - (t - (r/cS)) * ((t - (r/cS)) > 0))
-                                + dotProd3D(x, n) / pow(r, 3) * (t - (r/cS)) * ((t - (r/cS)) > 0);
-}
-
-__device__ void nucleoKT(double nuKT[3][3], const double x[3], const double n[3], const double r, const double t, const double cP, const double cS, const double lambda, const double mu)
-{
-    nuKT[0][0] += (lambda/(lambda + mu)) * x[0] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[0] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                                + dotProd3D(x, n) / pow(r, 2) * (((t - (r/cS)) > 0) / cS);
-
-    nuKT[0][1] += (lambda/(lambda + mu)) * x[0] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[1] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[0][2] += (lambda/(lambda + mu)) * x[0] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[2] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[1][0] += (lambda/(lambda + mu)) * x[1] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[0] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[1][1] += (lambda/(lambda + mu)) * x[1] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[1] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                                + dotProd3D(x, n) / pow(r, 2) * (((t - (r/cS)) > 0) / cS);
-
-    nuKT[1][2] += (lambda/(lambda + mu)) * x[1] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[2] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[2][0] += (lambda/(lambda + mu)) * x[2] * n[0] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[0] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[2][1] += (lambda/(lambda + mu)) * x[2] * n[1] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[1] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS));
-
-    nuKT[2][2] += (lambda/(lambda + mu)) * x[2] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                        +  (mu / (lambda + mu)) * x[2] * n[2] / pow(r, 2) * ((((t - (r/cP)) > 0) / cP) - (((t - (r/cS)) > 0) / cS))
-                                + dotProd3D(x, n) / pow(r, 2) * (((t - (r/cS)) > 0) / cS);
 }
