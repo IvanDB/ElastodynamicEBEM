@@ -29,7 +29,8 @@ end
 
 funChar = [repelem("\phi", ismember(form, "ID")),    ...
            repelem("p", ismember(form, "DD")),       ...
-           repelem("u", ismember(form, ["DN", "DNc"]))];
+           repelem("u", ismember(form, ["DN", "DNc"])),    ...
+           repelem("\psi", ismember(form, "IN"))];
 
 funStrings = dictionary([0 1 2 3], ["|" + funChar + "|", funChar + "_" + [1 2 3]]);
 varStrings = dictionary([1 2 3], "(" + ["x_1", "x_1, x_2", "x_1, x_2, x_3"] + ", t)");
