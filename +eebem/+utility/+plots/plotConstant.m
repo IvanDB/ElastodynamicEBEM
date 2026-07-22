@@ -67,7 +67,7 @@ for i = tVal
             mkdir(folderPath);
         end
         figName = fullfile(folderPath, pbParam.domainType + "-" + pbParam.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
-        exportgraphics(fig, figName + ".svg", ContentType = "vector")
+        %exportgraphics(fig, figName + ".svg", ContentType = "vector")
         exportgraphics(fig, figName + ".jpg", ContentType = "image")
     end
 end

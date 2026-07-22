@@ -11,7 +11,7 @@
 %Numero di sottointervalli temporali
 72
 %Tipologia mesh
-barH1-symm
+DesCop-cube-symm
 %Livello di raffinamento
 0
 %Equazione Integrale 

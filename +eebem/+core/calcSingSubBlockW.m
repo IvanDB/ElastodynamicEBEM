@@ -1,180 +1,56 @@
-function OutputMatrix = Copy_of_TestingForWKernel(outerNode, innerNode, timeInstant, indSMatrix,...
-    TriangPerNodes, pbParam, domainMesh, quadData, constData, maxNumTriangles)
-
-
-% test per calcolare un blocchetto di matrice del W
-% si passano i nodi interni ed esterni (s e sTilde) come inner e outer node
-% si passa l'istante temporale l come timeInstant
-% questa funzione si occupa di calcolare il blocchetto 3x3
-% [W_{\tlde{s},s}^{(l)}]_{ik} o almeno parti di essa. Così controlliamo se
-% il nucleo è giusto
-
-% arguments (Input)
-%     pbParam
-%     domainMesh
-%     quadData
-% end
+function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constData, indSMatrix, TriangPerNodes, maxNumTriangles, timeInstant, outerNode, innerNode)
 
 arguments (Output)
     OutputMatrix
 end
-delta = eye(3); % delta di kronecher
+delta = eye(3);
 
 epsilon = zeros(3, 3, 3); 
 
-% Permutazioni pari (+1)
+
 epsilon(1, 2, 3) = 1;
-epsilon(2, 3, 1) = 1;       % Per simboli levi-Civita
+epsilon(2, 3, 1) = 1;       
 epsilon(3, 1, 2) = 1;
 
-% Permutazioni dispari (-1)
+
 epsilon(1, 3, 2) = -1;
 epsilon(2, 1, 3) = -1;
 epsilon(3, 2, 1) = -1;
 
 
 OutputMatrix = zeros(3,3);
-mu = pbParam.mu;
-lambda = pbParam.lambda;
-rho = pbParam.rho;
-deltaT = pbParam.Tfin/pbParam.nT;
-cS = pbParam.velS;
-cP = pbParam.velP;
-kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
-timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
-outerTriangles = TriangPerNodes(outerNode, :); % Trovo gli indici dei triangoli che hanno outerNode come vertice 
-innerTriangles = TriangPerNodes(innerNode, :); % Trovo gli indici dei triangoli che hanno innerNode come Vertice
-outerVertexes = indSMatrix(outerNode,:); % Trovo che vertice è (primo secondo terzo) outerNode per ogni triangolo di 
-                                                % outerTriangles
-innerVertexes = indSMatrix(innerNode,:); % Stessa cosa per il nodo interno
+
+outerTriangles = TriangPerNodes(outerNode, :); 
+innerTriangles = TriangPerNodes(innerNode, :);
+outerVertexes = indSMatrix(outerNode,:); 
+                                                
+innerVertexes = indSMatrix(innerNode,:);
 
 
-for i = 1 : maxNumTriangles % Ciclo sui triangoli esterni
-    
-    currentOuterTriangle = outerTriangles(i); % Triangolo esterno corrente
-
-    if (currentOuterTriangle == 0) % se è zero vuol dire che li abbiamo già fatti tutti
+for i = 1 : maxNumTriangles 
+    currentOuterTriangle = outerTriangles(i); 
+    if (currentOuterTriangle == 0)
         break;
     end
-    
-     % Voglio individuare che vertice è outerNode rispetto a
-        % currentOuterTriangle e che vertice è innerNode rispetto a
-        % CurrentInnerTriangle in modo da estrarre  le "vele" giuste per il
-        % calcolo del nucleo. La "vela"giusta sul triangolo corrente è
-        % quella che fa 1 sul nodo corrente, quindi rispetto al triangolo,
-        % quella che fa 1 sul vertice corrente
-
-    currentOuterVertex = outerVertexes(i); % il punto geometrico a cui ci riferiamo è sempre lo stesso, ma cambia in quanto
-    % vertice dei triangoli che toccano tale punto
-
-    for j = 1 : maxNumTriangles %Ciclo sui triangoli interni
-        currentInnerTriangle = innerTriangles(j); % Triangolo interno corrente
-
-        if (currentInnerTriangle == 0) % Se è zero vuol dire che li abbiamo già fatti tutti
+    currentOuterVertex = outerVertexes(i);
+    for j = 1 : maxNumTriangles 
+        currentInnerTriangle = innerTriangles(j); 
+        if (currentInnerTriangle == 0)
         break;
         end
-        
-        
+        if (currentInnerTriangle ~= currentOuterTriangle)
+            % if the two triangles aren't equal it does nothing and then
+            % proceeds
+            continue;
+        end
 
         currentInnerVertex = innerVertexes(j);
-        %per mappare i nodi di Gauss-Hammer sui triangoli mi serviranno i
-        %vertici dei due triangoli per cui li estraggo qui in due matrici
-        %3x3 
-
-       
-
-
-        currentOuterVerts = zeros(3,3); %Nella prima riga metto le 3 coordinate del primo vertice e così via
-
-        currentOuterVerts(1,:) = domainMesh.coordinates(domainMesh.triangles(currentOuterTriangle,1),:);
-        currentOuterVerts(2,:) = domainMesh.coordinates(domainMesh.triangles(currentOuterTriangle,2),:);
-        currentOuterVerts(3,:) = domainMesh.coordinates(domainMesh.triangles(currentOuterTriangle,3),:);
-
-        currentInnerVerts = zeros(3,3); % Initialize matrix for inner triangle vertices
-
-        currentInnerVerts(1,:) = domainMesh.coordinates(domainMesh.triangles(currentInnerTriangle,1),:);
-        currentInnerVerts(2,:) = domainMesh.coordinates(domainMesh.triangles(currentInnerTriangle,2),:);
-        currentInnerVerts(3,:) = domainMesh.coordinates(domainMesh.triangles(currentInnerTriangle,3),:);
-
-        % Per il nucleo mi servono anche le normali dei triangoli esterno
-        % ed intrno correnti
-        % coordNodo == currentInnerVerts(1,:)
         
-        currentOuterNormal = domainMesh.normal(currentOuterTriangle,:); % Normale del triangolo esterno
+        currentOuterNormal = domainMesh.normal(currentOuterTriangle,:); 
 
-        
-        currentInnerNormal = domainMesh.normal(currentInnerTriangle,:); % Normale del triangolo interno
-
-        
-        % Ora estraggo i valori necessari per calcolare la funzione di base corrente ed il vettore
-        % associato al suo rotore
-        
-        currentOuterTriangleMatrix = constData{currentOuterTriangle}.matCoeff;
-        currentInnerTriangleMatrix = constData{currentInnerTriangle}.matCoeff;
-        
-        currentOuterTriangleCoeffs = constData{currentOuterTriangle}.vetCoeff; %Il pezzo della "vela" che dipende solo dal triangolo e non dal punto o dal vertice
-        currentInnerTriangleCoeffs = constData{currentInnerTriangle}.vetCoeff; %Il pezzo della "vela" che dipende solo dal triangolo (interno)
-
-        currentOuterVVector = cross(currentOuterNormal,currentOuterTriangleMatrix(currentOuterVertex,:)); % è \bm{V_{\tilde{\alpha}}^{\tilde{s}}}
-        currentInnerVVector = cross(currentInnerNormal, currentInnerTriangleMatrix(currentInnerVertex,:)); % è \bm{V_{\alpha}^{s}}
-        
-
-        if (currentOuterTriangle == currentInnerTriangle)
-            singularSubBlock = computeSingBlockW(pbParam, currentOuterVertex, currentInnerVertex, currentOuterNormal, constData{currentOuterTriangle}, timeInstant, quadData.methodSpecs, delta, epsilon);
-            OutputMatrix = OutputMatrix + singularSubBlock; 
-            continue; % Salta tutto il resto del ciclo e passa al prossimo 'j'
-        end
-
-
-
-        % Ora dovrei avere tutto e posso cominciare la quadratura facendo
-        % il doppio ciclo sui nodi di gauss (su GPU il ciclo esterno sarà gestito dai Thread nel blocco corrente, quello interno invece sarà sempre un for)
-
-        for innerGaussHammerIndex = 1 : length(quadData.INTn)
-            %devo calcolare il peso e le coordinate del dodo corrente
-            currentInnerGaussWeight = quadData.INTw(mod(innerGaussHammerIndex-1,3)+1)*domainMesh.area(currentInnerTriangle); % Peso del nodo corrente sul triangolo corrente
-            %INtw e INTn li tirerò fuori da quad data
-            temporaryStandardNode = quadData.INTn(innerGaussHammerIndex,:); % Nodo su triangolo di riferimento
-
-            currentInnerGaussNode = temporaryStandardNode*currentInnerVerts; % Mappo il nodo sul triangolo interno corrente
-
-            currentVXi = VFunction(currentInnerTriangleCoeffs, currentInnerTriangleMatrix, currentInnerVertex, currentInnerGaussNode); % Funzione che creerò per valutare V_{\alpha}^{s}(\xi)
-
-            for outerGaussHammerIndex = 1 : length(quadData.EXTn)
-                currentOuterGaussWeight = quadData.EXTw*domainMesh.area(currentOuterTriangle); % Peso del noto esterno
-
-                temporaryStandardNode = quadData.EXTn(outerGaussHammerIndex,:); %Nodo sul triangolo di riferimento (esterno)
-
-                currentOuterGaussNode = temporaryStandardNode*currentOuterVerts; % Mappo il nodo sul triangolo Esterno Corrente
-
-                currentVTildeX = VTildeFunction(currentOuterTriangleCoeffs, currentOuterTriangleMatrix, currentOuterVertex, currentOuterGaussNode); % Funzione che valuta V_{\tilde{\alpha}}^{\tilde{s}}(x)
-                    
-
-                current_rVector = currentOuterGaussNode-currentInnerGaussNode; %vettore differenza r = x-\xi
-
-                current_rNorm = norm(current_rVector,2); % norma di r
-                
-                
-                % Ciclo sugli istanti temporali
-
-                for k = 1 : 4
-                    currentTime = (timeInstant+timeCoeffs(k))*deltaT;
-                    if (currentTime<=0)
-                        continue;
-                    end
-                    currentCoeff = kernelCoeffs(k);
-                    kernel = kernelCalc(currentTime, currentVTildeX,currentVXi,currentInnerVVector,currentOuterVVector,...
-                        current_rVector, current_rNorm, currentInnerNormal, currentOuterNormal, mu, lambda, rho, cS, cP, delta, epsilon);
-
-                    OutputMatrix = OutputMatrix + currentInnerGaussWeight*currentOuterGaussWeight*(currentCoeff/(deltaT^2))*kernel;
-                        
-                end
-
-            end
-        end
-
+        singularSubBlock = computeSingBlockW(pbParam, currentOuterVertex, currentInnerVertex, currentOuterNormal, constData{currentOuterTriangle}, timeInstant, quadData.methodSpecs, delta, epsilon);
+        OutputMatrix = OutputMatrix + singularSubBlock; 
     end
-
 end
 
 end
@@ -255,8 +131,8 @@ function kernelTH = calcKernelTH(i, k, t, VTildeX, VXi, rVector, r, n, v, mu, la
 H_P = (t - (r/cP) > 0); % queste sono le heavyside
 H_S = (t - (r/cS) > 0);
 
-IHS = H_S*(t/2);
-IHP = H_P*(t/2);
+IHS = H_S*(((t^2)-(r/cS)^2)/2);
+IHP = H_P*(((t^2)-(r/cP)^2)/2);
 
 Rn = dot(rVector,n);
 Rv = dot(rVector,v);
@@ -282,8 +158,8 @@ end
 function kernelRH = calcKernelRH(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta)
     H_P = (t - (r/cP) > 0);
     H_S = (t - (r/cS) > 0);
-    IHRGS = H_S*(((t-(r/cS))^4)/(24) - r*((t-(r/cS))^3)/(6*cS));
-    IHRGP = H_P*(((t-(r/cP))^4)/(24) - r*((t-(r/cP))^3)/(6*cP));
+    IHRGS = H_S*(((t-(r/cS))^4)/(24) + r*((t-(r/cS))^3)/(6*cS));
+    IHRGP = H_P*(((t-(r/cP))^4)/(24) + r*((t-(r/cP))^3)/(6*cP));
     
     % --- PRE-CALCOLO VETTORIALE ---
     A = cross(rVector, VTildeAlphaS);
@@ -401,7 +277,6 @@ for k = 1 : 4 % Ciclo su istanti temporali
                     innerIntegral = innerIntegral + currentInnerWeight*kernel;
                 end
             end
-
         outerIntegral = outerIntegral + currentOuterWeight*innerIntegral;
         end
     end

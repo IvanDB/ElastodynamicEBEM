@@ -26,7 +26,8 @@ fgets(meshFile);
 
 %Lettura NUMERO di NODI
 domainMesh.numVertices = sscanf(fgets(meshFile), "%d");
-
+%r = randperm(domainMesh.numVertices);
+%disp(r);
 %Allocazione MATRICE contenente le COORDINATE dei NODI
 domainMesh.coordinates = zeros(domainMesh.numVertices, 4);
 
@@ -43,9 +44,13 @@ sizeSpec = [4 4*domainMesh.numVertices];
 %Lettura dei nodi della mesh
 domainMesh.coordinates = fscanf(meshFile, formatSpec, sizeSpec)';
 
+% se voglio permutare la mesh faccio la permutazione inversa di r
+%r_inv = zeros(1, domainMesh.numVertices);
+%r_inv(r) = 1 : domainMesh.numVertices;
+
 %Eliminazione quarta colonna (inutile)
 domainMesh.coordinates(:, 4) = [];
-
+%domainMesh.coordinates = domainMesh.coordinates(r, :);
 %% LETTURA dei TRIANGOLI della MESH
 %Lettura linea commentata introduzione sezione degli elementi di bordo
 fgets(meshFile);
@@ -55,6 +60,7 @@ domainMesh.numTriangles = sscanf(fgets(meshFile), "%d");
 
 %Allocazione MATRICE contenente le INCIDENZE dei TRIANGOLI
 domainMesh.triangles = zeros(domainMesh.numTriangles, 4);
+
 
 %Ogni riga è relativa ad un triangolo: i primi tre elementi contengono 
 % l"indice dei nodi che costituiscono i tre vertici del triangolo mentre
@@ -77,6 +83,8 @@ domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 % Assegnazione forzata dell"indice di ciascun triangolo
 ind = 4;
 domainMesh.triangles(:, 4) = ind * ones(domainMesh.numTriangles, 1);
+
+%domainMesh.triangles(:, 1:3) = r_inv(domainMesh.triangles(:, 1:3));
 
 if(domainType == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
     domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);

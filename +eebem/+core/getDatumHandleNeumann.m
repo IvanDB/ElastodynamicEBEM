@@ -10,7 +10,17 @@ arguments (Output)
 end
 
 switch pbParam.domainType
-    case {"barH1-symm", "barH1-asym", "barH3-symm", "barH3-asym"}
+    %case {"barH1-symm", "DesCop-cube-symm"}
+	%h = 1;
+	%cP = pbParam.velP;
+        %hat_k = ceil((cP * pbParam.Tfin) / (2 .* h)) - 1;
+        %k_val = (0 : hat_k)';
+	%tildeP = @(t) sum((-1).^k_val .* (((cP.*t - 2.*h.*k_val) > 0) ...
+        %                                + ((cP.*t - 2.*h.*(k_val+1)) > 0)));
+	%g = @(x, t, n) [0; 0; 2*pbParam.mu * tildeP(t) * n(3)]; % same datum on top and bottom face
+        %g  = @(x, t, n) [n(1); n(2); n(3)]; %for uniform datum
+    
+    case {"barH1-symm", "barH1-asym", "barH3-symm", "barH3-asym"} %rimettere poi barH1-symm
         h = 1 * (strcmp(pbParam.domainType, "barH1-symm") + strcmp(pbParam.domainType, "barH1-asym")) + ...
             3 * (strcmp(pbParam.domainType, "barH3-symm") + strcmp(pbParam.domainType, "barH3-asym"));
         cP = pbParam.velP;
@@ -19,8 +29,9 @@ switch pbParam.domainType
         tildeP = @(x, t) sum((-1).^k_val .* (((cP.*t - 2.*h.*k_val - (h - x(3))) > 0) ...
                                         + ((cP.*t - 2.*h.*(k_val+1) + (h - x(3))) > 0)));
         g = @(x, t, n) [0; 0; 2*pbParam.mu * tildeP(x, t) * n(3)];
+
     
-    case {"DesCop-cube-symm", "DesCop-cube-asym"}
+    case {"DesCop-cube-symm", "DesCop-cube-asym"} %rimettere poi DesCop-cube-symm
         a = 0.1;
         b = 100;
         cP = pbParam.velP;

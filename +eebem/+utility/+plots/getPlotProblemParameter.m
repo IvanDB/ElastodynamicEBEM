@@ -41,25 +41,25 @@ switch pbParam.domainType
         climCustom = false;
     case {"barH1-symm", "barH1-asym"}
         nDim = 3;
-        tVal = pbParam.nT .* (1 : 6) ./ pbParam.Tfin ;
+        tVal = [(1 : 1/(pbParam.Tfin/pbParam.nT)), (2 : pbParam.Tfin)./(pbParam.Tfin/pbParam.nT)] ;
         jVal = 3;
         climCustom = false;
     case {"barH3-symm", "barH3-asym"}
         nDim = 3;
         tVal = pbParam.nT .* (1 : pbParam.Tfin) ./ pbParam.Tfin ;
-        jVal = 1 : 3;
+        jVal = 3;
         climCustom = false;
     case 'sphereWave'
         return
     case {"DesCop-cube-symm", "DesCop-cube-asym"}
         nDim = 3;
-        tVal = floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
+        tVal = [(1 : 1/(pbParam.Tfin/pbParam.nT)), (2 : pbParam.Tfin)./(pbParam.Tfin/pbParam.nT)]; %floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
         jVal = 0;
         climCustom = true;
     case "DesCop-sphere"
         nDim = 3;
         tVal = 1 : 2 : pbParam.nT;
-        jVal = [1, 3];
+        jVal = 3;
         climCustom = true;
     case 'elementoIndustriale'
         nDim = 3;

@@ -24,8 +24,9 @@ parInfo = parpool("Processes");
 %% SETUP INPUT DATA
 %problemFileName = "input_barH1-symm_lev1.txt"; %constructFileName(pbIndex)
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
-
+disp("Input file read");
 domainMesh = utility.fileRead.readSpaceMesh(basePath, pbParam.domainType, pbParam.lev);
+disp("Mesh loaded");
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures);
 
 formSelected = "ID";
@@ -35,7 +36,7 @@ assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input erro
 %% CORE EXECUTION
 % Setup quadrature data
 coreQuadData = core.setupCore(10);
-disp(coreQuadData.methodSpecs.stringID)
+disp("Quadrature type used: "+coreQuadData.methodSpecs.stringID);
 
 % Main call
 switch formSelected
@@ -72,7 +73,12 @@ switch formSelected
         glbIndexFigures = utility.plots.plotConstant(basePath, pbParam, domainMesh, displacement, glbIndexFigures);
 
     case "IN"
-        assert(false, "Coming soon...")
+        assert(coreQuadData.methodSpecs.quadType == "FN", sprintf("Quadrature type (%s) non available for the selected formulation (%s)", ...
+                                                        coreQuadData.methodSpecs.quadType, formSelected))
+
+        density = core.timeMarchingIN(basePath, pbParam, domainMesh, coreQuadData);
+        disp("Density computed");
+        glbIndexFigures = utility.plots.plotLinear(basePath, pbParam, domainMesh, density, glbIndexFigures);
 
     otherwise
         error("Unrecognized formulation")

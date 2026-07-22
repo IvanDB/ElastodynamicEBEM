@@ -15,7 +15,7 @@ Z = [(domainMesh.coordinates(domainMesh.triangles(:, 1), 3))'; ...
 
 % Get plots specs
 [nDim, tVal, jVal, climCustom] = eebem.utility.plots.getPlotProblemParameter(pbParam);
-
+tMax = max(tVal);
 % Map the values onto the mesh triangles for plotting
 densityOnTriangles = kron((domainMesh.indSMmatrix > 0), eye(3)) * values / 3;
 
@@ -48,7 +48,7 @@ for i = tVal
         varStrings = dictionary([1 2 3], ["(x_1, T)", "(x_1, x_2, T)", "(x_1, x_2, x_3, T)"]);
         funStrings = dictionary([0 1 2 3], ["|u|", "u_1", "u_2", "u_3"]);
         
-        figTitle = "$" + funStrings(j) + varStrings(nDim) + "$ where $T = " + pbParam.deltaT * i + "$";
+        figTitle = "$" + funStrings(j) + varStrings(nDim) + "$ where $t = " + pbParam.deltaT * i + " s$";
         
         %Graphics settings
         title(figTitle, Interpreter = 'latex', FontSize = 14)
@@ -57,7 +57,7 @@ for i = tVal
         daspect([1 1 1]);
         if climCustom
             if(j == 0)
-                clim(max(densityOnTriangles, [], "all"));
+                clim([0, max(densityOnTriangles, [], "all")]);
             else
                 clim([min(densityOnTriangles(j:3:end, :), [], "all"), -min(densityOnTriangles(j:3:end, :), [], "all")]);
             end
@@ -69,8 +69,11 @@ for i = tVal
             mkdir(folderPath);
         end
         figName = fullfile(folderPath, pbParam.domainType + "-" + pbParam.lev + "-" + erase(funStrings(j), "\") + "-t_i=" + i);
-        exportgraphics(fig, figName + ".svg", ContentType = "vector")
-        exportgraphics(fig, figName + ".jpg", ContentType = "image")
+        %exportgraphics(fig, figName + ".svg", ContentType = "vector")
+        exportgraphics(fig, figName + ".jpg", ContentType = "image");
+	if(i == 1 || i == tMax)
+            savefig(fig, figName + ".fig");
+	end
     end
 end
 end
