@@ -1,4 +1,4 @@
-function constValues = postProc_constData(domainMesh)
+function constValues = calcConstData(domainMesh)
 % Function for computing shape functions on triangles
 numTriangle = domainMesh.numTriangles;
 
@@ -13,3 +13,4 @@ for indT = 1 : numTriangle
 end
     
 return
+end

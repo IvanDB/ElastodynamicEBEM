@@ -1,15 +1,10 @@
 function glbIndexFigures = plotSolution(basePath, pbParam, u, xVal, tVal, iVal, glbIndexFigures, form)
-%%
-
-%%
 %Calcolo dimensioni ed inizializzazione matrice soluzione
 numPlotGroups = size(xVal, 1);
 numValPerPlot = length(tVal);
 uSP = u;
 
-
 xLabelText = "$t$ ($s$)";
-
 
 for indPG = 1 : numPlotGroups
     for indI = iVal
@@ -25,7 +20,7 @@ for indPG = 1 : numPlotGroups
 
         %Plot funzione 
         plot(tVal, funcValue);
-	yLabelText = "$u_{"+num2str(indI)+"}(x_0, t)$";
+	    yLabelText = "$u_{"+num2str(indI)+"}(x_0, t)$";
         %Set parametri figura
         xlabel(xLabelText, 'interpreter', 'latex', 'fontsize', 14)
         ylabel(yLabelText, 'interpreter', 'latex', 'fontsize', 14)

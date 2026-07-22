@@ -1,4 +1,4 @@
-function uXT = postProcV_calc(pbParam, domainMesh, density, methodInfo, x, t, PPn, PPw)
+function uXT = calcMatrixG(pbParam, domainMesh, density, methodInfo, x, t, PPn, PPw)
 import eebem.postProc.*
 %% GPU SETUP 
 
@@ -19,9 +19,8 @@ nHat = ceil(t ./ deltaT);
 % mesh info
 numT = domainMesh.numTriangles;
 
-
 %Constant data (cell array containing vet coeff and mat coeff for eac triangle)
-constValues = postProc_constData(domainMesh);
+constValues = calcConstData(domainMesh);
 
 %% SETUP GPU VARIABLES
 % input arrays
@@ -71,7 +70,7 @@ end
 %% Matrix G kernel Setup
 currentFolder = fileparts(mfilename('fullpath'));
 ptxPath = fullfile(currentFolder, "kernelG.ptx");
-cuPath = fullfile(currentFolder, "kernelG.cu");
+cuPath = fullfile(currentFolder, "kernelCUDA", "kernelG.cu");
 
 kernelG = parallel.gpu.CUDAKernel(ptxPath, cuPath);
 

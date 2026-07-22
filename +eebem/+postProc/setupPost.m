@@ -1,4 +1,4 @@
-function [postProcInfo, PPn, PPw] = postProc_setup()
+function [postProcInfo, PPn, PPw] = setupPost()
 % Setup post processing quadrature nodes and wheigths for GPU implematation
 % using Gauss Hammer Composite quadrature scheme with 64 subregions with 3
 % nodes each

@@ -1,4 +1,4 @@
-function uXT = postProcW_calc(pbParam, domainMesh, density, methodInfo, x, t, PPn, PPw)
+function uXT = calcMatrixP(pbParam, domainMesh, density, methodInfo, x, t, PPn, PPw)
 import eebem.postProc.*
 %% GPU SETUP 
 
@@ -21,7 +21,7 @@ numT = domainMesh.numTriangles;
 numS = domainMesh.numVertices;
 
 %Constant data (cell array containing vet coeff and mat coeff for eac triangle)
-constValues = postProc_constData(domainMesh);
+constValues = calcConstData(domainMesh);
 
 %% SETUP GPU VARIABLES
 % input arrays
@@ -77,7 +77,7 @@ end
 %% Matrix P kernel Setup
 currentFolder = fileparts(mfilename('fullpath'));
 ptxPath = fullfile(currentFolder, "kernelP.ptx");
-cuPath = fullfile(currentFolder, "kernelP.cu");
+cuPath = fullfile(currentFolder, "kernelCUDA", "kernelP.cu");
 kernelP = parallel.gpu.CUDAKernel(ptxPath, cuPath);
 
 kernelP.GridSize = [numS nHat 1];
@@ -94,14 +94,7 @@ matrixP = feval(kernelP, matrixP, pbParam.velP, pbParam.velS, pbParam.lambda, pb
 
 wait(gpuID);
 matrixP = reshape(matrixP, [3*nHat 3*numS]);
-%matrixP_cpu = double(gather(matrixP)); % bring matrix to CPU to compute useful stuff
-%maxP = max(abs(matrixP_cpu(:)));
-%hasNaN = any(isnan(matrixP_cpu(:))) || any(isinf(matrixP_cpu(:)));
-%if ~hasNaN
-%        condP = cond(matrixP_cpu);
-%    else
-%        condP = NaN;
-%end
+
 %% SOMMA PER uXT
 uXTtemp = zeros(3, nHat, "gpuArray");
 for indTemp = 1 : nHat

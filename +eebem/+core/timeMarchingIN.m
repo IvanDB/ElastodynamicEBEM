@@ -21,20 +21,18 @@ reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[~, ~, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh); %% Need to modify this function so that it also
-% computes the number of blocks for matrix W (DONE!)
+[~, ~, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
 blockSizesW = [domainMesh.numVertices, domainMesh.numVertices];
-matrixSpecsW = calcMatrixSpecs(nGPU, avMem, blockSizesW, numBlocksW); %Need to modify so it also computes the matrix specs for W
-matrixW = calcMatrixW(matrixSpecsW, nGPU, basePath, pbParam, domainMesh, quadData, constValues); %% Need to create this function
+matrixSpecsW = calcMatrixSpecs(nGPU, avMem, blockSizesW, numBlocksW);
+matrixW = calcMatrixW(matrixSpecsW, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
 % Datum vectors calculations
 matrixIGamma = kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 3, eye(3))';
 
 gV = calcBoundDataNeumann(pbParam, domainMesh);
-
 
 % Time-marching process
 density = zeros(3*domainMesh.numVertices, pbParam.nT);

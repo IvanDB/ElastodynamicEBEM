@@ -1,4 +1,4 @@
-function [xVal, tVal, iVal, numPoints, typePlot] = postProc_loadPoints(pbParam)
+function [xVal, tVal, iVal, numPoints, typePlot] = loadPoints(pbParam)
 % Function loading interest point for post processing
 % iVal tells us which component of the solution to plot
 typePlot = "";

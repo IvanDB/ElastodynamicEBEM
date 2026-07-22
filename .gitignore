@@ -45,3 +45,5 @@ codegen/
 outputData/*
 outputPlot/*
 tempData/*
+solutionData/*
+solutionPlot/*

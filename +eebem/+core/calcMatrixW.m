@@ -59,9 +59,7 @@ for indIter = 1 : matrixSpecs.numIter
     %Allocating matrix containig singular sub blocks
     matrixSubBlocksSING = zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols, numBlocksThisIter);
     
-
     %Avvio computazione CPU
-    
     for indTemp = 1 : numBlocksThisIter
         %Check non sforamento numero di blocchi necessario?
         if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
@@ -112,11 +110,8 @@ for indIter = 1 : matrixSpecs.numIter
     % Adding singular sub blocks
     matrixOut = matrixOut + matrixSubBlocksSING;
 
-
     % Loops to get the same matrix stucture of other kernels
     parfor indTemp = 1 : numBlocksThisIter
-        
-        
         if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
             continue
         end
@@ -141,15 +136,6 @@ for ind = (matrixSpecs.numBlocks + 1) : pbParam.nT
     matrixW{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
 end
 end
-
-
-
-
-
-
-
-
-
 
 function [gpuInputArrays, indSMmatrix, TriangPerNodes, maxTrianglesPerNode] = copyArrayW(domainMesh, quadData, constValues)
 
