@@ -654,8 +654,8 @@ static __device__ inline double kernelTHCalc(const int i, const int k, const dou
     double delta_ik = (i == k) ? 1.0 : 0.0;
 
     // double time integrals
-    double IHS = H_S*(((t*t) - ((r/cS)*(r/cS)))/2.0);
-    double IHP = H_P*(((t*t) - ((r/cP)*(r/cP)))/2.0);
+    double IHS = H_S*(((t - r/cS)*(t + r/cS))/2.0); // H_S*(((t*t) - ((r/cS)*(r/cS)))/2.0);
+    double IHP = H_P*(((t - r/cP)*(t + r/cP))/2.0); // H_P*(((t*t) - ((r/cP)*(r/cP)))/2.0);
 
     // scalar products
     double Rn = dot(rVector,n);
