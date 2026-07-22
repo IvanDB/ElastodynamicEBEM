@@ -68,4 +68,32 @@ glbIndexFigures = utility.plots.plotSolutions(formSelected, pbParam, domainMesh,
 
 %% POST PROCESSING EXECUTION
 assert(true, "Post processing in WIP")
+
+if(exist("solution", "var"))
+    density = solution;
+elseif(exist(nomeFile, "file"))
+    density = load(nomeFile).density;
+else
+    error("Error message")
+end
+
+[postProcInfo, PPn, PPw] = postProc.setupPost();
+[xVal, tVal, iVal, numPoints, ~] = postProc.loadPoints(pbParam);
+
+if numPoints == 0
+    return
+end
+
+switch formSelected
+    case "ID"
+        vectorField = postProc.postProcV_core(basePath, pbParam, domainMesh, density, numPoints, xVal, tVal, postProcInfo, PPn, PPw);
+
+    case "IN"
+        vectorField = postProc.postProcW_core(basePath, pbParam, domainMesh, density, numPoints, xVal, tVal, postProcInfo, PPn, PPw);
+
+    otherwise
+        warning("Post processing is WIP")
+end
+
+glbIndexFigures = utility.plots.plotSolution(basePath, pbParam, vectorField, xVal, tVal, iVal, glbIndexFigures, formSelected);
 return
