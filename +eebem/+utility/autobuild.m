@@ -55,7 +55,7 @@ gpuCC = gpuInfo.ComputeCapability;
 gpuCC(gpuCC == '.') = [];
 
 coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
-coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"];
+coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu", "kernelW.cu"];
 
 for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
     cmd = strcat(scriptCompiler, ' nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
