@@ -1,258 +1,144 @@
-__device__ void nucleo(double nu[3][3], const double x[3], const double r, const double t, const double cP, const double cS);
-__device__ bool isBlockNull(const double *vertsT, const double deltaT, const double cP, const double cS, const int indTemp);
+#include "commonRoutines.cuh"
 
-
-__global__ void kernelGHC(double *matrix, const double deltaT, const double velP, const double velS, const double const4PiRho,
-                          const double *stdGHw, const double *stdGHnx, const double *stdGHny, const double *stdGHnz, const int numPointExt,
-                          const double *stdGHCw, const double *stdGHCnx, const double *stdGHCny, const double *stdGHCnz,
-                          const double *vertsT, const double *areeT, const int offsetZ, const int numBlocks)  
+__global__ void kernelV(double* __restrict__ matrix, const double deltaT, const double velP, const double velS, const double const4PiRho,
+                        const double* __restrict__ stdExtW, const double* __restrict__ stdExtNx, const double* __restrict__ stdExtNy, const double* __restrict__ stdExtNz, const int numPointExt,
+                        const double* __restrict__ stdIntW, const double* __restrict__ stdIntNx, const double* __restrict__ stdIntNy, const double* __restrict__ stdIntNz,
+                        const double* __restrict__ vertsT, const double* __restrict__ areeT, const int offsetZ, const int numBlocks)  
 {
-    //Evito i blocchi diagonali
+    //Skip diagonal blocks
     if(blockIdx.x == blockIdx.y)
         return;
 
-    //Controllo di non aver sforato l'indice temporale
+    //Time instant check
     if(offsetZ + blockIdx.z >= numBlocks)
         return;
 
-    //Controllo condizione teorica necessità di calcolo
-    if (isBlockNull(vertsT, deltaT, velP, velS, offsetZ + blockIdx.z))
+    //Spatial condition check
+    if(isVBlockNull(vertsT, deltaT, velP, velS, offsetZ + blockIdx.z))
         return;
 
+    //Shared memory initialization
     extern __shared__ double matrixSubBlock[][3][3];
-    int k, i, j, l;
-
-    const unsigned int sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
-    // Inizializzazione shared memory
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
+    const size_t sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
             matrixSubBlock[sharedBaseInd][i][j] = 0;
 
-    //Dichiarazione variabili
-    double vertsTemp[3][3];
-    double nodoTemp[3];
+    //Field triangle verteces 
+    double intVerts[3][3];
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
+            intVerts[i][j] = vertsT[9*blockIdx.y + 3*j + i];
     
-    //Calcolo peso nodo GHC corrente
-    double pesoInt = stdGHCw[threadIdx.y] * areeT[blockIdx.y];
+    //Field node
+    const size_t intNodeIdx = threadIdx.x*blockDim.y + threadIdx.y;
+    const double stdNodeI[] = {stdIntNx[intNodeIdx], stdIntNy[intNodeIdx], stdIntNz[intNodeIdx]};
 
-    // Lettura vertici triangolo interno
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-            vertsTemp[i][j] = vertsT[9*blockIdx.y + 3*j + i];
+    const double intNode[] = {stdNodeI[0] * intVerts[0][0] + stdNodeI[1] * intVerts[1][0] + stdNodeI[2] * intVerts[2][0],
+                              stdNodeI[0] * intVerts[0][1] + stdNodeI[1] * intVerts[1][1] + stdNodeI[2] * intVerts[2][1],
+                              stdNodeI[0] * intVerts[0][2] + stdNodeI[1] * intVerts[1][2] + stdNodeI[2] * intVerts[2][2]};
     
-    // Lettura coordinate nodo GHC corrente su triangolo stardard
-    nodoTemp[0] = stdGHCnx[threadIdx.x*blockDim.y + threadIdx.y];
-    nodoTemp[1] = stdGHCny[threadIdx.x*blockDim.y + threadIdx.y];
-    nodoTemp[2] = stdGHCnz[threadIdx.x*blockDim.y + threadIdx.y];
+    //Field weight
+    const double intWeight = stdIntW[threadIdx.y] * areeT[blockIdx.y];
 
-    //Mappaggio nodo GHC corrente su triangolo interno
-    double nodoGHCcurr[3];
-    nodoGHCcurr[0] = nodoTemp[0] * vertsTemp[0][0] + nodoTemp[1] * vertsTemp[1][0] + nodoTemp[2] * vertsTemp[2][0];
-    nodoGHCcurr[1] = nodoTemp[0] * vertsTemp[0][1] + nodoTemp[1] * vertsTemp[1][1] + nodoTemp[2] * vertsTemp[2][1];
-    nodoGHCcurr[2] = nodoTemp[0] * vertsTemp[0][2] + nodoTemp[1] * vertsTemp[1][2] + nodoTemp[2] * vertsTemp[2][2];
+    //Source triangle verteces
+    double extVerts[3][3];
+    for(size_t i = 0; i < 3; ++i)
+        for(size_t j = 0; j < 3; ++j)
+            extVerts[i][j] = vertsT[9*blockIdx.x + 3*j + i];
 
-    //Lettura vertici triangolo esterno
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-            vertsTemp[i][j] = vertsT[9*blockIdx.x + 3*j + i];
+    //Eta costants
+    const double etaCoeffs[3] = {1, -2, 1};
+    const double etaValues[3] = {-1, 0, 1};
 
-    //Ciclo sui numPointExt nodi del triangolo esterno
-    for(l = 0; l < numPointExt; l++)
+    //Loop over source nodes
+    for(size_t l = 0; l < numPointExt; ++l)
     {
-        // Calcolo peso nodo GH triangolo esterno
-        double pesoExt = stdGHw[l] * areeT[blockIdx.x];
+        const double extWeight = stdExtW[l] * areeT[blockIdx.x];
+      
+        const double stdNodeE[] = {stdExtNx[l], stdExtNy[l], stdExtNz[l]};
+        const double extNode[3] = {stdNodeE[0] * extVerts[0][0] + stdNodeE[1] * extVerts[1][0] + stdNodeE[2] * extVerts[2][0],
+                                   stdNodeE[0] * extVerts[0][1] + stdNodeE[1] * extVerts[1][1] + stdNodeE[2] * extVerts[2][1],
+                                   stdNodeE[0] * extVerts[0][2] + stdNodeE[1] * extVerts[1][2] + stdNodeE[2] * extVerts[2][2]};
         
-        //Lettura nodo GH corrente su triangolo standard
-        nodoTemp[0] = stdGHnx[l];
-        nodoTemp[1] = stdGHny[l];
-        nodoTemp[2] = stdGHnz[l];
+        //Space vector
+        const double point[3] = {intNode[0] - extNode[0], 
+                                 intNode[1] - extNode[1], 
+                                 intNode[2] - extNode[2]};
 
-        //Mappaggio nodo GH corrente su triangolo esterno
-        double nodoGHcurr[3];
-        nodoGHcurr[0] = nodoTemp[0] * vertsTemp[0][0] + nodoTemp[1] * vertsTemp[1][0] + nodoTemp[2] * vertsTemp[2][0];
-        nodoGHcurr[1] = nodoTemp[0] * vertsTemp[0][1] + nodoTemp[1] * vertsTemp[1][1] + nodoTemp[2] * vertsTemp[2][1];
-        nodoGHcurr[2] = nodoTemp[0] * vertsTemp[0][2] + nodoTemp[1] * vertsTemp[1][2] + nodoTemp[2] * vertsTemp[2][2];
+        const double pointNorm = norm2(point);
     
-        //Calcolo coordinate vettore differenza
-        double point[3];
-        point[0] = nodoGHCcurr[0] - nodoGHcurr[0];
-        point[1] = nodoGHCcurr[1] - nodoGHcurr[1];
-        point[2] = nodoGHCcurr[2] - nodoGHcurr[2];
-
-        //Calcolo norma vettore differenza
-        double pointNorm = sqrt(point[0]*point[0] + point[1]*point[1] + point[2]*point[2]);
-    
-        //Inizializzazione variabili
-        double istTemp = 0;
-        double tempValues[3][3];
-        double coeffNucleo[3] = {1, -2, 1};
-        double coeffTemp[3] = {-1, 0, 1};
-
-        //Ciclo sui 3 istanti temporali
-        for (k = 0; k < 3; k++)
+        //Loop over eta factor
+        for(size_t k = 0; k < 3; ++k)
         {
-            // Calcolo istante temporale corrente
-            istTemp = deltaT * (offsetZ + blockIdx.z + coeffTemp[k]);
+            const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) + etaValues[k]);
             
-            //Check necessità di calcolo
-            if(istTemp < 0)
+            if(timeInstant < 0)
                 continue;
             
-            //Calcolo delle 9 componenti del nucleo
-            nucleo(tempValues, point, pointNorm, istTemp, velP, velS);
+            double tempValues[3][3] = {0.};
+            nuV(tempValues, point, pointNorm, timeInstant, velP, velS);
             
-            //Somma pesata dei valori del nucleo alla shared memory
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
-                    matrixSubBlock[sharedBaseInd][i][j] += pesoExt * pesoInt * coeffNucleo[k] * tempValues[i][j];
+            //Add to shared memory
+            for(size_t i = 0; i < 3; ++i)
+                for(size_t j = 0; j < 3; ++j)
+                    matrixSubBlock[sharedBaseInd][i][j] += extWeight * intWeight * etaCoeffs[k] * tempValues[i][j];
     
         }
     }
 
-    //Sync prima di inziare la riduzione
     __syncthreads();
     
-    unsigned int xDim, yDim, sharedOffInd;
+    size_t sharedOffInd;
     
-    //Primo step per scendere a potenza di 2 in y
-    yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
+    //First step to reduce y dimension to power of 2
+    size_t yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
     sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
 
     if(threadIdx.y + yDim < blockDim.y)
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
+        for(size_t i = 0; i < 3; ++i)
+            for(size_t j = 0; j < 3; ++j)
                 matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
     
     __syncthreads();
 
-    //Iterazione per scendere ad 1 in y
+    //Loop to reduce in y dimension
     yDim /= 2;
     while(yDim > 0)
     {
         sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
         if(threadIdx.y < yDim)
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
+            for(size_t i = 0; i < 3; ++i)
+                for(size_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
         yDim /= 2;
     }
 
-    //Iterazione per scendere ad 1 in x (x è sempre potenza di 2)
-    xDim = blockDim.x/2;
+    //Loop to reduce in x dimension (x size is assumed to be a power of 2)
+    size_t xDim = blockDim.x/2;
     while(xDim > 0)
     {
         sharedOffInd = (threadIdx.x + xDim) * blockDim.y + threadIdx.y;
         if(threadIdx.x < xDim)
-            for (i = 0; i < 3; i++)
-                for (j = 0; j < 3; j++)
+            for(size_t i = 0; i < 3; ++i)
+                for(size_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
         xDim /= 2;
     }
 
-    //Salvataggio dati in memoria globale
-    unsigned long ind;
+    //Save in global memory
     if(threadIdx.x == 0 && threadIdx.y == 0)
-        for (i = 0; i < 3; i++)
-            for (j = 0; j < 3; j++)
+        for(size_t i = 0; i < 3; ++i)
+            for(size_t j = 0; j < 3; ++j)
             {
-                ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
+                const size_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
                 // matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
                 if(abs(matrixSubBlock[0][i][j]) > pow(10.0, -14))
                     matrix[ind] += matrixSubBlock[0][i][j] / const4PiRho;
             }
 
-    
-}
-
-static __device__ inline bool isBlockNull(const double *vertsT, const double deltaT, const double cP, const double cS, const int indTemp)
-{
-    int i, j;
-
-    double vertsS[3][3];
-    double vertsF[3][3];
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-        {
-            vertsS[i][j] = vertsT[9*blockIdx.x + 3*j + i];
-            vertsF[i][j] = vertsT[9*blockIdx.y + 3*j + i];
-        }
-
-    double distMax = 0;
-    double distCurr;
-    
-    double vettDist[3];
-
-    for (i = 0; i < 3; i++)
-        for (j = 0; j < 3; j++)
-        {
-            vettDist[0] = vertsS[i][0] - vertsF[j][0];
-            vettDist[1] = vertsS[i][1] - vertsF[j][1];
-            vettDist[2] = vertsS[i][2] - vertsF[j][2];
-            distCurr = sqrt(vettDist[0]*vettDist[0] + vettDist[1]*vettDist[1] + vettDist[2]*vettDist[2]);
-            if (distCurr > distMax)
-                distMax = distCurr;
-        }
-    
-    return ((indTemp - 1) * cS * deltaT > distMax);
-}
-
-
-static __device__ inline void nucleo(double nu[3][3], const double x[3], const double r, const double t, const double cP, const double cS)
-{
-    nu[0][0] = ((x[0] * x[0]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ((1/r) - ((x[0] * x[0]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * ((1/(pow(r, 3))) - 3 * ((x[0] * x[0]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[0][1] = ((x[0] * x[1]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[0] * x[1]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[0] * x[1]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[0][2] = ((x[0] * x[2]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[0] * x[2]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[0] * x[2]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-    nu[1][0] = ((x[1] * x[0]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[1] * x[0]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[1] * x[0]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[1][1] = ((x[1] * x[1]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ((1/r) - ((x[1] * x[1]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * ((1/(pow(r, 3))) - 3 * ((x[1] * x[1]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[1][2] = ((x[1] * x[2]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[1] * x[2]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[1] * x[2]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[2][0] = ((x[2] * x[0]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[2] * x[0]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[2] * x[0]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[2][1] = ((x[2] * x[1]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ( - ((x[2] * x[1]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * (- 3 * ((x[2] * x[1]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
-
-    nu[2][2] = ((x[2] * x[2]) / (pow(r, 3))) * (1 / (cP*cP)) * (t - (r/cP) > 0)
-                    +  ((1/r) - ((x[2] * x[2]) / (pow(r, 3)))) * (1 / (cS*cS)) * (t - (r/cS) > 0)
-                    - 0.5 * ((1/(pow(r, 3))) - 3 * ((x[2] * x[2]) / (pow(r, 5)))) *
-                                        ((cP*cP * t*t - r*r) / (cP*cP) * (t - (r/cP) > 0)
-                                          - (cS*cS * t*t - r*r) / (cS*cS) * (t - (r/cS) > 0));
 }
