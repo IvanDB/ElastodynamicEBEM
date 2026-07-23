@@ -22,10 +22,17 @@ constValues = calcConstValues(domainMesh, quadData);
 
 blockSizesV = [domainMesh.numTriangles, domainMesh.numTriangles];
 matrixSpecsV = calcMatrixSpecs(nGPU, avMem, blockSizesV, numBlocksV);
+
+timer = tic;
 matrixV = calcMatrixV(matrixSpecsV, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
+time = toc(timer);
+disp("MatrixV done in " + time + "s");
 
 % Datum vectors calculations
+timer = tic;
 betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
+time = toc(timer);
+disp("rhs done in " + time + "s");
 
 % Time-marching process
 density = zeros(3*domainMesh.numTriangles, pbParam.nT);

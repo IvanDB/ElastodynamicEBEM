@@ -45,7 +45,21 @@ fullFileNames = utility.generateFilenames(basePath, formSelected, pbParam, domai
 % Main call
 switch formSelected
     case "ID"
+        timerExt = tic;
         solution = core.timeMarchingID(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
+        timeExt = toc(timerExt);
+        disp("Total v3 done in " + timeExt + "s");
+
+        addpath(genpath("+eebem\_oldCode\"));
+        methodInfo.numNodiExt = coreQuadData.methodSpecs.numEXT;
+        domainMesh.numberTriangles = domainMesh.numTriangles;
+        pbParam.domainType = pbParam.domainName;
+        pbParam.lev = domainMesh.lev;
+
+        timerExt = tic;
+        solutionSA = BEMenerg_coreSA_timeMarching(pbParam, domainMesh, methodInfo, coreQuadData.EXTn, kron(coreQuadData.EXTw, ones(coreQuadData.methodSpecs.numSRext)));
+        timeExt = toc(timerExt);
+        disp("Total SA done in " + timeExt + "s");
 
     case "DD"
         solution = core.timeMarchingDD(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
