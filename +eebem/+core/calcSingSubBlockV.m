@@ -40,7 +40,7 @@ for indZeta = 1 : 3
                 rInt = pbParam.velS * currT;
                 rExt = pbParam.velP * currT;
     
-                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn, G1Dw);
+                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn = G1Dn, G1Dw = G1Dw);
                 intgG2DC = intgG2DC + kernelV(length(G2DCw), G2DCn, G2DCw, nodoExt, currT, pbParam.velP, pbParam.velS);
             end
     

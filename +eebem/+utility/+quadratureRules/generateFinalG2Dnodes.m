@@ -1,4 +1,14 @@
-function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, nodiStd, pesiStd)
+function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, quad1D)
+
+arguments
+    v3D     (3, 3) double
+    rMin    (1, 1) double
+    rInt    (1, 1) double
+    rExt    (1, 1) double
+    quad1D.numNodes (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
+    quad1D.G1Dn     double = []
+    quad1D.G1Dw     double = []
+end
 
 import eebem.utility.quadratureRules.*
 
@@ -15,16 +25,25 @@ p = p / norm(p);
 
 alpha2D = acos(dot(v13, v23));
 
-numNodes1D = length(pesiStd);
+if(quad1D.numNodes ~= 0)
+    if(~isempty(quad1D.G1Dn) && ~isempty(quad1D.G1Dw))
+        assert((quad1D.numNodes == length(quad1D.G1Dw)) && (quad1D.numNodes == length(quad1D.G1Dn)), "Invalid input")
+    else
+        [quad1D.G1Dn, quad1D.G1Dw] = Gauss1D(1, quad1D.numNodes, 0, 0);
+    end
+end
+
+assert(~isempty(quad1D.G1Dn) && ~isempty(quad1D.G1Dw) && (length(quad1D.G1Dw) == length(quad1D.G1Dn)), "Invalid input")
+quad1D.numNodes = length(quad1D.G1Dw);
 
 %Map to real alpha
-nodiT = (nodiStd' + 1) ./ 2 .* alpha2D;
-pesiT = pesiStd' ./ 2 .* alpha2D;
+nodiT = (quad1D.G1Dn' + 1) ./ 2 .* alpha2D;
+pesiT = quad1D.G1Dw' ./ 2 .* alpha2D;
 
 lenSeg = (n13 * n23 * sin(alpha2D)) ./ (n23 .* sin(alpha2D - nodiT) + n13 .* sin(nodiT));
 rMax = min(lenSeg, rExt);
 
-linV = sort([rMin*ones(numNodes1D, 1), rInt*ones(numNodes1D, 1), rMax], 2);
+linV = sort([rMin*ones(quad1D.numNodes, 1), rInt*ones(quad1D.numNodes, 1), rMax], 2);
 rMax = rMax .* ones(1, 3);
 flags = (linV > rMax);
 linV(flags) = rMax(flags);
@@ -32,10 +51,10 @@ linV(flags) = rMax(flags);
 intV = linV(:, 1 : 2);
 radV = linV(:, 2 : 3) - linV(:, 1 : 2);
 
-nodiR = kron(intV, ones(1, numNodes1D)) + kron(radV, (nodiStd + 1) ./ 2);
-pesiR = kron(radV, pesiStd ./ 2);
+nodiR = kron(intV, ones(1, quad1D.numNodes)) + kron(radV, (quad1D.G1Dn + 1) ./ 2);
+pesiR = kron(radV, quad1D.G1Dw ./ 2);
 
-nodi2D = nodiR .* reshape([cos(nodiT), sin(nodiT)], numNodes1D, 1, 2);
+nodi2D = nodiR .* reshape([cos(nodiT), sin(nodiT)], quad1D.numNodes, 1, 2);
 pesi2D = pesiR .* nodiR .* pesiT;
 
 nodi2D = reshape(nodi2D, [], 2);
