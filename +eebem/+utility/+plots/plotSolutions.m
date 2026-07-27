@@ -91,9 +91,14 @@ for i = tVal
             if(~exist(figPath, "file"))
                 exportgraphics(fig, figPath, ContentType = "image")
             end
+
+            figPath = fullfile(folderPath, figName + ".fig");
+            if(~exist(figPath, "file"))
+                savefig(fig, figPath)
+            end
             
             figPath = fullfile(folderPath, figName + ".svg");
-            if(ispc && ~exist(figPath, "file")) %
+            if(ispc && ~exist(figPath, "file"))
                 exportgraphics(fig, figPath, ContentType = "vector")
             end
         end
