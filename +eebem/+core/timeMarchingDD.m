@@ -16,7 +16,7 @@ reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[numBlocksV, numBlocksK] = calcNumMatrixBlocks(pbParam, domainMesh);
+[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
@@ -56,3 +56,4 @@ if(tmpFlag)
 end
 save(fullFileNames.outFullFilename, 'traction');
 return
+end

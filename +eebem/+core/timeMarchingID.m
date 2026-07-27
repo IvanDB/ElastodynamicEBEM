@@ -16,7 +16,7 @@ reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[numBlocksV, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
+[numBlocksV, ~, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
@@ -50,3 +50,4 @@ if(tmpFlag)
 end
 save(fullFileNames.outFullFilename, 'density');
 return
+end

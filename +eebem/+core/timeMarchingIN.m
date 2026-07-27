@@ -51,5 +51,4 @@ if(tmpFlag)
 end
 save(fullFileNames.outFullFilename, 'density', '-v7.3');
 return
-
 end
