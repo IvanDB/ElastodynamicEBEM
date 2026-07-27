@@ -4,7 +4,7 @@ arguments
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
-    fullFileNames   (1, 1) struct
+    fullFileNames (1, 1) struct
 end
 
 import eebem.core.*
