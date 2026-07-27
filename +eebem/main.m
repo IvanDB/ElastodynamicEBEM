@@ -57,7 +57,7 @@ switch formSelected
         solution = core.timeMarchingDN_c(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "IN"
-        solution = core.timeMarchingIN(basePath, pbParam, domainMesh, coreQuadData);
+        solution = core.timeMarchingIN(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     otherwise
         error("Unrecognized formulation")
