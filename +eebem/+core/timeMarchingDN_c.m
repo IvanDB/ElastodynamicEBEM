@@ -56,8 +56,8 @@ end
 %Save on disk
 tmpFlag = true;
 if(tmpFlag)
-    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'matrixIGamma', 'betaV');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'matrixIGamma', 'betaV', '-v7.3');
 end
-save(fullFileNames.outFullFilename, 'displacement');
+save(fullFileNames.outFullFilename, 'displacement', '-v7.3');
 return
 end

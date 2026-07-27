@@ -46,8 +46,8 @@ end
 %Save on disk
 tmpFlag = true;
 if(tmpFlag)
-    save(fullFileNames.tmpFullFilename, 'matrixV', 'betaI');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'betaI', '-v7.3');
 end
-save(fullFileNames.outFullFilename, 'density');
+save(fullFileNames.outFullFilename, 'density', '-v7.3');
 return
 end
