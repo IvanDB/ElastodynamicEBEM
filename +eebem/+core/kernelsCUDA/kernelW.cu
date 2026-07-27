@@ -1,72 +1,58 @@
-static __device__ inline bool isBlockNull_W(const double *nodesMesh, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen);
+#include "commonRoutines.cuh"
 
-static __device__ inline double dot(const double vettA[3], const double vettB[3]);
 static __device__ inline void cross(const double vettA[3], const double vettB[3], double vettC[3]);
 
-static __device__ inline double VFunction(const double triangleCoeffs[3], const double triangleMatrix[3][3], const int vertexInd, const double xi[3]);
-static __device__ inline double VTildeFunction(const double triangleCoeffs[3], const double triangleMatrix[3][3], const int vertexInd, const double x[3]);
-
-static __device__ inline void kernelCalc(double kernel[3][3], const double t, const double VTildeX, const double VXi,
-                                         const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3],
-                                         const double r, const double n[3], const double v[3], const double pi, const double mu, const double lambda,
+static __device__ inline void kernelCalc(double kernel[3][3], const double t, const double VTildeX, const double VXi, 
+                                         const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3], 
+                                         const double r, const double n[3], const double v[3], const double pi, const double mu, const double lambda, 
                                          const double rho, const double cS, const double cP);
 
-static __device__ inline double kernelTCalc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                        const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTCalc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                        const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                            const double lambda, const double rho, const double cS, const double cP);
-static __device__ inline double kernelRCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3],
-                                           const double rVector[3], const double r, const double pi, const double mu, const double lambda,
+static __device__ inline double kernelRCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], 
+                                           const double rVector[3], const double r, const double pi, const double mu, const double lambda, 
                                            const double rho, const double cS, const double cP);
 
-static __device__ inline double kernelTDelta1Calc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                                 const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTDelta1Calc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                                 const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                                  const double lambda, const double cS, const double cP);
-static __device__ inline double kernelTDelta2Calc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                                 const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTDelta2Calc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                                 const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                                  const double lambda, const double rho, const double cS, const double cP);
-static __device__ inline double kernelTHCalc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                            const double rVector[3], const double r, const double n[3], const double v[3], const double pi,
+static __device__ inline double kernelTHCalc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                            const double rVector[3], const double r, const double n[3], const double v[3], const double pi, 
                                             const double mu, const double lambda, const double cS, const double cP);
 
-static __device__ inline double kernelRDeltaCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3],
+static __device__ inline double kernelRDeltaCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3], 
                                                 const double r, const double pi, const double mu, const double lambda, const double rho, const double cS, const double cP);
-static __device__ inline double kernelRHCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3],
-                                            const  double rVector[3], const double r, const double pi, const double mu, const double lambda, const double rho,
+static __device__ inline double kernelRHCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], 
+                                            const  double rVector[3], const double r, const double pi, const double mu, const double lambda, const double rho, 
                                             const double cS, const double cP);
 
-__global__ void kernelW(double *matrix, const double deltaT, const double cP, const double cS, const double lambda, const double mu, const double rho, const double pi,
-                          const double *stdGHw, const double *stdGHnx, const double *stdGHny, const double *stdGHnz, const int numPointExt,
-                          const double *stdGHCw, const double *stdGHCnx, const double *stdGHCny, const double *stdGHCnz,
+__global__ void kernelW(double *matrix, const double deltaT, const double cP, const double cS, const double lambda, const double mu, const double rho, const double pi, 
+                          const double *stdGHw, const double *stdGHnx, const double *stdGHny, const double *stdGHnz, const int numPointExt, 
+                          const double *stdGHCw, const double *stdGHCnx, const double *stdGHCny, const double *stdGHCnz, 
                           const double *vertsT, const double *areeT, const double *normT, const int *indSMmatrix, const double *matCoeff, const double *vetCoeff, 
                           const int offsetZ, const int numBlocks, const double *nodesMesh, const double maxLen, const int MaxTrianglesPerNode, const int *TrianglesPerNode)
 {
     //Controllo di non aver sforato l'indice temporale
     if(offsetZ + blockIdx.z >= numBlocks)
-    {
         return;
-    }
     
     // Check which 3x3 blocks are null
-    if (isBlockNull_W(nodesMesh, deltaT, cP, cS, offsetZ + blockIdx.z, maxLen))
-    {
+    if(isWBlockNull(nodesMesh, deltaT, cP, cS, offsetZ + blockIdx.z, maxLen))
         return;
-    }
     
-
-
     extern __shared__ double matrixSubBlock[][3][3]; 
-    int i, j, k, l;
     
-    
-
-
     const unsigned int sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
     // Inizializzazione shared memory
     #pragma unroll
-    for (i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for (j = 0; j < 3; j++)
+        for(size_t j = 0; j < 3; ++j)
         {
             matrixSubBlock[sharedBaseInd][i][j] = 0;
         }
@@ -75,8 +61,6 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
     int outerNode = blockIdx.x;
     int innerNode = blockIdx.y;
-    int outerIndex;
-    int innerIndex;
     int currentOuterTriangleIndex;
     int currentInnerTriangleIndex;
     int currentVertexNumberOfOutNode;
@@ -90,23 +74,23 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     //size matrix. if node s has less than MaxTrianglesPerNode touching it, then the remaining spaces in the row will be filled with zeros
     //However, note that TrianglesPerNode will be passed as a one dimentional array, and so the indexing needs to be adjusted.
 
-    for (outerIndex = 0; outerIndex < MaxTrianglesPerNode; outerIndex++) //cycle on all triangles that have outer node as a vertex
+    for(size_t outerIndex = 0; outerIndex < MaxTrianglesPerNode; ++outerIndex) //cycle on all triangles that have outer node as a vertex
     {
         currentOuterTriangleIndex = TrianglesPerNode[outerIndex*gridDim.x + outerNode]; //index of current outer triangle
         
-        if (currentOuterTriangleIndex == 0) // if 0 this means we have already checked all triangles: exit the loop
+        if(currentOuterTriangleIndex == 0) // if 0 this means we have already checked all triangles: exit the loop
         {
             break;
         }
-        for (innerIndex = 0; innerIndex < MaxTrianglesPerNode; innerIndex++) //cycle on all triangles that have inner node as a vertex
+        for(size_t innerIndex = 0; innerIndex < MaxTrianglesPerNode; ++innerIndex) //cycle on all triangles that have inner node as a vertex
         {
             currentInnerTriangleIndex = TrianglesPerNode[innerIndex*gridDim.y + innerNode]; //index of current inner triangle
                 
-            if (currentInnerTriangleIndex == 0)
+            if(currentInnerTriangleIndex == 0)
             {                           // if 0 we have already checked all triangles
                 break;
             }
-            if (currentInnerTriangleIndex == currentOuterTriangleIndex)
+            if(currentInnerTriangleIndex == currentOuterTriangleIndex)
             {
                 continue;                                               // Singular integrations are executed on CPU
             }    
@@ -127,10 +111,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             // Now we extract the current outer triangle vertexes coordinates
             double currentOuterVertexes[3][3];
             #pragma unroll
-            for (i=0; i<3; i++)
+            for(size_t i  =0; i < 3; ++i)
             {
                 #pragma unroll
-                for(j=0; j<3; j++)
+                for(size_t j = 0; j < 3; ++j)
                 {
                     currentOuterVertexes[i][j] = vertsT[9*(currentOuterTriangleIndex - 1) + 3*j + i];// remember to pass vertsT the right way
                 }
@@ -140,10 +124,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             // Now we extract the current inner triangle vertexes coordinates
             double currentInnerVertexes[3][3];
             #pragma unroll
-            for (i=0; i<3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(j=0; j<3; j++)
+                for(size_t j=0; j<3; ++j)
                 {
                     currentInnerVertexes[i][j] = vertsT[9*(currentInnerTriangleIndex - 1) + 3*j + i];
                 }
@@ -152,7 +136,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             // Extract the current outer triangle normal vector
             double currentOuterNormal[3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 currentOuterNormal[i] = normT[3*(currentOuterTriangleIndex - 1) + i];
             }
@@ -161,7 +145,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             // Extract the current inner triangle normal vector
             double currentInnerNormal[3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 currentInnerNormal[i] = normT[3*(currentInnerTriangleIndex - 1) + i];
             }
@@ -170,10 +154,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             //Extraction of outer triangle matrix and piece of shape function that only depends on the triangle 
             double currentOuterTriangleMatrix[3][3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for (j = 0; j < 3; j++)
+                for(size_t j = 0; j < 3; ++j)
                 {
                     currentOuterTriangleMatrix[i][j] = matCoeff[9*(currentOuterTriangleIndex - 1) + 3*j + i];
                 }
@@ -181,7 +165,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
             double currentOuterTriangleCoeffs[3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 currentOuterTriangleCoeffs[i] = vetCoeff[3*(currentOuterTriangleIndex - 1) + i];
             }
@@ -191,10 +175,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
              //Extraction of inner triangle matrix and piece of shape function that only depends on the triangle 
             double currentInnerTriangleMatrix[3][3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for (j = 0; j < 3; j++)
+                for(size_t j = 0; j < 3; ++j)
                 {
                     currentInnerTriangleMatrix[i][j] = matCoeff[9*(currentInnerTriangleIndex - 1) + 3*j + i];
                 }
@@ -202,7 +186,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
             double currentInnerTriangleCoeffs[3];
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 currentInnerTriangleCoeffs[i] = vetCoeff[3*(currentInnerTriangleIndex - 1) + i];
             }
@@ -211,7 +195,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             double currentOuterVVector[3];
             double tempTriangleMatrixRow[3];
             #pragma unroll
-            for (i=0; i<3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 tempTriangleMatrixRow[i] = currentOuterTriangleMatrix[currentVertexNumberOfOutNode-1][i];
             }
@@ -220,7 +204,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
             double currentInnerVVector[3];
             #pragma unroll
-            for (i=0; i<3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 tempTriangleMatrixRow[i] = currentInnerTriangleMatrix[currentVertexNumberOfInNode-1][i];
             }
@@ -245,12 +229,11 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             double innerGaussWeight = stdGHCw[threadIdx.y] * areeT[currentInnerTriangleIndex-1];
             
             // compute shape function on inner node
-            double currentVXi;
-            currentVXi = VFunction(currentInnerTriangleCoeffs, currentInnerTriangleMatrix, currentVertexNumberOfInNode, InnerGaussNode); 
+            double currentVXi = baseFunctionSM(InnerGaussNode, currentInnerTriangleMatrix, currentInnerTriangleCoeffs, currentVertexNumberOfInNode);
             
             // Loop on outer composite Gauss-Hammer Nodes on current outer triangle
             
-            for (l = 0; l < numPointExt; l++)
+            for(size_t l = 0; l < numPointExt; ++l)
             {
                 // Reading curren standard outer coposite Gauss_Hammer node
                 standardGaussNode[0] = stdGHnx[l];
@@ -270,8 +253,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                 double currentOuterGaussWeight = stdGHw[l] * areeT[currentOuterTriangleIndex-1];
 
                 // compute shape function on current outer node
-                double currentVTildeX;
-                currentVTildeX = VTildeFunction(currentOuterTriangleCoeffs, currentOuterTriangleMatrix, currentVertexNumberOfOutNode, currentOuterGaussNode);
+                double currentVTildeX = baseFunctionSM(currentOuterGaussNode, currentOuterTriangleMatrix, currentOuterTriangleCoeffs, currentVertexNumberOfOutNode);
                 
                 // r = x - \xi
                 double current_rVector[3];
@@ -287,7 +269,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                 const int kernelCoeffs[4] = {1, -3, 3, -1};
                 const int timeShift[4] = {-2, -1, 0, 1};
                 #pragma unroll
-                for (k = 0; k < 4; k++)
+                for(size_t k = 0; k < 4; ++k)
                 {
                     timeInstant = deltaT * (offsetZ + double(blockIdx.z) +timeShift[k]); // (l+\eta)\Delta t
                         
@@ -299,24 +281,24 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
                     // initializing kernel components
                     #pragma unroll
-                    for (i = 0; i < 3; i++)
+                    for(size_t i = 0; i < 3; ++i)
                     {
                         #pragma unroll
-                        for (j = 0; j < 3; j++)
+                        for(size_t j = 0; j < 3; ++j)
                         {
                             kernelValues[i][j] = 0;
                         }
                     }
                     // void function that will fill kernelValues
-                    kernelCalc(kernelValues, timeInstant, currentVTildeX, currentVXi, currentInnerVVector, currentOuterVVector, current_rVector, current_rNorm,
+                    kernelCalc(kernelValues, timeInstant, currentVTildeX, currentVXi, currentInnerVVector, currentOuterVVector, current_rVector, current_rNorm, 
                                currentInnerNormal, currentOuterNormal, pi, mu, lambda, rho, cS, cP);
                 
                     //Somma pesata dei valori del nucleo alla shared memory
                     #pragma unroll
-                    for (i = 0; i < 3; i++)
+                    for(size_t i = 0; i < 3; ++i)
                     {
                         #pragma unroll
-                        for (j = 0; j < 3; j++)
+                        for(size_t j = 0; j < 3; ++j)
                         {
                             matrixSubBlock[sharedBaseInd][i][j] += currentOuterGaussWeight * innerGaussWeight * kernelCoeffs[k]/(deltaT*deltaT) * kernelValues[i][j];
                         }
@@ -340,10 +322,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     if(threadIdx.y + yDim < blockDim.y)
     {
         #pragma unroll
-        for (i = 0; i < 3; i++)
+        for(size_t i = 0; i < 3; ++i)
         {
             #pragma unroll
-            for (j = 0; j < 3; j++)
+            for(size_t j = 0; j < 3; ++j)
             {
                 matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
             }
@@ -360,10 +342,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         if(threadIdx.y < yDim)
         {
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for (j = 0; j < 3; j++)
+                for(size_t j = 0; j < 3; ++j)
                 {
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
                 }
@@ -382,10 +364,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         if(threadIdx.x < xDim && threadIdx.y == 0)
         {
             #pragma unroll
-            for (i = 0; i < 3; i++)
+            for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for (j = 0; j < 3; j++)
+                for(size_t j = 0; j < 3; ++j)
                 {
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
                 }
@@ -401,10 +383,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     if(threadIdx.x == 0 && threadIdx.y == 0)
     {
         #pragma unroll
-        for (i = 0; i < 3; i++)
+        for(size_t i = 0; i < 3; ++i)
         {
             #pragma unroll
-            for (j = 0; j < 3; j++)
+            for(size_t j = 0; j < 3; ++j)
             {
                 ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
                 //matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
@@ -416,119 +398,25 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         }
     }
 
-
-    
-
-
-
 }
 
 
-static __device__ inline bool isBlockNull_W(const double *nodesMesh, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen)
-{
-    
-    double outerNode[3];
-    double innerNode[3];
-
-    // blockIdx.x = outerNode (\tilde{s}), blockIdx.y = innerNode (s)
-    #pragma unroll
-    for (int i = 0; i < 3; i++) 
-    {
-        outerNode[i] = nodesMesh[3 * blockIdx.x + i];
-        innerNode[i]  = nodesMesh[3 * blockIdx.y + i];
-    }
-
-    // \tilde{s} - s
-    double vettDist[3];
-    vettDist[0] = outerNode[0] - innerNode[0];
-    vettDist[1] = outerNode[1] - innerNode[1];
-    vettDist[2] = outerNode[2] - innerNode[2];
-    
-    // node - to - node distance
-    double d_NN = sqrt(vettDist[0]*vettDist[0] + vettDist[1]*vettDist[1] + vettDist[2]*vettDist[2]);
-
-    // max and min distance estimate between shape function domains
-    double distMax_Patch = d_NN + 2.0 * maxLen;
-    double distMin_Patch = d_NN - 2.0 * maxLen;
-
-    // S wave already passed
-    bool wavePassed = ((indTemp - 2) * cS * deltaT > distMax_Patch);
-    
-    // P wave not reached
-    bool waveNotReached = ((indTemp + 1) * cP * deltaT < distMin_Patch);
-
-    // if either one is true skip block
-    return wavePassed || waveNotReached;
-}
-
-
-
-
-
-
-// dot product
-static __device__ inline double dot(const double vettA[3], const double vettB[3])
-{
-    return vettA[0]*vettB[0] + vettA[1]*vettB[1] + vettA[2]*vettB[2];
-}
-
-
-// cross product
-static __device__ inline void cross(const double vettA[3], const double vettB[3], double vettC[3])
-{
-    vettC[0] = vettA[1]*vettB[2] - vettA[2]*vettB[1];
-    vettC[1] = vettA[2]*vettB[0] - vettA[0]*vettB[2];
-    vettC[2] = vettA[0]*vettB[1] - vettA[1]*vettB[0];
-}
-
-// VFunction to evaluate V_{\alpha}^{s}(\xi)
-
-static __device__ inline double VFunction(const double triangleCoeffs[3], const double triangleMatrix[3][3], const int vertexInd, const double xi[3])
-{
-    double eVec[3] = {0.0, 0.0, 0.0};
-    eVec[vertexInd - 1] = 1.0;
-    double shapeVec[3];
-
-    shapeVec[0] = triangleCoeffs[0] + triangleMatrix[0][0] * xi[0] + triangleMatrix[0][1] * xi[1] + triangleMatrix[0][2] * xi[2];
-    shapeVec[1] = triangleCoeffs[1] + triangleMatrix[1][0] * xi[0] + triangleMatrix[1][1] * xi[1] + triangleMatrix[1][2] * xi[2];
-    shapeVec[2] = triangleCoeffs[2] + triangleMatrix[2][0] * xi[0] + triangleMatrix[2][1] * xi[1] + triangleMatrix[2][2] * xi[2];
-
-    return dot(shapeVec, eVec);
-}
-
-
-static __device__ inline double VTildeFunction(const double triangleCoeffs[3], const double triangleMatrix[3][3], const int vertexInd, const double x[3])
-{
-    double eVec[3] = {0.0, 0.0, 0.0};
-    eVec[vertexInd - 1] = 1.0;
-    double shapeVec[3];
-
-    shapeVec[0] = triangleCoeffs[0] + triangleMatrix[0][0] * x[0] + triangleMatrix[0][1] * x[1] + triangleMatrix[0][2] * x[2];
-    shapeVec[1] = triangleCoeffs[1] + triangleMatrix[1][0] * x[0] + triangleMatrix[1][1] * x[1] + triangleMatrix[1][2] * x[2];
-    shapeVec[2] = triangleCoeffs[2] + triangleMatrix[2][0] * x[0] + triangleMatrix[2][1] * x[1] + triangleMatrix[2][2] * x[2];
-
-    return dot(shapeVec, eVec);
-}
-
-
-
-
-//function arguments:  kernelValues, timeInstant, currentVTildeX, currentVXi, currentInnerVVector, currentOuterVVector, current_rVector, current_rNorm,
+//function arguments:  kernelValues, timeInstant, currentVTildeX, currentVXi, currentInnerVVector, currentOuterVVector, current_rVector, current_rNorm, 
                                // currentInnerNormal, currentOuterNormal, pi, mu, lambda, rho, cS, cP
 
-static __device__ inline void kernelCalc(double kernel[3][3], const double t, const double VTildeX, const double VXi,
-                                         const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3],
-                                         const double r, const double n[3], const double v[3], const double pi, const double mu, const double lambda,
+static __device__ inline void kernelCalc(double kernel[3][3], const double t, const double VTildeX, const double VXi, 
+                                         const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3], 
+                                         const double r, const double n[3], const double v[3], const double pi, const double mu, const double lambda, 
                                          const double rho, const double cS, const double cP)
 {
     int i, k;
     // declare and initialize kernel T components
     double kernelT[3][3];
     #pragma unroll
-    for (i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for (k = 0; k < 3; k++)
+        for(size_t k = 0; k < 3; ++k)
         {
             kernelT[i][k] = 0;
         }
@@ -538,10 +426,10 @@ static __device__ inline void kernelCalc(double kernel[3][3], const double t, co
     double kernelR[3][3];
 
     #pragma unroll
-    for (i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for (k = 0; k < 3; k++)
+        for(size_t k = 0; k < 3; ++k)
         {
             kernelR[i][k] = 0;
         }
@@ -549,10 +437,10 @@ static __device__ inline void kernelCalc(double kernel[3][3], const double t, co
 
     // compute and add kernels
     #pragma unroll
-    for (i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for(k = 0; k < 3; k++)
+        for(size_t k = 0; k < 3; ++k)
         {
             kernelT[i][k] = kernelTCalc(i, k, t, VTildeX, VXi, rVector, r, n, v, pi, mu, lambda, rho, cS, cP);
             kernelR[i][k] = kernelRCalc(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, pi, mu, lambda, rho, cS, cP);
@@ -564,8 +452,8 @@ static __device__ inline void kernelCalc(double kernel[3][3], const double t, co
 
 
 // function arguments: i, k, t, VTildeX, VXi, rVector, r, n, v, pi, mu, lambda, rho, cS, cP
-static __device__ inline double kernelTCalc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                        const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTCalc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                        const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                            const double lambda, const double rho, const double cS, const double cP)
 {
 
@@ -581,8 +469,8 @@ static __device__ inline double kernelTCalc(const int i, const int k, const doub
 
 
 // function arguments: i, k, t, VAlphaS, VTildeAlphaS, rVector, r, pi, mu, lambda, rho, cS, cP
-static __device__ inline double kernelRCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3],
-                                           const double rVector[3], const double r, const double pi, const double mu, const double lambda,
+static __device__ inline double kernelRCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], 
+                                           const double rVector[3], const double r, const double pi, const double mu, const double lambda, 
                                            const double rho, const double cS, const double cP)
 {
 
@@ -594,8 +482,8 @@ static __device__ inline double kernelRCalc(const int i, const int k, const doub
 }
 
 // function arguments: i, k, t, VTildeX, VXi, rVector, r, n, v, pi, mu, lambda, cS, cP
-static __device__ inline double kernelTDelta1Calc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                                 const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTDelta1Calc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                                 const double rVector[3], const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                                  const double lambda, const double cS, const double cP)
 {
    
@@ -609,9 +497,9 @@ static __device__ inline double kernelTDelta1Calc(const int i, const int k, cons
     double IDeltaP1 = H_P/(cP*cP);
 
     // scalar products
-    double Rv = dot(rVector,v);
-    double Rn = dot(rVector,n); 
-    double Nv = dot(n,v);
+    double Rv = dotProd3D(rVector, v);
+    double Rn = dotProd3D(rVector, n); 
+    double Nv = dotProd3D(n, v);
 
     // constant 
     double constTerm = 1.0/(2.0*pi*(lambda+mu));
@@ -621,8 +509,8 @@ static __device__ inline double kernelTDelta1Calc(const int i, const int k, cons
 }
 
 // function arguments: i, k, t, VTildeX, VXi, r, n, v, pi, mu, lambda, rho, cS, cP
-static __device__ inline double kernelTDelta2Calc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                                 const double r, const double n[3], const double v[3], const double pi, const double mu,
+static __device__ inline double kernelTDelta2Calc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                                 const double r, const double n[3], const double v[3], const double pi, const double mu, 
                                                  const double lambda, const double rho, const double cS, const double cP)
 {
     // Heavyside functions and Kronecker delta
@@ -635,7 +523,7 @@ static __device__ inline double kernelTDelta2Calc(const int i, const int k, cons
     double IDeltaP2 = H_P/(cP*cP*cP*cP);
 
     // scalar products
-    double Nv = dot(n,v);
+    double Nv = dotProd3D(n, v);
 
     //constant term
     double constTerm = -(lambda*mu + 2.0*mu*mu)/(4.0*pi*rho*(lambda+mu));
@@ -644,8 +532,8 @@ static __device__ inline double kernelTDelta2Calc(const int i, const int k, cons
 }
 
 // function arguments i, k, t, VTildeX, VXi, rVector, r, n, v, pi, mu, lambda, cS, cP
-static __device__ inline double kernelTHCalc(const int i, const int k, const double t, const double VTildeX, const double VXi,
-                                            const double rVector[3], const double r, const double n[3], const double v[3], const double pi,
+static __device__ inline double kernelTHCalc(const int i, const int k, const double t, const double VTildeX, const double VXi, 
+                                            const double rVector[3], const double r, const double n[3], const double v[3], const double pi, 
                                             const double mu, const double lambda, const double cS, const double cP)
 {
     // Heavyside functions and Kronecker delta
@@ -658,9 +546,9 @@ static __device__ inline double kernelTHCalc(const int i, const int k, const dou
     double IHP = H_P*(((t - r/cP)*(t + r/cP))/2.0); // H_P*(((t*t) - ((r/cP)*(r/cP)))/2.0);
 
     // scalar products
-    double Rn = dot(rVector,n);
-    double Rv = dot(rVector,v);
-    double Nv = dot(n,v);
+    double Rn = dotProd3D(rVector, n);
+    double Rv = dotProd3D(rVector, v);
+    double Nv = dotProd3D(n, v);
 
     // constant term
     double constTerm = mu/(2.0*pi*(lambda+mu));
@@ -670,7 +558,7 @@ static __device__ inline double kernelTHCalc(const int i, const int k, const dou
 }
 
 // function arguments: i, k, t, VAlphaS, VTildeAlphaS, rVector, r, pi, mu, lambda, rho, cS, cP
-static __device__ inline double kernelRDeltaCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3],
+static __device__ inline double kernelRDeltaCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3], 
                                                 const double r, const double pi, const double mu, const double lambda, const double rho, const double cS, const double cP)
 {
     // Heavyside functions and Kronecker delta
@@ -689,7 +577,7 @@ static __device__ inline double kernelRDeltaCalc(const int i, const int k, const
     cross(rVector, VTildeAlphaS, A); 
     cross(rVector, VAlphaS, B); 
 
-    double Vdot = dot(VTildeAlphaS, VAlphaS); 
+    double Vdot = dotProd3D(VTildeAlphaS, VAlphaS); 
 
     // constant term 
     double constTerm = -((mu*mu)/(4.0*pi*rho*(lambda+mu)));
@@ -700,8 +588,8 @@ static __device__ inline double kernelRDeltaCalc(const int i, const int k, const
 }
 
 // function arguments: i, k, t, VAlphaS, VTildeAlphaS, rVector, r, pi, mu, lambda, rho, cS, cP
-static __device__ inline double kernelRHCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3],
-                                            const  double rVector[3], const double r, const double pi, const double mu, const double lambda, const double rho,
+static __device__ inline double kernelRHCalc(const int i, const int k, const double t, const double VAlphaS[3], const double VTildeAlphaS[3], 
+                                            const  double rVector[3], const double r, const double pi, const double mu, const double lambda, const double rho, 
                                             const double cS, const double cP)
 {
     // Heavyside functions and Kronecker delta
@@ -721,7 +609,7 @@ static __device__ inline double kernelRHCalc(const int i, const int k, const dou
     cross(rVector, VTildeAlphaS, A); 
     cross(rVector, VAlphaS, B); 
 
-    double Vdot = dot(VTildeAlphaS, VAlphaS); 
+    double Vdot = dotProd3D(VTildeAlphaS, VAlphaS); 
 
     // constant term
     double constTerm = -((mu*mu)/(4.0*pi*rho*(lambda+mu)));
