@@ -58,13 +58,8 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         }
     }
 
-
     int outerNode = blockIdx.x;
     int innerNode = blockIdx.y;
-    int currentOuterTriangleIndex;
-    int currentInnerTriangleIndex;
-    int currentVertexNumberOfOutNode;
-    int currentVertexNumberOfInNode;
 
     // We have a matrix TrianglesPerNode, such that, each row represents the node with the corresponding index
     //(row 1 is the first node and row 2 is the second node etc etc), and in each row, the columns tell us the indexes of the 
@@ -76,103 +71,69 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
 
     for(size_t outerIndex = 0; outerIndex < MaxTrianglesPerNode; ++outerIndex) //cycle on all triangles that have outer node as a vertex
     {
-        currentOuterTriangleIndex = TrianglesPerNode[outerIndex*gridDim.x + outerNode]; //index of current outer triangle
+        const int currentOuterTriangleIndex = TrianglesPerNode[outerIndex*gridDim.x + outerNode]; //index of current outer triangle
         
         if(currentOuterTriangleIndex == 0) // if 0 this means we have already checked all triangles: exit the loop
         {
             break;
         }
+
         for(size_t innerIndex = 0; innerIndex < MaxTrianglesPerNode; ++innerIndex) //cycle on all triangles that have inner node as a vertex
         {
-            currentInnerTriangleIndex = TrianglesPerNode[innerIndex*gridDim.y + innerNode]; //index of current inner triangle
+            const int currentInnerTriangleIndex = TrianglesPerNode[innerIndex*gridDim.y + innerNode]; //index of current inner triangle
                 
             if(currentInnerTriangleIndex == 0)
             {                           // if 0 we have already checked all triangles
                 break;
             }
+
             if(currentInnerTriangleIndex == currentOuterTriangleIndex)
             {
                 continue;                                               // Singular integrations are executed on CPU
-            }    
+            }
+
+            const size_t base3outerBaseIndex = 3*(currentOuterTriangleIndex - 1);
+            const size_t base9outerBaseIndex = 9*(currentOuterTriangleIndex - 1);
+            const size_t base3innerBaseIndex = 3*(currentInnerTriangleIndex - 1);
+            const size_t base9innerBaseIndex = 9*(currentInnerTriangleIndex - 1);
+
                 // To find wich vertex the current nodes correspond to in regards to the currend inner and outer triangles, we use
                 // indSMatrix. In this matrix each row corresponds to a node, and each column corresponds to a triangle that touches that Node, and it in in correspondance
                 // with TrianglesPerNode. So the s-th row tells us exactly which vertex is node s, revalive to the trianglse that are present in the s-th row of TrianglesPerNode
              
-            currentVertexNumberOfOutNode = indSMmatrix[outerIndex*gridDim.x + outerNode]; // this tells us which vertex is outerNode
+            const int currentVertexNumberOfOutNode = indSMmatrix[outerIndex*gridDim.x + outerNode]; // this tells us which vertex is outerNode
                                                                                                                               // with regards to the current outer triangle
                                                                                                                               // so we can extract the correct shape function
-    
-            currentVertexNumberOfInNode = indSMmatrix[innerIndex*gridDim.y + innerNode]; // this tells us which vertex is innerNode
+            const int currentVertexNumberOfInNode = indSMmatrix[innerIndex*gridDim.y + innerNode]; // this tells us which vertex is innerNode
                                                                                                                               // with regards to the current inner triangle
                                                                                                                               // so we can extract the correct shape function
                 
-
-
-            // Now we extract the current outer triangle vertexes coordinates
+            // Now we extract the current outer and inner triangle vertexes coordinates
             double currentOuterVertexes[3][3];
-            #pragma unroll
-            for(size_t i  =0; i < 3; ++i)
-            {
-                #pragma unroll
-                for(size_t j = 0; j < 3; ++j)
-                {
-                    currentOuterVertexes[i][j] = vertsT[9*(currentOuterTriangleIndex - 1) + 3*j + i];// remember to pass vertsT the right way
-                }
-            }
-
-
-            // Now we extract the current inner triangle vertexes coordinates
             double currentInnerVertexes[3][3];
             #pragma unroll
             for(size_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(size_t j=0; j<3; ++j)
-                {
-                    currentInnerVertexes[i][j] = vertsT[9*(currentInnerTriangleIndex - 1) + 3*j + i];
-                }
-            }
-            
-            // Extract the current outer triangle normal vector
-            double currentOuterNormal[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                currentOuterNormal[i] = normT[3*(currentOuterTriangleIndex - 1) + i];
-            }
-
-
-            // Extract the current inner triangle normal vector
-            double currentInnerNormal[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                currentInnerNormal[i] = normT[3*(currentInnerTriangleIndex - 1) + i];
-            }
-                      
-            
-            //Extraction of outer triangle matrix and piece of shape function that only depends on the triangle 
-            double currentOuterTriangleMatrix[3][3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                #pragma unroll
                 for(size_t j = 0; j < 3; ++j)
                 {
-                    currentOuterTriangleMatrix[i][j] = matCoeff[9*(currentOuterTriangleIndex - 1) + 3*j + i];
+                    // remember to pass vertsT the right way
+                    currentOuterVertexes[i][j] = vertsT[base9outerBaseIndex + 3*j + i];
+                    currentInnerVertexes[i][j] = vertsT[base9innerBaseIndex + 3*j + i];
                 }
             }
+            
+            // Extract the current outer and inner triangle normal vectors
+            const double currentOuterNormal[3] = {normT[base3outerBaseIndex + 0],
+                                                  normT[base3outerBaseIndex + 1],
+                                                  normT[base3outerBaseIndex + 2]};
 
-            double currentOuterTriangleCoeffs[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                currentOuterTriangleCoeffs[i] = vetCoeff[3*(currentOuterTriangleIndex - 1) + i];
-            }
-
-
-
-             //Extraction of inner triangle matrix and piece of shape function that only depends on the triangle 
+            const double currentInnerNormal[3] = {normT[base3innerBaseIndex + 0],
+                                                  normT[base3innerBaseIndex + 1],
+                                                  normT[base3innerBaseIndex + 2]};
+                      
+            //Extraction of outer and inner triangle matrixes and piece of shape function that only depends on the triangle 
+            double currentOuterTriangleMatrix[3][3];
             double currentInnerTriangleMatrix[3][3];
             #pragma unroll
             for(size_t i = 0; i < 3; ++i)
@@ -180,98 +141,79 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                 #pragma unroll
                 for(size_t j = 0; j < 3; ++j)
                 {
-                    currentInnerTriangleMatrix[i][j] = matCoeff[9*(currentInnerTriangleIndex - 1) + 3*j + i];
+                    currentOuterTriangleMatrix[i][j] = matCoeff[base9outerBaseIndex + 3*j + i];
+                    currentInnerTriangleMatrix[i][j] = matCoeff[base9innerBaseIndex + 3*j + i];
                 }
             }
 
-            double currentInnerTriangleCoeffs[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                currentInnerTriangleCoeffs[i] = vetCoeff[3*(currentInnerTriangleIndex - 1) + i];
-            }
+            const double currentOuterTriangleCoeffs[3] = {vetCoeff[base3outerBaseIndex + 0],
+                                                          vetCoeff[base3outerBaseIndex + 1],
+                                                          vetCoeff[base3outerBaseIndex + 2]};
+
+            const double currentInnerTriangleCoeffs[3] = {vetCoeff[base3innerBaseIndex + 0],
+                                                          vetCoeff[base3innerBaseIndex + 1],
+                                                          vetCoeff[base3innerBaseIndex + 2]};
             
 
-            double currentOuterVVector[3];
-            double tempTriangleMatrixRow[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                tempTriangleMatrixRow[i] = currentOuterTriangleMatrix[currentVertexNumberOfOutNode-1][i];
-            }
-            cross(currentOuterNormal, tempTriangleMatrixRow, currentOuterVVector);// This is \bm{V_{\tilde{\alpha}}^{\tilde{s}}}
+            double currentOuterVVector[3] = {0.};
+            cross(currentOuterNormal, currentOuterTriangleMatrix[currentVertexNumberOfOutNode-1], currentOuterVVector);// This is \bm{V_{\tilde{\alpha}}^{\tilde{s}}}
 
 
-            double currentInnerVVector[3];
-            #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
-            {
-                tempTriangleMatrixRow[i] = currentInnerTriangleMatrix[currentVertexNumberOfInNode-1][i];
-            }
-            cross(currentInnerNormal, tempTriangleMatrixRow, currentInnerVVector); // This is \bm{V_{\alpha}^{s}}
+            double currentInnerVVector[3] = {0.};
+            cross(currentInnerNormal, currentInnerTriangleMatrix[currentVertexNumberOfInNode-1], currentInnerVVector); // This is \bm{V_{\alpha}^{s}}
             
-            
-
             // "current" standard Composite Gauss-Hammer quadrature node
-            double standardGaussNode[3];
-            
-            standardGaussNode[0] = stdGHCnx[threadIdx.x*blockDim.y + threadIdx.y];
-            standardGaussNode[1] = stdGHCny[threadIdx.x*blockDim.y + threadIdx.y];
-            standardGaussNode[2] = stdGHCnz[threadIdx.x*blockDim.y + threadIdx.y];
+            /*const*/ double standardGaussNode[3] = {stdGHCnx[threadIdx.x*blockDim.y + threadIdx.y],
+                                                 stdGHCny[threadIdx.x*blockDim.y + threadIdx.y],
+                                                 stdGHCnz[threadIdx.x*blockDim.y + threadIdx.y]};
 
             // mapping "current" standard quadrature node onto "current" inner quadrature nodo on the actual current inner triangle
-            double InnerGaussNode[3];
-            InnerGaussNode[0] = standardGaussNode[0] * currentInnerVertexes[0][0] + standardGaussNode[1] * currentInnerVertexes[1][0] + standardGaussNode[2] * currentInnerVertexes[2][0];
-            InnerGaussNode[1] = standardGaussNode[0] * currentInnerVertexes[0][1] + standardGaussNode[1] * currentInnerVertexes[1][1] + standardGaussNode[2] * currentInnerVertexes[2][1];
-            InnerGaussNode[2] = standardGaussNode[0] * currentInnerVertexes[0][2] + standardGaussNode[1] * currentInnerVertexes[1][2] + standardGaussNode[2] * currentInnerVertexes[2][2];
+            const double InnerGaussNode[3] = {standardGaussNode[0] * currentInnerVertexes[0][0] + standardGaussNode[1] * currentInnerVertexes[1][0] + standardGaussNode[2] * currentInnerVertexes[2][0],
+                                              standardGaussNode[0] * currentInnerVertexes[0][1] + standardGaussNode[1] * currentInnerVertexes[1][1] + standardGaussNode[2] * currentInnerVertexes[2][1],
+                                              standardGaussNode[0] * currentInnerVertexes[0][2] + standardGaussNode[1] * currentInnerVertexes[1][2] + standardGaussNode[2] * currentInnerVertexes[2][2]};
                 
             // wheight of "current" inner gauss quadrature node
-            double innerGaussWeight = stdGHCw[threadIdx.y] * areeT[currentInnerTriangleIndex-1];
+            const double innerGaussWeight = stdGHCw[threadIdx.y] * areeT[currentInnerTriangleIndex-1];
             
             // compute shape function on inner node
-            double currentVXi = baseFunctionSM(InnerGaussNode, currentInnerTriangleMatrix, currentInnerTriangleCoeffs, currentVertexNumberOfInNode);
+            const double currentVXi = baseFunctionSM(InnerGaussNode, currentInnerTriangleMatrix, currentInnerTriangleCoeffs, currentVertexNumberOfInNode);
             
             // Loop on outer composite Gauss-Hammer Nodes on current outer triangle
             
             for(size_t l = 0; l < numPointExt; ++l)
             {
                 // Reading curren standard outer coposite Gauss_Hammer node
+                //CHECK COME GESTIRE
                 standardGaussNode[0] = stdGHnx[l];
                 standardGaussNode[1] = stdGHny[l];
                 standardGaussNode[2] = stdGHnz[l];
 
                 // Mapping current node on current triangle
-
-                double currentOuterGaussNode[3];
-                currentOuterGaussNode[0] = standardGaussNode[0] * currentOuterVertexes[0][0] + standardGaussNode[1] * currentOuterVertexes[1][0] + standardGaussNode[2] * currentOuterVertexes[2][0];
-                currentOuterGaussNode[1] = standardGaussNode[0] * currentOuterVertexes[0][1] + standardGaussNode[1] * currentOuterVertexes[1][1] + standardGaussNode[2] * currentOuterVertexes[2][1];
-                currentOuterGaussNode[2] = standardGaussNode[0] * currentOuterVertexes[0][2] + standardGaussNode[1] * currentOuterVertexes[1][2] + standardGaussNode[2] * currentOuterVertexes[2][2];
-
-
+                const double currentOuterGaussNode[3] = {standardGaussNode[0] * currentOuterVertexes[0][0] + standardGaussNode[1] * currentOuterVertexes[1][0] + standardGaussNode[2] * currentOuterVertexes[2][0],
+                                                         standardGaussNode[0] * currentOuterVertexes[0][1] + standardGaussNode[1] * currentOuterVertexes[1][1] + standardGaussNode[2] * currentOuterVertexes[2][1],
+                                                         standardGaussNode[0] * currentOuterVertexes[0][2] + standardGaussNode[1] * currentOuterVertexes[1][2] + standardGaussNode[2] * currentOuterVertexes[2][2]};
 
                 // Getting current outer composite Gauss-Hammer weight
-                double currentOuterGaussWeight = stdGHw[l] * areeT[currentOuterTriangleIndex-1];
+                const double currentOuterGaussWeight = stdGHw[l] * areeT[currentOuterTriangleIndex-1];
 
                 // compute shape function on current outer node
-                double currentVTildeX = baseFunctionSM(currentOuterGaussNode, currentOuterTriangleMatrix, currentOuterTriangleCoeffs, currentVertexNumberOfOutNode);
+                const double currentVTildeX = baseFunctionSM(currentOuterGaussNode, currentOuterTriangleMatrix, currentOuterTriangleCoeffs, currentVertexNumberOfOutNode);
                 
                 // r = x - \xi
-                double current_rVector[3];
-                current_rVector[0] = currentOuterGaussNode[0] - InnerGaussNode[0];
-                current_rVector[1] = currentOuterGaussNode[1] - InnerGaussNode[1];
-                current_rVector[2] = currentOuterGaussNode[2] - InnerGaussNode[2];
+                const double current_rVector[3] = {currentOuterGaussNode[0] - InnerGaussNode[0];
+                                                   currentOuterGaussNode[1] - InnerGaussNode[1];
+                                                   currentOuterGaussNode[2] - InnerGaussNode[2]};
 
                 // r norm
-                double current_rNorm = sqrt(current_rVector[0]*current_rVector[0] + current_rVector[1]*current_rVector[1] + current_rVector[2]*current_rVector[2]);
+                const double current_rNorm = sqrt(current_rVector[0]*current_rVector[0] + current_rVector[1]*current_rVector[1] + current_rVector[2]*current_rVector[2]);
 
-                double timeInstant = 0;
-                double kernelValues[3][3];
+                
                 const int kernelCoeffs[4] = {1, -3, 3, -1};
                 const int timeShift[4] = {-2, -1, 0, 1};
                 #pragma unroll
                 for(size_t k = 0; k < 4; ++k)
                 {
-                    timeInstant = deltaT * (offsetZ + double(blockIdx.z) +timeShift[k]); // (l+\eta)\Delta t
+                    const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) +timeShift[k]); // (l+\eta)\Delta t
                         
                     // skip negative time
                     if(timeInstant <= 0)
@@ -280,15 +222,8 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                     }
 
                     // initializing kernel components
-                    #pragma unroll
-                    for(size_t i = 0; i < 3; ++i)
-                    {
-                        #pragma unroll
-                        for(size_t j = 0; j < 3; ++j)
-                        {
-                            kernelValues[i][j] = 0;
-                        }
-                    }
+                    double kernelValues[3][3] = {0.};
+
                     // void function that will fill kernelValues
                     kernelCalc(kernelValues, timeInstant, currentVTildeX, currentVXi, currentInnerVVector, currentOuterVVector, current_rVector, current_rNorm, 
                                currentInnerNormal, currentOuterNormal, pi, mu, lambda, rho, cS, cP);
@@ -307,7 +242,6 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             }       
         }
     }
-
 
     __syncthreads();
 
