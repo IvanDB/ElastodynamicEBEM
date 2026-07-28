@@ -1,7 +1,5 @@
 #include "commonRoutines.cuh"
 
-static __device__ inline void cross(const double vettA[3], const double vettB[3], double vettC[3]);
-
 static __device__ inline void kernelCalc(double kernel[3][3], const double t, const double VTildeX, const double VXi, 
                                          const double VAlphaS[3], const double VTildeAlphaS[3], const double rVector[3], 
                                          const double r, const double n[3], const double v[3], const double pi, const double mu, const double lambda, 
@@ -197,8 +195,8 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                 const double currentVTildeX = baseFunctionSM(currentOuterGaussNode, currentOuterTriangleMatrix, currentOuterTriangleCoeffs, currentVertexNumberOfOutNode);
                 
                 //r = x - \xi
-                const double current_rVector[3] = {currentOuterGaussNode[0] - InnerGaussNode[0];
-                                                   currentOuterGaussNode[1] - InnerGaussNode[1];
+                const double current_rVector[3] = {currentOuterGaussNode[0] - InnerGaussNode[0],
+                                                   currentOuterGaussNode[1] - InnerGaussNode[1],
                                                    currentOuterGaussNode[2] - InnerGaussNode[2]};
 
                 //r norm
