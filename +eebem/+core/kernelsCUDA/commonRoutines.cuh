@@ -31,7 +31,8 @@ static __eebemDevice inline double pow5(const double x)
 
 static __eebemDevice inline double norm2(const double v[3]) 
 {
-    return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    //return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    return hypot(hypot(v[0], v[1]), v[2]);
 }
 
 static __eebemDevice inline double dotProd3D(const double v1[3], const double v2[3])
