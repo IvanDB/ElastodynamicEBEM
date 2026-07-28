@@ -18,6 +18,11 @@ static __eebemDevice inline double pow3(const double x)
     return x * x * x;
 }
 
+static __eebemDevice inline double pow4(const double x) 
+{
+    return pow2(pow2(x));
+}
+
 static __eebemDevice inline double pow5(const double x) 
 {
     const double x2 = pow2(x);
