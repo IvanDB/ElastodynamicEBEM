@@ -17,12 +17,12 @@ GPUMemorySafetyFactor = 2.5;
 maxNumBlocksInMemory = floor(avMem / (GPUMemorySafetyFactor * matrixSpecs.blockMemSize));
 assert(maxNumBlocksInMemory > 0, "Insufficiente GPU memory for the required problem.")
 
-maxNumBlocksPerIter = maxNumBlocksInMemory * nGPU;
+maxNumBlocksPerIter = maxNumBlocksInMemory * nGPU; % maximum number of blocks that can be computed in each iteration
 
 
-numIter_ful = floor(numBlocks / maxNumBlocksPerIter);
-numIter_tot = ceil(numBlocks / maxNumBlocksPerIter);
-lastIterSize = mod(numBlocks, maxNumBlocksPerIter);
+numIter_ful = floor(numBlocks / maxNumBlocksPerIter); % Number of "complete" iterations
+numIter_tot = ceil(numBlocks / maxNumBlocksPerIter); % Number of total iterations, including the last one, which might not be complete
+lastIterSize = mod(numBlocks, maxNumBlocksPerIter); % Number of blocks for the last iteration
 
 
 blkSize_F = floor(lastIterSize / nGPU);

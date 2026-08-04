@@ -18,6 +18,11 @@ static __eebemDevice inline double pow3(const double x)
     return x * x * x;
 }
 
+static __eebemDevice inline double pow4(const double x) 
+{
+    return pow2(pow2(x));
+}
+
 static __eebemDevice inline double pow5(const double x) 
 {
     const double x2 = pow2(x);
@@ -26,12 +31,20 @@ static __eebemDevice inline double pow5(const double x)
 
 static __eebemDevice inline double norm2(const double v[3]) 
 {
-    return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    //return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    return hypot(hypot(v[0], v[1]), v[2]);
 }
 
 static __eebemDevice inline double dotProd3D(const double v1[3], const double v2[3])
 {
     return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+}
+
+static __eebemDevice inline void cross(const double vettA[3], const double vettB[3], double vettC[3])
+{
+    vettC[0] = vettA[1]*vettB[2] - vettA[2]*vettB[1];
+    vettC[1] = vettA[2]*vettB[0] - vettA[0]*vettB[2];
+    vettC[2] = vettA[0]*vettB[1] - vettA[1]*vettB[0];
 }
 
 //Permutation tensor
@@ -213,7 +226,7 @@ static __eebemDevice inline void nuKR_linear(double (* __restrict__ nuKR)[3], co
     }
 }
 
-static __device__ inline void nuKR_costant(double (* __restrict__ nuKR)[3], const double* __restrict__ tau, const double* __restrict__ x, const double r, const double t, const double cP, const double cS, const double lambda, const double mu, const double rho)
+static __eebemDevice inline void nuKR_costant(double (* __restrict__ nuKR)[3], const double* __restrict__ tau, const double* __restrict__ x, const double r, const double t, const double cP, const double cS, const double lambda, const double mu, const double rho)
 {
     double nuTemp[3][3] = {0.};
 
@@ -289,6 +302,8 @@ static __eebemDevice inline bool isKBlockNull_costant(const double* __restrict__
 }
 
 static __eebemDevice inline bool isKBlockNull_linear(const double* __restrict__ nodesMesh, const double* __restrict__ vertsT, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen)
+
+
 {
     double vertsS[3][3];
     for(size_t i = 0; i < 3; ++i)
@@ -317,3 +332,39 @@ static __eebemDevice inline bool isKBlockNull_linear(const double* __restrict__ 
 
     return ((indTemp - 2) * cS * deltaT > distMax + maxLen) || ((indTemp + 1) * cP * deltaT < distMin - 2*maxLen);
 }
+
+static __eebemDevice inline bool isWBlockNull(const double* __restrict__ nodesMesh, const double deltaT, const double cP, const double cS, const int indTemp, const double maxLen)
+{
+    double outerNode[3];
+    double innerNode[3];
+
+    // blockIdx.x = outerNode (\tilde{s}), blockIdx.y = innerNode (s)
+    #pragma unroll
+    for (size_t i = 0; i < 3; ++i) 
+    {
+        outerNode[i] = nodesMesh[3 * blockIdx.x + i];
+        innerNode[i]  = nodesMesh[3 * blockIdx.y + i];
+    }
+
+    // \tilde{s} - s
+    const double vettDist[3] = {outerNode[0] - innerNode[0],
+                                outerNode[1] - innerNode[1],
+                                outerNode[2] - innerNode[2]};
+    
+    // node - to - node distance
+    const double d_NN = sqrt(vettDist[0]*vettDist[0] + vettDist[1]*vettDist[1] + vettDist[2]*vettDist[2]);
+
+    // max and min distance estimate between shape function domains
+    const double distMax_Patch = d_NN + 2.0 * maxLen;
+    const double distMin_Patch = d_NN - 2.0 * maxLen;
+
+    // S wave already passed
+    const bool wavePassed = ((indTemp - 2) * cS * deltaT > distMax_Patch);
+    
+    // P wave not reached
+    const bool waveNotReached = ((indTemp + 1) * cP * deltaT < distMin_Patch);
+
+    // if either one is true skip block
+    return wavePassed || waveNotReached;
+}
+

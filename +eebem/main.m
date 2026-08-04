@@ -27,7 +27,6 @@ domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName);
 
 glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures, glbFlags);
 
-
 [pbParam, domainMesh] = utility.finalizeParameters(pbParam, domainMesh, timeSpecs{:});
 
 %Check invalid configuration problems -> (Barilli working on it?) 
@@ -57,7 +56,7 @@ switch formSelected
         solution = core.timeMarchingDN_c(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     case "IN"
-        assert(false, "Coming soon...")
+        solution = core.timeMarchingIN(basePath, pbParam, domainMesh, coreQuadData, fullFileNames);
 
     otherwise
         error("Unrecognized formulation")
@@ -68,4 +67,3 @@ glbIndexFigures = utility.plots.plotSolutions(formSelected, pbParam, domainMesh,
 
 %% POST PROCESSING EXECUTION
 assert(true, "Post processing in WIP")
-return

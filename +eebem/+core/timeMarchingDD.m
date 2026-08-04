@@ -16,7 +16,7 @@ reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[numBlocksV, numBlocksK] = calcNumMatrixBlocks(pbParam, domainMesh);
+[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
@@ -52,7 +52,8 @@ end
 %Save on disk
 tmpFlag = true;
 if(tmpFlag)
-    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'betaI', 'betaK');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'betaI', 'betaK', '-v7.3');
 end
-save(fullFileNames.outFullFilename, 'traction');
+save(fullFileNames.outFullFilename, 'traction', '-v7.3');
 return
+end

@@ -48,7 +48,7 @@ for indZeta = 1 : 4
                 rInt = pbParam.velS * currT;
                 rExt = pbParam.velP * currT;
 
-                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn, G1Dw);
+                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn = G1Dn, G1Dw = G1Dw);
                 
                 % Temp MATLAB code
                 for indDiag = 1 : length(G2DCw)                            
