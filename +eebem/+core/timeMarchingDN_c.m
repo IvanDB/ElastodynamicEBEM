@@ -1,25 +1,22 @@
-function displacement = timeMarchingDN_c(basePath, pbParam, domainMesh, quadData)
+function displacement = timeMarchingDN_c(basePath, pbParam, domainMesh, quadData, fullFileNames)
 arguments (Input)
     basePath    (1, 1) string
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
+    fullFileNames (1, 1) struct
 end
 
 import eebem.core.*
 
-%Save paths
-tmpPath = fullfile(basePath, "tempData", "DNc_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-outPath = fullfile(basePath, "outputData", "DNc_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-
-%GPUs inizialization
+%GPUs initialization
 nGPU = gpuDeviceCount("available");
 gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[numBlocksV, numBlocksK] = calcNumMatrixBlocks(pbParam, domainMesh);
+[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
@@ -34,7 +31,7 @@ matrixK = calcMatrixK_c(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadD
 matrixIGamma = kron(eye(domainMesh.numTriangles) .* domainMesh.area ./ 2, eye(3));
 
 % Datum vectors calculations
-betaV = calcBetaV(pbParam, domainMesh, matrixV);
+betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath);
 
 % Time-marching process
 displacement = zeros(3*domainMesh.numTriangles, pbParam.nT);
@@ -57,10 +54,10 @@ for currInd = 1 : pbParam.nT
 end
 
 %Save on disk
-tmpFlag = false;
+tmpFlag = true;
 if(tmpFlag)
-    save(tmpPath + "_matrix", 'matrixV', 'matrixK', 'matrixIGamma');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'matrixIGamma', 'betaV', '-v7.3');
 end
-save(outPath + "_displacement", 'displacement');
-
+save(fullFileNames.outFullFilename, 'displacement', '-v7.3');
 return
+end

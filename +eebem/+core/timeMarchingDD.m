@@ -1,25 +1,22 @@
-function traction = timeMarchingDD(basePath, pbParam, domainMesh, quadData)
+function traction = timeMarchingDD(basePath, pbParam, domainMesh, quadData, fullFileNames)
 arguments
     basePath    (1, 1) string
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
+    fullFileNames (1, 1) struct
 end
 
 import eebem.core.*
 
-%Save paths
-tmpPath = fullfile(basePath, "tempData", "DD_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-outPath = fullfile(basePath, "outputData", "DD_" + pbParam.domainType + pbParam.lev + quadData.methodSpecs.stringID);
-
-%GPUs inizialization
+%GPUs initialization
 nGPU = gpuDeviceCount("available");
 gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
 % Matrix calculations
-[numBlocksV, numBlocksK] = calcNumMatrixBlocks(pbParam, domainMesh);
+[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 constValues = calcConstValues(domainMesh, quadData);
 
@@ -32,8 +29,8 @@ matrixSpecsK = calcMatrixSpecs(nGPU, avMem, blockSizesK, numBlocksK);
 matrixK = calcMatrixK(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
 % Datum vectors calculations
-betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs);
-betaK = calcBetaK(pbParam, domainMesh, matrixK);
+betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
+betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath);
 
 % Time-marching process
 traction = zeros(3*domainMesh.numTriangles, pbParam.nT);
@@ -55,7 +52,8 @@ end
 %Save on disk
 tmpFlag = true;
 if(tmpFlag)
-    save(tmpPath + "_matrix", 'matrixV', 'matrixK', 'betaI', 'betaK');
+    save(fullFileNames.tmpFullFilename, 'matrixV', 'matrixK', 'betaI', 'betaK', '-v7.3');
 end
-save(outPath + "_traction", 'traction');
+save(fullFileNames.outFullFilename, 'traction', '-v7.3');
 return
+end

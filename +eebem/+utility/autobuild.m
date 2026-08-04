@@ -55,10 +55,19 @@ gpuCC = gpuInfo.ComputeCapability;
 gpuCC(gpuCC == '.') = [];
 
 coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
-coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"];
+coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu", "kernelW.cu"];
 
 for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
-    cmd = strcat(scriptCompiler, 'nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
+    cmd = strcat(scriptCompiler, ' nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
+    [status, cmdout] = system(cmd);
+    assert(~status, "CUDA compilation failed! Shell output:" + newline + cmdout)
+end
+
+postCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+postProc", "kernelsCUDA");
+postCUDAkernelsFileNames = ["kernelG.cu", "kernelP.cu"];
+
+for CUDAkernel = fullfile(postCUDAkernelsDirectory, postCUDAkernelsFileNames)
+    cmd = strcat(scriptCompiler, ' nvcc -ptx -O3 -Wno-deprecated-gpu-targets -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
     [status, cmdout] = system(cmd);
     assert(~status, "CUDA compilation failed! Shell output:" + newline + cmdout)
 end

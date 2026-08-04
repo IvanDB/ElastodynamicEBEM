@@ -1,4 +1,4 @@
-function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, indTemp)
+function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp)
 %CALCSINGSUBBLOCKV Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,6 +6,8 @@ arguments (Input)
     pbParam
     methodSpecs
     constValuesCurr
+    G1Dn
+    G1Dw
     indTemp
 end
 
@@ -38,8 +40,8 @@ for indZeta = 1 : 3
                 rInt = pbParam.velS * currT;
                 rExt = pbParam.velP * currT;
     
-                [G2DCnodes, G2DCweights] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, methodSpecs.numSNGLR);
-                intgG2DC = intgG2DC + kernelV(length(G2DCweights), G2DCnodes, G2DCweights, nodoExt, currT, pbParam.velP, pbParam.velS);
+                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn = G1Dn, G1Dw = G1Dw);
+                intgG2DC = intgG2DC + kernelV(length(G2DCw), G2DCn, G2DCw, nodoExt, currT, pbParam.velP, pbParam.velS);
             end
     
             intgTot = intgTot + pesoExt .* intgG2DC;

@@ -1,37 +1,56 @@
-function glbIndexFigures = plotMesh(domainMesh, glbIndexFigures)
+function glbIndexFigures = plotMesh(domainMesh, glbIndexFigures, glbFlags, basePath)
 
-%Inizializzazione figura
-glbIndexFigures = glbIndexFigures + 1;
-figure(glbIndexFigures)
-
-% Ciclo sui triangoli della mesh
-for i = 1 : domainMesh.numTriangles
-    %Estrazione incidenze vertici triangolo corrente
-    incidenze = domainMesh.triangles(i, 1 : 3);
-    
-    verts = zeros(3, 3);
-    %Estrazione coordinate vertici triangolo corrente
-    verts(1, :) = domainMesh.coordinates(incidenze(1), :);
-    verts(2, :) = domainMesh.coordinates(incidenze(2), :);
-    verts(3, :) = domainMesh.coordinates(incidenze(3), :);      
-
-    %Plot superficie triangolo corrente
-    fill3(verts(:, 1), verts(:, 2), verts(:, 3), 'w')
-    hold on
-
-    %Plot lati del triangolo corrente
-    plot3([verts(1, 1) verts(2, 1)], [verts(1, 2) verts(2, 2)], [verts(1, 3) verts(2, 3)], 'b-')
-    plot3([verts(2, 1) verts(3, 1)], [verts(2, 2) verts(3, 2)], [verts(2, 3) verts(3, 3)], 'b-')
-    plot3([verts(3, 1) verts(1, 1)], [verts(3, 2) verts(1, 2)], [verts(3, 3) verts(1, 3)], 'b-')
+arguments
+    domainMesh      (1, 1) struct
+    glbIndexFigures (1, 1) double {mustBeInteger, mustBeNonnegative}
+    glbFlags        (1, 1) struct
+    basePath        (1 ,1) string = "."
 end
 
-%Set parametri figura
-xlabel("Asse $x$", Interpreter = 'latex', FontSize = 14)
-ylabel("Asse $y$", Interpreter = 'latex', FontSize = 14)
-zlabel("Asse $z$", Interpreter = 'latex', FontSize = 14)
-title("Plot della mesh", Interpreter = 'latex', FontSize = 14)
+%Early return if both flags are false
+if(~glbFlags.plotFigs && ~glbFlags.saveFigs)
+    return
+end
+
+%Figure initialization
+glbIndexFigures = glbIndexFigures + 1;
+fig = figure(glbIndexFigures);
+fig.Visible = glbFlags.plotFigs;
+
+%Mesh surface plot
+trisurf(domainMesh.triangles(:, 1 : 3), domainMesh.coordinates(:, 1), domainMesh.coordinates(:, 2), domainMesh.coordinates(:, 3), ...
+            FaceColor = "w", EdgeColor = "b", EdgeAlpha = 0.5, LineWidth = 0.5);
+
+%Set figure parameters
+xlabel("$x_1$", Interpreter = 'latex', FontSize = 14, Rotation = 0)
+ylabel("$x_2$", Interpreter = 'latex', FontSize = 14, Rotation = 0)
+zlabel("$x_3$", Interpreter = 'latex', FontSize = 14, Rotation = 0)
+
+ax = gca;
+ax.TickLabelInterpreter = "latex";
+
+title(domainMesh.name + " - lev" + domainMesh.lev, Interpreter = 'latex', FontSize = 12)
 axis equal
-grid on
+grid off
 box off
 
+%Export image
+if(glbFlags.saveFigs)
+    folderPath = fullfile(basePath, "outputPlot", "mesh");
+    if(~exist(folderPath, 'dir'))
+        mkdir(folderPath);
+    end
+    figName = fullfile(folderPath, domainMesh.name + "-" + domainMesh.lev);
+    if(~exist(figName + ".jpg", "file"))
+        exportgraphics(fig, figName + ".jpg", ContentType = "image")
+    end
+    if(ispc && ~exist(figName + ".svg", "file"))
+        exportgraphics(fig, figName + ".svg", ContentType = "vector")
+    end
+end
+
+%Close figure if not visible
+if(~glbFlags.plotFigs)
+    close(fig)
+end
 return

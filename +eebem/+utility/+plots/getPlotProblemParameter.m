@@ -13,7 +13,7 @@ arguments (Output)
 end
 
 %Assegnazione parametri in base al problema
-switch pbParam.domainType
+switch pbParam.domainName
     case 'screenTest'
         nDim = 2;
         tVal = pbParam.nT;
@@ -39,32 +39,39 @@ switch pbParam.domainType
         tVal = [pbParam.nT .* (1/3), pbParam.nT * (2/3), (pbParam.nT * (2/3)) + 1, pbParam.nT];
         jVal = 3;
         climCustom = false;
-    case {"barH1-symm", "barH1-asym"}
+    case "barH1"
         nDim = 3;
-        tVal = [(1 : 1/(pbParam.Tfin/pbParam.nT)), (2 : pbParam.Tfin)./(pbParam.Tfin/pbParam.nT)] ;
+        tVal = pbParam.nT .* (1 : 6) ./ pbParam.Tfin ;
         jVal = 3;
         climCustom = false;
-    case {"barH3-symm", "barH3-asym"}
+    case "barH3"
         nDim = 3;
         tVal = pbParam.nT .* (1 : pbParam.Tfin) ./ pbParam.Tfin ;
-        jVal = 3;
+        jVal = 1 : 3;
         climCustom = false;
     case 'sphereWave'
         return
-    case {"DesCop-cube-symm", "DesCop-cube-asym"}
+    case "DesCop-cube"
         nDim = 3;
-        tVal = [(1 : 1/(pbParam.Tfin/pbParam.nT)), (2 : pbParam.Tfin)./(pbParam.Tfin/pbParam.nT)]; %floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
+        tVal = floor(pbParam.nT .* [7.50, 8.25, 9.00, 9.75, 10.50, 11.25] ./ pbParam.Tfin);
         jVal = 0;
-        climCustom = true;
+        climCustom = false;
     case "DesCop-sphere"
         nDim = 3;
         tVal = 1 : 2 : pbParam.nT;
-        jVal = 3;
-        climCustom = true;
-    case 'elementoIndustriale'
-        nDim = 3;
-        tVal = 1;
-        jVal = 3;
+        jVal = [1, 3];
         climCustom = false;
+    case "industrialComponent"
+        nDim = 3;
+        tVal = [1 : 1 : 9, 10 : 10 : 99, 100 : 100 : pbParam.nT];
+        jVal = 1 : 3;
+        climCustom = false;
+    case "ConeBall"
+        nDim = 3;
+        tVal = pbParam.nT;
+        jVal = 1 : 3;
+        climCustom = false;
+    otherwise
+        warning("Problem plots specs not set. Loading from file in not available.")
 end
 end

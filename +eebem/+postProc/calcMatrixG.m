@@ -68,11 +68,10 @@ for indTemp = 1 : numT
 end
 
 %% Matrix G kernel Setup
-currentFolder = fileparts(mfilename('fullpath'));
-ptxPath = fullfile(currentFolder, "kernelG.ptx");
-cuPath = fullfile(currentFolder, "kernelCUDA", "kernelG.cu");
+srcPath = fullfile(".", "+eebem", "+core", "kernelsCUDA", "kernelG.cu");
+ptxPath = fullfile(".", "buildDir", "kernelG.ptx");
 
-kernelG = parallel.gpu.CUDAKernel(ptxPath, cuPath);
+kernelG = parallel.gpu.CUDAKernel(ptxPath, srcPath);
 
 kernelG.GridSize = [numT nHat 1];
 blockX = methodInfo.numSubRegionPP;

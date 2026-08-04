@@ -142,7 +142,6 @@ constTerm = mu/(2*pi*(lambda+mu));
 
 kernelTH = VTildeX*VXi*constTerm*(3*lambda*((rVector(k)*v(i)*Rn + rVector(i)*n(k)*Rv)/(r*r*r*r*r)) - 2*lambda*((n(k)*v(i))/(r*r*r))...
                +3*mu*((rVector(k)*n(i)*Rv + rVector(i)*v(k)*Rn + delta(i,k)*Rv*Rn + rVector(i)*rVector(k)*Nv)/(2*r*r*r*r*r)) - mu*((n(i)*v(k) + delta(i,k)*Nv)/(r*r*r)))*(IHS-IHP);
-
 end
 
 
@@ -217,12 +216,12 @@ singularSubBlock = zeros(3,3);
 mu = pbParam.mu;
 lambda = pbParam.lambda;
 rho = pbParam.rho;
-deltaT = pbParam.Tfin/pbParam.nT;
+deltaT = pbParam.deltaT;
 cS = pbParam.velS;
 cP = pbParam.velP;
 
-kernelCoeffs = [1,-3,3,-1]; % I coefficienti C_\eta
-timeCoeffs = [-2,-1,0,1]; % Gli \eta che individuano i vari istanti temporali
+kernelCoeffs = [1, -3, 3, -1]; % I coefficienti C_\eta
+timeCoeffs = [-2, -1, 0, 1]; % Gli \eta che individuano i vari istanti temporali
 temporalInstants = timeInstant + timeCoeffs;
 
 numExtSubRegion = methodSpecs.numSRext;
@@ -253,14 +252,14 @@ for k = 1 : 4 % Ciclo su istanti temporali
 
             VTildeX = VTildeFunction(triangleCoeffs, triangleMatrix, outerVertex, currentOuterNode);
 
-            innerIntegral = zeros(3,3);
+            innerIntegral = zeros(3, 3);
 
             for indChild = 1 : 3 %ciclo sui triangoli figli interni
                 rMin = max(cS * minDiffTemp, 0);
                 rInt = cS * currentTime;
                 rExt = cP * currentTime;
 
-                [G2DCnodes, G2DCweights] = eebem.utility.quadratureRules.generateFinalG2Dnodes(currentConstData.childVerts{indEXTn, indChild}, rMin, rInt, rExt, methodSpecs.numSNGLR);
+                [G2DCnodes, G2DCweights] = eebem.utility.quadratureRules.generateFinalG2Dnodes(currentConstData.childVerts{indEXTn, indChild}, rMin, rInt, rExt, numNodes = sqrt(methodSpecs.numSNGLR));
                 
                 for indInnerNode = 1 : length(G2DCnodes) % ciclo sui nodi interno del figlio corrente
                     currentInnerNode = G2DCnodes(indInnerNode,:);
@@ -277,10 +276,10 @@ for k = 1 : 4 % Ciclo su istanti temporali
                     innerIntegral = innerIntegral + currentInnerWeight*kernel;
                 end
             end
-        outerIntegral = outerIntegral + currentOuterWeight*innerIntegral;
+            outerIntegral = outerIntegral + currentOuterWeight*innerIntegral;
         end
     end
-singularSubBlock = singularSubBlock + (currentCoeff/(deltaT^2))*outerIntegral;
+    singularSubBlock = singularSubBlock + (currentCoeff/(deltaT^2))*outerIntegral;
 end
 end
 

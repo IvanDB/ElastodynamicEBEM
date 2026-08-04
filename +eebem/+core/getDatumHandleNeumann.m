@@ -1,37 +1,26 @@
-function g = getDatumHandleNeumann(pbParam)
+function g = getDatumHandleNeumann(pbParam, basePath)
 %GETDATUMHANDLEDIRICHLET Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
-    pbParam struct
+    pbParam  (1, 1) struct
+    basePath (1, 1) string = "."
 end
 
 arguments (Output)
     g function_handle
 end
 
-switch pbParam.domainType
-    %case {"barH1-symm", "DesCop-cube-symm"}
-	%h = 1;
-	%cP = pbParam.velP;
-        %hat_k = ceil((cP * pbParam.Tfin) / (2 .* h)) - 1;
-        %k_val = (0 : hat_k)';
-	%tildeP = @(t) sum((-1).^k_val .* (((cP.*t - 2.*h.*k_val) > 0) ...
-        %                                + ((cP.*t - 2.*h.*(k_val+1)) > 0)));
-	%g = @(x, t, n) [0; 0; 2*pbParam.mu * tildeP(t) * n(3)]; % same datum on top and bottom face
-        %g  = @(x, t, n) [n(1); n(2); n(3)]; %for uniform datum
-    
-    case {"barH1-symm", "barH1-asym", "barH3-symm", "barH3-asym"} %rimettere poi barH1-symm
-        h = 1 * (strcmp(pbParam.domainType, "barH1-symm") + strcmp(pbParam.domainType, "barH1-asym")) + ...
-            3 * (strcmp(pbParam.domainType, "barH3-symm") + strcmp(pbParam.domainType, "barH3-asym"));
+switch pbParam.domainName
+    case {"barH1", "barH3"}
+        h = 1 * strcmp(pbParam.domainName, "barH1") + 3 * strcmp(pbParam.domainName, "barH3");
         cP = pbParam.velP;
         hat_k = ceil((cP * pbParam.Tfin) / (2 .* h)) - 1;
         k_val = (0 : hat_k)';
         tildeP = @(x, t) sum((-1).^k_val .* (((cP.*t - 2.*h.*k_val - (h - x(3))) > 0) ...
                                         + ((cP.*t - 2.*h.*(k_val+1) + (h - x(3))) > 0)));
         g = @(x, t, n) [0; 0; 2*pbParam.mu * tildeP(x, t) * n(3)];
-
     
-    case {"DesCop-cube-symm", "DesCop-cube-asym"} %rimettere poi DesCop-cube-symm
+    case "DesCop-cube"
         a = 0.1;
         b = 100;
         cP = pbParam.velP;
@@ -72,10 +61,12 @@ switch pbParam.domainType
         
         g = @(x, t, n) p0 * (exp(-a * t) - exp(-b * t)) .* n';
 
-    case "elementoIndustriale"
-        g = @(x, t, n) [0; 0; ((x(3) > -0.002) - (x(3) < -0.35)) * (abs(n(3)) > 0.5)];
-    
     otherwise
-        error("Problem not encoded")
+        fileName = pbParam.domainName + "_N.m";
+        assert(exist(fullfile(basePath, "pbData", fileName), 'file'), "Datum file not found. Provide a .m file returning the necessary function handle");
+        func = str2func(extractBefore(fileName, "."));
+        addpath(fullfile(basePath, "pbData"))
+        g = feval(func, pbParam);
+        rmpath(fullfile(basePath, "pbData"))
 end
 end

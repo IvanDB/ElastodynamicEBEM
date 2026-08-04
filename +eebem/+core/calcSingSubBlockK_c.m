@@ -1,4 +1,4 @@
-function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, constValuesCurr, indTemp, indM)
+function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp, indM)
 %CALCSINGSUBBLOCKK_C Summary of this function goes here
 %   Detailed explanation goes here
 arguments (Input)
@@ -6,6 +6,8 @@ arguments (Input)
     domainMesh
     methodSpecs
     constValuesCurr
+    G1Dn
+    G1Dw
     indTemp
     indM
 end
@@ -46,13 +48,13 @@ for indZeta = 1 : 4
                 rInt = pbParam.velS * currT;
                 rExt = pbParam.velP * currT;
 
-                [G2DCnodes, G2DCweights] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, methodSpecs.numSNGLR);
+                [G2DCn, G2DCw] = generateFinalG2Dnodes(constValuesCurr.childVerts{indEXTn, indChild}, rMin, rInt, rExt, G1Dn = G1Dn, G1Dw = G1Dw);
                 
                 % Temp MATLAB code
-                for indDiag = 1 : length(G2DCweights)                            
+                for indDiag = 1 : length(G2DCw)                            
                     %Calcolo nodo e peso corrente
-                    nodoInt = G2DCnodes(indDiag, :);
-                    pesoInt = G2DCweights(indDiag);
+                    nodoInt = G2DCn(indDiag, :);
+                    pesoInt = G2DCw(indDiag);
         
                     %Calcolo variabili
                     vettR = nodoExt - nodoInt;

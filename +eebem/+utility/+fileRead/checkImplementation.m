@@ -1,13 +1,11 @@
 function checkImplementation(pbParam)
-% INPUT 
-%   - pbParam: struct contenente i parametri del problema
 
 err_flag = 0; 
 message = "";
 
 switch pbParam.BIE
     case "EFIE"
-        if ~strcmp(pbParam.BOU, "DIR") && ~strcmp(pbParam.BOU, "TEST") && ~strcmp(pbParam.BOU, "NEU")
+        if ~strcmp(pbParam.BOU, "DIR") && ~strcmp(pbParam.BOU, "NEU")
             message = "Error. Invalid boundary condition for EFIE.";
             err_flag = 1;
         end

@@ -68,7 +68,7 @@ for indIter = 1 : matrixSpecs.numIter
 
         %Ciclo sull'indice dei sottoblocchi
         parfor indBlock = 1 : matrixSpecs.blockSizes2D(1)
-            matrixSingSubBlocks(:, :, indBlock, indTemp) = calcSingSubBlockV(pbParam, quadData.methodSpecs, constValues{indBlock}, istTemp);
+            matrixSingSubBlocks(:, :, indBlock, indTemp) = calcSingSubBlockV(pbParam, quadData.methodSpecs, constValues{indBlock}, quadData.G1Dn, quadData.G1Dw, istTemp);
         end
     end
 
