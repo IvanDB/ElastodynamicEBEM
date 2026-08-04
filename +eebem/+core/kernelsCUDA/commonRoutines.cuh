@@ -1,4 +1,5 @@
 #include <float.h>
+#include <math.h>
 
 //Macro
 #ifdef __CUDACC__

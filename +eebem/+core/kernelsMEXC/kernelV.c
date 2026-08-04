@@ -1,5 +1,6 @@
 #include "mex.h"
 #include "stdint.h"
+#include <math.h>
 
 static inline void nucleo(double (* restrict nu)[3], const double* restrict x, const double r, const double t, const double cP, const double cS);
 static inline double norm2(const double v[3]) {return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);}
