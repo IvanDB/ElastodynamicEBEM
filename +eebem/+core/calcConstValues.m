@@ -17,7 +17,7 @@ numIntW = quadData.methodSpecs.numGHint;
 
 constValues = cell(domainMesh.numTriangles, 1);
 
-parfor indT = 1 : domainMesh.numTriangles
+for indT = 1 : domainMesh.numTriangles
     vertsT = domainMesh.coordinates(domainMesh.triangles(indT, 1:3), :);
     areaT = domainMesh.area(indT);
 
@@ -37,9 +37,10 @@ parfor indT = 1 : domainMesh.numTriangles
         constValues{indT}.EXTw{indEXT} = areaT * quadData.EXTw(indEXT);
     end
 
-    constValues{indT}.GHCnodes = cell(numIntN, 1);
+    constValues{indT}.INTn = cell(numIntN, 1);
+    constValues{indT}.INTw = cell(numIntW, 1);
     for indINT = 1 : numIntN
-        constValues{indT}.INTn{indEXT} = quadData.INTn(indEXT, :) * vertsT; 
+        constValues{indT}.INTn{indINT} = quadData.INTn(indINT, :) * vertsT; 
     end
     for indINT = 1 : numIntW
         constValues{indT}.INTw{indINT} = areaT * quadData.INTw(indINT);
