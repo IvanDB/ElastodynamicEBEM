@@ -9,9 +9,9 @@ import eebem.utility.fileRead.*
 fileNameParts = split(meshFileName, ["_", "."]);
 domainName = fileNameParts(1);
 meshName = domainName;
-if(length(fileNameParts) > 2)
+if(length(fileNameParts) > 3)
     meshType = fileNameParts(end-2);
-    meshName = meshName + "_" + meshType;
+    meshName = meshName + "-" + meshType;
 end
 meshLev = str2double(fileNameParts(end-1));
 
