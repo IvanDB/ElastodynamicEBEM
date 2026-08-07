@@ -1,4 +1,29 @@
 function displacement = timeMarchingDN_c(basePath, pbParam, domainMesh, quadData, fullFileNames)
+%TIMEMARCHINGDN_C  Solve the triangle-collocated direct-Neumann (DNc) energetic BEM formulation by block time-marching.
+%   DISPLACEMENT = TIMEMARCHINGDN_C(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, FULLFILENAMES)
+%   is the triangle-collocated counterpart of TIMEMARCHINGDN: it computes the unknown
+%   surface displacement U (here defined per-triangle rather than per-vertex) using the
+%   collocated double-layer matrix CALCMATRIXK_C in place of CALCMATRIXK, and a
+%   correspondingly redefined diagonal "jump" term IGAMMA. The time-marching recursion,
+%   factorization strategy and output files are otherwise identical to TIMEMARCHINGDN.
+%
+%   Input arguments:
+%       BASEPATH      - (string) project root.
+%       PBPARAM       - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH    - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA      - (struct) quadrature nodes/weights/METHODSPECS, see GENERATEQUADDATA.
+%       FULLFILENAMES - (struct) output file paths, see GENERATEFILENAMES.
+%
+%   Output arguments:
+%       DISPLACEMENT - (3*numTriangles x nT double) the unknown
+%                      displacement at every time step.
+%
+%   Notes:
+%       Requires one or more available CUDA-capable
+%       GPUs (used by CALCMATRIXV and CALCMATRIXK_C).
+%
+%   See also CALCMATRIXK_C, CALCMATRIXV, CALCBETAV, TIMEMARCHINGDN
+
 arguments (Input)
     basePath    (1, 1) string
     pbParam     (1, 1) struct

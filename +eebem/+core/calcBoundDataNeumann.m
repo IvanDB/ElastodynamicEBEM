@@ -1,6 +1,21 @@
 function boundDataNeumann = calcBoundDataNeumann(pbParam, domainMesh, basePath)
-%CALCBOUNDNEUMANN Summary of this function goes here
-%   Detailed explanation goes here
+%CALCBOUNDDATANEUMANN  Sample the exact Neumann datum at every triangle centroid and time step.
+%   BOUNDDATANEUMANN = CALCBOUNDDATANEUMANN(PBPARAM, DOMAINMESH, BASEPATH)
+%   evaluates the datum handle returned by GETDATUMHANDLENEUMANN at the
+%   centroid and outward normal of every triangle of DOMAINMESH, at the
+%   mid-point time instants t_n = (n-0.5)*deltaT, n = 1:PBPARAM.nT.
+%
+%   Input arguments:
+%       PBPARAM    - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       BASEPATH   - (string, optional, default ".") project
+%                    root, forwarded to GETDATUMHANDLENEUMANN.
+%
+%   Output arguments:
+%       BOUNDDATANEUMANN - (cell, nT x 1) each entry a
+%                          (3*numTriangles x 1) double column vector.
+%
+%   See also GETDATUMHANDLENEUMANN, CALCBETAV, TIMEMARCHINGIN
 arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct

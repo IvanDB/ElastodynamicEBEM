@@ -1,4 +1,35 @@
 function density = timeMarchingIN(basePath, pbParam, domainMesh, quadData, fullFileNames)
+%TIMEMARCHINGIN  Solve the indirect-Neumann (IN) energetic BEM formulation by block time-marching.
+%   DENSITY = TIMEMARCHINGIN(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, FULLFILENAMES)
+%   computes the unknown surface density PHI (defined at the mesh vertices) that
+%   solves, for every discrete time step n = 1:PBPARAM.nT, the block-triangular system
+%
+%       W_0 * DENSITY(:,n) = IGAMMA * GV{n} - sum_{k=2}^{n} W_{k-1} * DENSITY(:,n-k+1),
+%
+%   where W is the hypersingular block-Toeplitz matrix (CALCMATRIXW), IGAMMA is a
+%   diagonal mass-like term built from the mesh incidence/area data, and GV is the
+%   exact Neumann datum sampled at the mesh vertices (CALCBOUNDDATANEUMANN). The
+%   diagonal block W_0 is LU-factorized once and reused at every time step.
+%   Intermediate matrices/vectors are optionally saved to
+%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%
+%   Input arguments:
+%       BASEPATH      - (string) project root.
+%       PBPARAM       - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH    - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA      - (struct) quadrature nodes/weights/METHODSPECS, see GENERATEQUADDATA.
+%       FULLFILENAMES - (struct) output file paths, see GENERATEFILENAMES.
+%
+%   Output arguments:
+%       DENSITY - (3*numVertices x nT double) the unknown density at every time step.
+%
+%   Notes:
+%       Requires one or more available CUDA-capable GPUs (used by CALCMATRIXW). Unlike
+%       the other four formulations, this datum is sampled directly via
+%       CALCBOUNDDATANEUMANN rather than convolved through a matrix (compare CALCBETAV).
+%
+%   See also CALCMATRIXW, CALCBOUNDDATANEUMANN, TIMEMARCHINGID
+
 arguments
     basePath    (1, 1) string
     pbParam     (1, 1) struct

@@ -1,4 +1,39 @@
 function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constData, indSMatrix, TriangPerNodes, maxNumTriangles, timeInstant, outerNode, innerNode)
+%CALCSINGSUBBLOCKW  Correct the singular vertex-pair contribution of a hypersingular (W) matrix block.
+%   OUTPUTMATRIX = CALCSINGSUBBLOCKW(PBPARAM, DOMAINMESH, QUADDATA, CONSTDATA,
+%   INDSMATRIX, TRIANGPERNODES, MAXNUMTRIANGLES, TIMEINSTANT, OUTERNODE, INNERNODE)
+%   evaluates the singular correction to add between mesh vertices OUTERNODE and
+%   INNERNODE (only meaningful, and only called by CALCMATRIXW, for vertex pairs
+%   that share at least one triangle). For every shared triangle it delegates to
+%   the local helper COMPUTESINGBLOCKW, which evaluates the closed-form regularized
+%   hypersingular kernel (see the local KERNELCALC family) on the light-
+%   cone-intersected sub-triangles and combines it with a 4-point backward finite
+%   difference in time (coefficients [1, -3, 3, -1], scaled by 1/deltaT^2) to
+%   realize the double time-differentiation the hypersingular operator requires.
+%
+%   Input arguments:
+%       PBPARAM         - (struct) physical/time-discretization
+%                         parameters, see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh (normal), see READSPACEMESH.
+%       QUADDATA        - (struct) quadrature nodes/weights/METHODSPECS,
+%                         see GENERATEQUADDATA.
+%       CONSTDATA       - (cell) per-triangle data from CALCCONSTVALUES.
+%       INDSMATRIX      - (numTriangles x numVertices int32) local vertex
+%                         index of each mesh vertex within each triangle
+%                         (0 if not incident), from READSPACEMESH.
+%       TRIANGPERNODES  - (numVertices x maxNumTriangles) triangles
+%                         incident to each vertex (0-padded).
+%       MAXNUMTRIANGLES - (positive integer) width of TRIANGPERNODES,
+%                         i.e. the maximum vertex valence in the mesh.
+%       TIMEINSTANT     - (nonnegative integer) discrete time-lag index for this block.
+%       OUTERNODE       - (positive integer) global index of the test vertex.
+%       INNERNODE       - (positive integer) global index of the trial vertex.
+%
+%   Output arguments:
+%       OUTPUTMATRIX - (3x3 double) singular correction to add at the
+%                      (OUTERNODE, INNERNODE) position of the block.
+%
+%   See also CALCMATRIXW, CALCCONSTVALUES, GENERATEFINALG2DNODES
 
 arguments (Output)
     OutputMatrix
@@ -58,20 +93,24 @@ end
 
 
 function VXi = VFunction(triangleCoeffs, triangleMatrix, vertexInd, xi)
-%% Questa funzione serve per calcolare V_{\alpha}^{s}(\xi)
+%Evaluate the piecewise-linear trial basis function of local vertex
+%VERTEXIND (the "V_alpha^s(xi)" of the regularized kernel) at point XI.
 eVec = [0,0,0];
 eVec(vertexInd) = 1;
 VXi = dot((triangleCoeffs + triangleMatrix*xi'), eVec); %traspongo xi perché viene passato come riga
 end
 
 function VTildeX = VTildeFunction(triangleCoeffs, triangleMatrix, vertexInd, x)
-%% Questa funzione serve per clcolare V_{\tilde{\alpha}}^{\tilde{s}}(x)
+%Evaluate the piecewise-linear test basis function of local vertex VERTEXIND
+%(the "V_tilde-alpha^tilde-s(x)" of the regularized kernel) at point X.
 eVec = [0,0,0];
 eVec(vertexInd) = 1;
 VTildeX = dot((triangleCoeffs +triangleMatrix*x'), eVec); %traspongo x perché viene passato come riga
 end
 
 function kernelTot = kernelCalc(t, VTildeX, VXi, VAlphaS, VTildeAlphaS, rVector, r, n, v, mu, lambda, rho, cS, cP, delta, epsilon)
+%Regularized hypersingular kernel at one integration point: sum of the
+%"T" (tangential/basis-weighted) and "R" (radial/curl-weighted) parts.
 kernelTot = zeros(3,3);
 kernelT = zeros(3,3);
 kernelR = zeros(3,3);
@@ -86,6 +125,8 @@ end
 
 
 function kernelT = kernelTCalc(i, k, t, VTildeX, VXi, rVector, r, n, v, mu, lambda, rho, cS, cP, delta)
+%"T" part of the kernel: sum of two Heaviside-jump ("Delta1"/"Delta2")
+%terms and one smooth Heaviside-integrated ("H") term.
 
 kernelTDelta1 = calcKernelTDelta1(i, k, t, VTildeX, VXi, rVector, r, n, v, mu, lambda, cS, cP, delta);
 kernelTDelta2 = calcKernelTDelta2(i, k, t, VTildeX, VXi, r, n, v, mu, lambda, rho, cS, cP, delta);
@@ -96,6 +137,7 @@ end
 
 
 function kernelTDelta1 = calcKernelTDelta1(i, k, t, VTildeX, VXi, rVector, r, n, v, mu, lambda, cS, cP, delta)
+%First (1/r) Heaviside-jump term of the "T" kernel part.
 H_P = (t - (r/cP) > 0); % queste sono le heavyside
 H_S = (t - (r/cS) > 0);
 
@@ -113,6 +155,7 @@ kernelTDelta1 = VTildeX*VXi*constTerm*(lambda*lambda*((n(k)*v(i))/(2*r)) + lambd
 end
 
 function kernelTDelta2 = calcKernelTDelta2(i, k, t, VTildeX, VXi, r, n, v, mu, lambda, rho, cS, cP, delta)
+%Second (1/r, higher wave-speed power) Heaviside-jump term of the "T" kernel part.
 H_P = (t - (r/cP) > 0); % queste sono le heavyside
 H_S = (t - (r/cS) > 0);
 
@@ -127,6 +170,7 @@ kernelTDelta2 = VTildeX*VXi*constTerm*((lambda*n(k)*v(i) + mu*n(i)*v(k) + mu*del
 end
 
 function kernelTH = calcKernelTH(i, k, t, VTildeX, VXi, rVector, r, n, v, mu, lambda, cS, cP, delta)
+%Smooth, Heaviside-integrated ("H", i.e. time-integrated twice) term of the "T" kernel part.
 
 H_P = (t - (r/cP) > 0); % queste sono le heavyside
 H_S = (t - (r/cS) > 0);
@@ -146,6 +190,8 @@ end
 
 
 function kernelR = kernelRCalc(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta, epsilon)
+%"R" part of the kernel: sum of a Heaviside-jump ("Delta") and a smooth Heaviside-integrated
+%("H") term, both built from the curl-weighted vectors VALPHAS/VTILDEALPHAS.
 
 kernelRDelta = calcKernelRDelta(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta);
 kernelRH = calcKernelRH(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta);
@@ -155,6 +201,7 @@ kernelR = kernelRH + kernelRDelta;
 end
 
 function kernelRH = calcKernelRH(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta)
+    %Smooth, Heaviside-integrated ("H") term of the "R" kernel part.
     H_P = (t - (r/cP) > 0);
     H_S = (t - (r/cS) > 0);
     IHRGS = H_S*(((t-(r/cS))^4)/(24) + r*((t-(r/cS))^3)/(6*cS));
@@ -187,6 +234,7 @@ function kernelRH = calcKernelRH(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu,
 end
 
 function kernelRDelta = calcKernelRDelta(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, mu, lambda, rho, cS, cP, delta)
+    %Heaviside-jump ("Delta") term of the "R" kernel part.
     H_P = (t - (r/cP) > 0); 
     H_S = (t - (r/cS) > 0);
     IDeltaRGS = H_S*(((t-(r/cS))^2)/(2*cS*cS));
@@ -210,6 +258,9 @@ function kernelRDelta = calcKernelRDelta(i, k, t, VAlphaS, VTildeAlphaS, rVector
 end
 
 function singularSubBlock = computeSingBlockW(pbParam, outerVertex, innerVertex, triangleNormal, currentConstData, timeInstant, methodSpecs, delta, epsilon)
+%Integrate the regularized hypersingular kernel over one shared triangle (area integral via
+%light-cone sub-triangles) and combine it with the 4-point backward time difference, for
+%one (outerVertex, innerVertex) pair. Called once per shared triangle by CALCSINGSUBBLOCKW.
 
 singularSubBlock = zeros(3,3);
 

@@ -1,6 +1,29 @@
 function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp)
-%CALCSINGSUBBLOCKV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCSINGSUBBLOCKV  Correct the self-triangle (singular) contribution of a single-layer (V) matrix block.
+%   SUBBLOCKV = CALCSINGSUBBLOCKV(PBPARAM, METHODSPECS, CONSTVALUESCURR, G1DN,
+%   G1DW, INDTEMP) evaluates, for one triangle and one discrete time-lag INDTEMP,
+%   the diagonal 3x3 self-interaction sub-block of the single-layer operator that
+%   CALCMATRIXV's GPU kernel does not handle accurately because source and target
+%   coincide. The kernel is integrated on the light-cone-intersected sub-triangles
+%   (childVerts, from CALCCONSTVALUES) via GENERATEFINALG2DNODES, and combined with
+%   a second-order backward finite-difference in time (coefficients [1, -2, 1]) to
+%   account for the double time-integration of the energetic weak formulation.
+%
+%   Input arguments:
+%       PBPARAM         - (struct) physical/time-discretization parameters
+%                         (deltaT, velP, velS, rho), see READINPUTFILE.
+%       METHODSPECS     - (struct) quadrature scheme sizes, see GENERATEQUADDATA.
+%       CONSTVALUESCURR - (struct) precomputed data for this triangle,
+%                         one entry of CALCCONSTVALUES's output.
+%       G1DN            - (double) 1D Gauss-Legendre nodes on [-1, 1].
+%       G1DW            - (double) 1D Gauss-Legendre weights.
+%       INDTEMP         - (nonnegative integer) discrete time-lag index for this block.
+%
+%   Output arguments:
+%       SUBBLOCKV - (3x3 double) singular correction to add on
+%                   the diagonal of the triangle's self-block.
+%
+%   See also CALCMATRIXV, CALCCONSTVALUES, GENERATEFINALG2DNODES
 
 arguments (Input)
     pbParam

@@ -1,6 +1,35 @@
 function matrixK = calcMatrixK(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
-%CALCMATRIXV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCMATRIXK  Assemble the block-Toeplitz double-layer (K) BEM matrix on the GPU.
+%   MATRIXK = CALCMATRIXK(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
+%   CONSTVALUES) computes the sequence of sparse matrix blocks {K_0, K_1, ...,
+%   K_{numBlocks-1}} of the discrete double-layer operator, which couples the
+%   piecewise-constant test space (triangles) with the piecewise-linear trial space
+%   (vertices) of the energetic space-time Galerkin BEM. The regular part of every
+%   block is evaluated in parallel on NGPU GPU devices by the CUDA kernel
+%   "kernelK.cu"; the singular (self-triangle) contribution is corrected afterwards on
+%   the CPU via CALCSINGSUBBLOCKK. Work is split across MATRIXSPECS.numIter iterations
+%   to respect the available GPU memory. Blocks beyond numBlocks (up to PBPARAM.nT)
+%   are returned as zero sparse matrices, since the kernel support vanishes there.
+%
+%   Input arguments:
+%       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.
+%       NGPU        - (positive integer) number of GPU devices to use.
+%       BASEPATH    - (string) project root, used to locate
+%                     "+core/kernelsCUDA/kernelK.cu" and its compiled PTX.
+%       PBPARAM     - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH  - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA    - (struct) quadrature nodes/weights/METHODSPECS, see GENERATEQUADDATA.
+%       CONSTVALUES - (cell) per-triangle data from CALCCONSTVALUES.
+%
+%   Output arguments:
+%       MATRIXK - (cell, PBPARAM.nT x 1) sparse (3*numTriangles x 3*numVertices) matrices.
+%
+%   Notes:
+%       Requires one or more available CUDA-capable GPUs
+%       and a compiled "kernelK.ptx" (see AUTOBUILD).
+%
+%   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKK, CALCMATRIXV,
+%   CALCMATRIXK_C, TIMEMARCHINGDD, TIMEMARCHINGDN
 arguments (Input)
     matrixSpecs struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}
@@ -123,6 +152,8 @@ end
 
 
 function gpuInputArrays = copyArrayK(domainMesh, quadData, constValues)
+%Copy the quadrature nodes/weights, mesh geometry and basis-function
+%coefficients needed by "kernelK.cu" onto the GPU as gpuArray inputs.
 numT = domainMesh.numTriangles;
 numV = domainMesh.numVertices;
 

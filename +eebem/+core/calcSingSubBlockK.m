@@ -1,6 +1,34 @@
 function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp, indM, indV)
-%CALCSINGSUBBLOCKK Summary of this function goes here
-%   Detailed explanation goes here
+%CALCSINGSUBBLOCKK  Correct the self-triangle (singular) contribution of a double-layer (K) matrix block.
+%   SUBBLOCKK = CALCSINGSUBBLOCKK(PBPARAM, DOMAINMESH, METHODSPECS, CONSTVALUESCURR,
+%   G1DN, G1DW, INDTEMP, INDM, INDV) evaluates, for triangle INDM, discrete time-lag
+%   INDTEMP and trial vertex INDV (1, 2 or 3, local to the triangle), the singular
+%   self-interaction 3x3 sub-block of the double-layer operator that CALCMATRIXK's GPU
+%   kernel does not handle accurately. Integration is performed on the
+%   light-cone-intersected sub-triangles via GENERATEFINALG2DNODES, combined with a
+%   third-order backward finite-difference in time (coefficients [-1, 3, -3, 1]). The
+%   function returns early (an all- zero block) once the time-lag exceeds the
+%   light-cone support implied by the triangle's largest edge length (DOMAINMESH.maxL).
+%
+%   Input arguments:
+%       PBPARAM         - (struct) physical/time-discretization parameters
+%                         (deltaT, velP, velS), see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh
+%                         (normal, maxL), see READSPACEMESH.
+%       METHODSPECS     - (struct) quadrature scheme sizes, see GENERATEQUADDATA.
+%       CONSTVALUESCURR - (struct) precomputed data for triangle INDM,
+%                         one entry of CALCCONSTVALUES's output.
+%       G1DN            - (double) 1D Gauss-Legendre nodes on [-1, 1].
+%       G1DW            - (double) 1D Gauss-Legendre weights.
+%       INDTEMP         - (nonnegative integer) discrete time-lag index for this block.
+%       INDM            - (positive integer) index of the triangle.
+%       INDV            - (1, 2 or 3) local index of the trial vertex.
+%
+%   Output arguments:
+%       SUBBLOCKK - (3x3 double) singular correction to add at the
+%                   (triangle INDM, vertex INDV) position of the block.
+%
+%   See also CALCMATRIXK, CALCCONSTVALUES, GENERATEFINALG2DNODES
 
 arguments (Input)
     pbParam

@@ -1,13 +1,27 @@
 function [gha, ghw] = GaussHammer_base(mxghp)
-% ****FUNZIONE NON REVISIONATA****
-% INPUT 
-%   - mxghp: intero contenente il massimo numero di nodi
-
-% OUTPUT:
-%   - gha: matrice mxghp x mxghp x 3 contenente le coordinate dei nodi di
-%   Gauss-Hammer per il triangolo di default
-%   - ghw: matrice mxghp x mxghp contenente i pesi Gauss-Hammer
-
+%GAUSSHAMMER_BASE  Look up hard-coded base Gauss-Hammer quadrature rules on the reference triangle.
+%   [GHA, GHW] = GAUSSHAMMER_BASE(MXGHP) returns, for every supported node count up to MXGHP
+%   (the valid sizes are 1, 3, 7, 12 and 19, see GENERATEQUADDATA's isGHvalid check), the
+%   barycentric node coordinates and weights of the corresponding classical Gauss-Hammer
+%   rule on the reference triangle, as literal hard-coded constants. Unsupported row indices
+%   of GHA/GHW (any MXGHP value other than 1, 3, 7, 12, 19) are simply left as zero.
+%
+%   Input arguments:
+%       MXGHP - (positive integer) upper bound on the node count; only used to size the
+%               output arrays (GAUSSHAMMER_BASE always fills in all five hard-coded
+%               rules, regardless of MXGHP, as long as MXGHP is at least 19).
+%
+%   Output arguments:
+%       GHA - (MXGHP x MXGHP x 3 double) barycentric coordinates: GHA(m, :, :)
+%             holds the m-node rule (only populated for m in {1, 3, 7, 12, 19}).
+%       GHW - (MXGHP x MXGHP double) corresponding weights.
+%
+%   Notes:
+%       Flagged by the original author as "FUNZIONE NON REVISIONATA" ("function not
+%       reviewed") -- kept here verbatim as a caution, since the hard-coded constants have
+%       not been independently re-derived or unit-tested as part of this documentation pass.
+%
+%   See also GAUSSHAMMERCOMPOSITE, GENERATEQUADDATA
 
 %% Allocazione matrici
 gha = zeros(mxghp, mxghp, 3);

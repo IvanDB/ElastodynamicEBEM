@@ -1,6 +1,24 @@
 function betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath)
-%CALCBETAV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCBETAV  Convolve the single-layer block-Toeplitz matrix V with the Neumann datum history.
+%   BETAV = CALCBETAV(PBPARAM, DOMAINMESH, MATRIXV, BASEPATH) samples the exact Neumann
+%   (traction) datum at every triangle centroid and half-integer time instant (via
+%   CALCBOUNDDATANEUMANN) and forms, for each time step n, the discrete convolution
+%
+%       BETAV{n} = sum_{j=1}^{n} MATRIXV{n-j+1} * gV{j},
+%
+%   the right-hand side used by TIMEMARCHINGDN and TIMEMARCHINGDN_C.
+%
+%   Input arguments:
+%       PBPARAM    - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       MATRIXV    - (cell, nT x 1) sparse block-Toeplitz
+%                    single-layer matrix produced by CALCMATRIXV.
+%       BASEPATH   - (string) project root, forwarded to CALCBOUNDDATANEUMANN.
+%
+%   Output arguments:
+%       BETAV - (cell, nT x 1) each entry a (3*numTriangles x 1) double column vector.
+%
+%   See also CALCMATRIXV, CALCBOUNDDATANEUMANN, TIMEMARCHINGDN, TIMEMARCHINGDN_C
 arguments
     pbParam     struct
     domainMesh  struct

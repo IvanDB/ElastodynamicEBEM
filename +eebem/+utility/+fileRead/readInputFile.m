@@ -1,4 +1,28 @@
 function pbParam = readInputFile(basePath, problemFileName)
+%READINPUTFILE  Parse a problem definition file into the PBPARAM struct.
+%   PBPARAM = READINPUTFILE(BASEPATH, PROBLEMFILENAME) reads the fixed-format text
+%   file BASEPATH/inputFiles/PROBLEMFILENAME (one value per line, each preceded by a
+%   label line that is skipped) and returns a struct with the physical parameters
+%   (rho, mu, nu, lambda), the derived P/S wave speeds (velP, velS), the default
+%   space/time discretization (defaultValues.timeLimit, defaultValues.numIntvls,
+%   STcoupling, defaultValues.meshType), the mesh/domain name (meshName, domainName,
+%   the latter from PROBLEMFILENAME itself) and the boundary-integral-equation
+%   settings (BIE, BOU), validated via CHECKIMPLEMENTATION before returning.
+%
+%   Input arguments:
+%       BASEPATH        - (string) project root.
+%       PROBLEMFILENAME - (string) file name under BASEPATH/inputFiles,
+%                         see CONSTRUCTPROBLEMFILENAME.
+%
+%   Output arguments:
+%       PBPARAM - (struct) parsed problem parameters, see the fields listed above.
+%
+%   Notes:
+%       Asserts if the problem file cannot be opened. If PBPARAM. meshName
+%       is left blank in the file, it defaults to PBPARAM.domainName.
+%
+%   See also CONSTRUCTPROBLEMFILENAME, CHECKIMPLEMENTATION, READSPACEMESH
+
 arguments
     basePath        (1, 1) string
     problemFileName (1, 1) string

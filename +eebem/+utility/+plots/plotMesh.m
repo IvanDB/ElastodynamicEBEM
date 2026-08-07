@@ -1,4 +1,26 @@
 function glbIndexFigures = plotMesh(domainMesh, glbIndexFigures, glbFlags, basePath)
+%PLOTMESH  Render (and optionally export) a 3D surface plot of the boundary mesh.
+%   GLBINDEXFIGURES = PLOTMESH(DOMAINMESH, GLBINDEXFIGURES, GLBFLAGS, BASEPATH) draws
+%   DOMAINMESH's triangulation with TRISURF, labels the axes, and titles the figure with the
+%   mesh name and refinement level. Returns immediately, without creating a figure, if both
+%   GLBFLAGS.plotFigs and GLBFLAGS.saveFigs are false. If GLBFLAGS.saveFigs is true, exports
+%   the figure as .jpg (always) and .svg (on Windows only) under BASEPATH/outputPlot/mesh,
+%   skipping the export if the target file already exists. If GLBFLAGS.plotFigs is false,
+%   the figure is closed right after being (optionally) exported.
+%
+%   Input arguments:
+%       DOMAINMESH      - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       GLBINDEXFIGURES - (nonnegative integer) running figure-number
+%                         counter, incremented by one if a figure is created.
+%       GLBFLAGS        - (struct) must contain plotFigs and
+%                         saveFigs logicals, see SETUPWORKSPACE.
+%       BASEPATH        - (string, optional, default ".") project root,
+%                         used only when GLBFLAGS.saveFigs is true.
+%
+%   Output arguments:
+%       GLBINDEXFIGURES - (nonnegative integer) updated figure counter.
+%
+%   See also PLOTSOLUTIONS, GETPLOTPROBLEMPARAMETER
 
 arguments
     domainMesh      (1, 1) struct

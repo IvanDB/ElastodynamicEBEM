@@ -1,4 +1,26 @@
 function [nodes, weights] = GaussHammerComposite(nSubPart, nNodGH)
+%GAUSSHAMMERCOMPOSITE  Build a composite Gauss-Hammer quadrature rule on the reference triangle.
+%   [NODES, WEIGHTS] = GAUSSHAMMERCOMPOSITE(NSUBPART, NNODGH) subdivides the
+%   reference triangle into NSUBPART congruent sub-triangles (NSUBPART must be
+%   a perfect square, giving SQRT(NSUBPART) subdivisions per edge) and places,
+%   in each sub-triangle, the NNODGH-point base Gauss-Hammer rule returned by
+%   GAUSSHAMMER_BASE, mapped from barycentric to Cartesian coordinates.
+%
+%   Input arguments:
+%       NSUBPART - (perfect-square positive integer) number of sub-triangles.
+%       NNODGH   - (positive integer, one of the base-rule sizes
+%                  supported by GAUSSHAMMER_BASE) nodes per sub-triangle.
+%
+%   Output arguments:
+%       NODES   - ((NSUBPART*NNODGH) x 3 double) barycentric-mapped
+%                 quadrature nodes over the whole reference triangle.
+%       WEIGHTS - ((NSUBPART*NNODGH) x 1 double) corresponding weights,
+%                 normalized to a reference-triangle area of 1.
+%
+%   Notes:
+%       Errors ("Valore non valido") if NSUBPART is not a perfect square.
+%
+%   See also GAUSSHAMMER_BASE, GENERATEQUADDATA
 
 import eebem.utility.quadratureRules.*
 

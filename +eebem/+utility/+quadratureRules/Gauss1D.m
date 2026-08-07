@@ -1,4 +1,32 @@
 function [nodes, weight] = Gauss1D(type, n, alpha, beta)
+%GAUSS1D  Compute 1D Gaussian quadrature nodes and weights via the Golub-Welsch algorithm.
+%   [NODES, WEIGHT] = GAUSS1D(TYPE, N, ALPHA, BETA) returns N nodes and weights
+%   for one of six classical Gaussian quadrature families (selected by TYPE), by
+%   building the corresponding three-term recurrence coefficients and computing
+%   them as the eigenvalues/first eigenvector-components of the associated
+%   Jacobi (tridiagonal) matrix, via the local helper EXALGOLPROCEDURE.
+%
+%   Input arguments:
+%       TYPE  - (positive integer) 1 Gauss-Legendre on (-1,1), w(x)=1; 2
+%               Gauss-Chebyshev 1st kind on (-1,1), w(x)=1/sqrt(1-x^2); 3
+%               Gauss-Chebyshev 2nd kind on (-1,1), w(x)=sqrt(1-x^2); 4 Gauss-Hermite
+%               on (-inf,inf), w(x)=exp(-x^2); 5 Gauss-Jacobi on (-1,1) (unimplemented,
+%               see Notes); 6 Gauss-Laguerre on (0,inf), w(x)=exp(-x)*x^alpha.
+%       N     - (positive integer) number of nodes/weights requested.
+%       ALPHA - (double, optional, default 0) Jacobi/Laguerre exponent.
+%       BETA  - (double, optional, default 0) Jacobi exponent (TYPE 5 only).
+%
+%   Output arguments:
+%       NODES  - (1xN double) quadrature nodes.
+%       WEIGHT - (1xN double) quadrature weights.
+%
+%   Notes:
+%       TYPE = 5 (Gauss-Jacobi) is not implemented and errors
+%       unconditionally ("Caso incompleto"). This project only uses TYPE =
+%       1 (Gauss-Legendre), via GENERATEFINALG2DNODES and DOPPIOGAUSS1D.
+%
+%   See also GENERATEFINALG2DNODES, DOPPIOGAUSS1D
+
 arguments
     type    (1, 1) double {mustBeInteger, mustBePositive}
     n       (1, 1) double {mustBeInteger, mustBePositive}
@@ -67,6 +95,7 @@ weight = (weight.^2) .* mu;
 end
 
 function [d, e, z, ierr] = exAlgolProcedure(n, d, e)
+%EXALGOLPROCEDURE  Golub-Welsch eigen-decomposition of the Jacobi tridiagonal matrix for Gaussian quadrature.
 % This subroutine is a translation of an algol procedure,
 % num. math. 12, 377-383(1968) by Martin and Wilkinson,
 % as modified in num. math. 15, 450(1970) by Dubrulle.

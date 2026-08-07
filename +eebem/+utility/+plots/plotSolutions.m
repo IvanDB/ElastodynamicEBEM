@@ -1,6 +1,41 @@
 function glbIndexFigures = plotSolutions(form, pbParam, domainMesh, density, glbIndexFigures, glbFlags, basePath)
-%PLOTSOLUTIONS undefined
-%   undefined
+%PLOTSOLUTIONS  Render (and optionally export) solution snapshots at the problem's default time instants.
+%   GLBINDEXFIGURES = PLOTSOLUTIONS(FORM, PBPARAM, DOMAINMESH, DENSITY,
+%   GLBINDEXFIGURES, GLBFLAGS, BASEPATH) plots, for each (time instant, vector
+%   component) pair returned by GETPLOTPROBLEMPARAMETER, a TRISURF snapshot of the
+%   solution DENSITY -- interpreted as the density phi (FORM "ID"/"IN"), traction p
+%   (FORM "DD") or displacement u (FORM "DN"/"DNc") depending on FORM -- with a
+%   LaTeX-formatted title. Vertex-based solutions (numVertices rows) are first mapped
+%   onto triangles by averaging. Returns immediately, without creating any figure, if
+%   both GLBFLAGS.plotFigs and GLBFLAGS.saveFigs are false. If GLBFLAGS.saveFigs is
+%   true, each figure is exported as .jpg, .fig (always) and .svg (Windows only)
+%   under BASEPATH/outputPlot/<domainName>, skipping files that already exist.
+%
+%   Input arguments:
+%       FORM            - ("ID"|"DD"|"DN"|"DNc"|"IN") formulation used
+%                         to produce DENSITY, selects the axis label.
+%       PBPARAM         - (struct) physical/time-discretization
+%                         parameters, see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       DENSITY         - (double matrix) solution history, either (3*numTriangles x nT) or
+%                         (3*numVertices x nT) as returned by the TIMEMARCHING* functions.
+%       GLBINDEXFIGURES - (nonnegative integer) running figure-number counter.
+%       GLBFLAGS        - (struct) must contain plotFigs and
+%                         saveFigs logicals, see SETUPWORKSPACE.
+%       BASEPATH        - (string, optional, default ".") project root,
+%                         used only when GLBFLAGS.saveFigs is true.
+%
+%   Output arguments:
+%       GLBINDEXFIGURES - (nonnegative integer) updated figure counter.
+%
+%   Notes:
+%       Asserts that DENSITY's row count matches either
+%       3*DOMAINMESH.numTriangles or 3*DOMAINMESH.numVertices. The custom
+%       color-limit branch (CLIMCUSTOM, from GETPLOTPROBLEMPARAMETER)
+%       only emits a "still WIP" warning and is not actually applied.
+%
+%   See also GETPLOTPROBLEMPARAMETER, PLOTMESH, TIMEMARCHINGID,
+%   TIMEMARCHINGDD, TIMEMARCHINGDN, TIMEMARCHINGDN_C, TIMEMARCHINGIN
 
 arguments
     form            (1, 1) string {mustBeMember(form, ["ID", "DD", "DN", "DNc", "IN"])}

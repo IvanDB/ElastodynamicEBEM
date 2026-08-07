@@ -1,6 +1,41 @@
 function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp, indM)
-%CALCSINGSUBBLOCKK_C Summary of this function goes here
-%   Detailed explanation goes here
+%CALCSINGSUBBLOCKK_C  Correct the self-triangle (singular) contribution of a K_c matrix block.
+%   SUBBLOCKK = CALCSINGSUBBLOCKK_C(PBPARAM, DOMAINMESH, METHODSPECS, CONSTVALUESCURR,
+%   G1DN, G1DW, INDTEMP, INDM) evaluates, for triangle INDM and discrete time-lag INDTEMP,
+%   the singular self-interaction 3x3 sub-block of the triangle-collocated double-layer
+%   operator used by CALCMATRIXK_C. The kernel is regularized (via GETKERNELSFUNCTION
+%   HANDLES, a local helper) into a closed-form "domain" part, integrated on the
+%   light-cone-intersected sub-triangles via GENERATEFINALG2DNODES, plus a "boundary" line
+%   term integrated with the trapezoidal rule along the triangle's three edges. Both are
+%   combined with a third- order backward finite-difference in time (coefficients [-1, 3,
+%   -3, 1]). The function returns early (an all-zero block) once the time-lag exceeds the
+%   light-cone support implied by the triangle's largest edge length (DOMAINMESH.maxL).
+%
+%   Input arguments:
+%       PBPARAM         - (struct) physical/time-discretization parameters (deltaT,
+%                         velP, velS, lambda, mu, rho), see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh (normal,
+%                         coordinates, triangles, maxL), see READSPACEMESH.
+%       METHODSPECS     - (struct) quadrature scheme sizes, including numBOUND (points
+%                         per edge for the boundary term), see GENERATEQUADDATA.
+%       CONSTVALUESCURR - (struct) precomputed data for triangle INDM,
+%                         one entry of CALCCONSTVALUES's output.
+%       G1DN            - (double) 1D Gauss-Legendre nodes on [-1, 1].
+%       G1DW            - (double) 1D Gauss-Legendre weights.
+%       INDTEMP         - (nonnegative integer) discrete time-lag index for this block.
+%       INDM            - (positive integer) index of the triangle.
+%
+%   Output arguments:
+%       SUBBLOCKK - (3x3 double) singular correction to add on
+%                   the diagonal of the triangle's self-block.
+%
+%   Notes:
+%       The inner "domain" integration is marked "Temp MATLAB code" in the
+%       source and loops point-by-point in plain MATLAB rather than
+%       vectorizing, unlike the sibling CALCSINGSUBBLOCKK; it is noticeably
+%       slower and looks like a candidate for a future MEX/ GPU port.
+%
+%   See also CALCMATRIXK_C, CALCCONSTVALUES, GENERATEFINALG2DNODES
 arguments (Input)
     pbParam
     domainMesh
@@ -101,6 +136,8 @@ end
 
 
 function [nuKL, nuKT, nuKsmRj] = getKernelsFunctionHandles(pbParam)
+%Build closed-form kernel handles (domain "L"/"T" parts and boundary
+%line term "smRj") for the regularized double-layer collocated kernel.
 
 %Parametri del problema
 lambda = pbParam.lambda;

@@ -1,4 +1,28 @@
 function glbIndexFigures = plotConstant(basePath, pbParam, domainMesh, density, glbIndexFigures)
+%PLOTCONSTANT  (Deprecated) plot a piecewise-constant (per-triangle) solution snapshot.
+%   GLBINDEXFIGURES = PLOTCONSTANT(BASEPATH, PBPARAM, DOMAINMESH, DENSITY,
+%   GLBINDEXFIGURES) manually builds per-triangle patch coordinates and plots a single
+%   snapshot of a piecewise-constant solution field with PATCH/FILL3-style rendering.
+%
+%   Input arguments:
+%       BASEPATH        - (string) project root.
+%       PBPARAM         - (struct) physical/problem parameters, see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       DENSITY         - (double) per-triangle solution values.
+%       GLBINDEXFIGURES - (nonnegative integer) running figure-number counter.
+%
+%   Output arguments:
+%       GLBINDEXFIGURES - (nonnegative integer) updated figure counter.
+%
+%   Notes:
+%       DEPRECATED: superseded by PLOTSOLUTIONS, which handles all formulations
+%       (piecewise-constant and piecewise-linear) through a single TRISURF-based code
+%       path. Also note the file name ("_deprecated_plotConstant.m") does not match
+%       the function name ("plotConstant") defined inside it, and MATLAB identifiers
+%       cannot start with an underscore, so this file likely cannot be invoked
+%       through the normal eebem.utility.plots.<name>(...) package syntax at all.
+%
+%   See also PLOTSOLUTIONS
     
 %Calcolo dei vettori conteneti le coordinate dei triangoli della mesh
 X = [(domainMesh.coordinates(domainMesh.triangles(:, 1), 1))'; ...

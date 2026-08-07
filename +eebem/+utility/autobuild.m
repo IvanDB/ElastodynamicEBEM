@@ -1,4 +1,27 @@
 function autobuild(basePath, flag)
+%AUTOBUILD  Compile the project's MEX (C) and CUDA kernels, if requested.
+%   AUTOBUILD(BASEPATH, FLAG) always adds BASEPATH/buildDir to the path (where the
+%   compiled artifacts, and any previously built ones, live). When FLAG is true, it
+%   additionally: (1) compiles "kernelK.c" and "kernelV.c" (from +core/kernelsMEXC) into
+%   MEX files with MEX -R2018a, using aggressive optimization flags for the detected
+%   compiler (MSVC on Windows, gcc/clang/mingw elsewhere); and (2) compiles "kernelK.cu",
+%   "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu" and "kernelW.cu" (from
+%   +core/kernelsCUDA) into PTX files with NVCC, targeting the compute capability of the
+%   currently selected GPU. All compiled artifacts are written to BASEPATH/buildDir.
+%
+%   Input arguments:
+%       BASEPATH - (string) project root.
+%       FLAG     - (logical, optional, default false) whether to actually (re)compile
+%                  the kernels, or just add buildDir to the path and return.
+%
+%   Notes:
+%       Requires a configured C compiler (MEX -SETUP C is invoked if none is
+%       configured), the NVIDIA CUDA compiler NVCC on the system PATH, and at
+%       least one available GPU (to query its compute capability). On Windows,
+%       asserts that the configured C compiler is MSVC. Never skips or caches
+%       compilation: with FLAG = true it always recompiles every kernel.
+%
+%   See also SETUPWORKSPACE, CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C, CALCMATRIXW
 
 arguments
     basePath (1, 1) string

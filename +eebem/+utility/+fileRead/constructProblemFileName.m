@@ -1,4 +1,24 @@
 function problemFileName = constructProblemFileName(pbIndex, pbSpecs)
+%CONSTRUCTPROBLEMFILENAME  Resolve the problem (.txt) file name, by preset index or by name.
+%   PROBLEMFILENAME = CONSTRUCTPROBLEMFILENAME(PBINDEX, PBSPECS) returns
+%   "<name>.txt". If PBINDEX is a positive integer, <name> is looked up in an
+%   internal preset list ("barH1", "barH3", "DesCop-sphere", "DesCop-cube").
+%   Otherwise, <name> is taken from PBSPECS.pbName, which must then be non-empty.
+%
+%   Input arguments:
+%       PBINDEX - (nonnegative integer, default 0) 1-based index into the
+%                 internal preset list; 0 means "use PBSPECS.pbName" instead.
+%       PBSPECS - (name-value) pbName (string, default "")
+%                 problem name used when PBINDEX is 0.
+%
+%   Output arguments:
+%       PROBLEMFILENAME - (string) file name, without directory,
+%                         expected under BASEPATH/inputFiles/.
+%
+%   Notes:
+%       Errors if PBINDEX is 0 and PBSPECS.pbName is empty.
+%
+%   See also READINPUTFILE, CONSTRUCTMESHFILENAME
     arguments
         pbIndex  (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
         pbSpecs.pbName (1, 1) string = ""

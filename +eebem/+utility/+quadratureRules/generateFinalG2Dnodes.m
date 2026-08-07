@@ -1,4 +1,36 @@
 function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, quad1D)
+%GENERATEFINALG2DNODES  Build quadrature nodes on a triangle intersected with a light-cone annulus.
+%   [NODI3D, PESI3D] = GENERATEFINALG2DNODES(V3D, RMIN, RINT, REXT, QUAD1D) integrates
+%   over the part of the (2D, embedded-in-3D) triangle V3D that lies within radial
+%   distance [RMIN, min(RINT/REXT region boundary, ...)] from vertex V3D(3,:), using a
+%   polar- coordinate change of variables: an angular 1D Gauss-Legendre rule over the
+%   triangle's opening angle, and a further radial 1D Gauss- Legendre rule split at
+%   RMIN/RINT (so nodes can be weighted differently across the P-wave/S-wave light-cone
+%   boundary implied by RINT and REXT). This realizes, sub-triangle by sub-triangle,
+%   the light-cone-intersected singular integration used by CALCSINGSUBBLOCKV/K/K_C/W.
+%
+%   Input arguments:
+%       V3D    - (3x3 double) the three vertices of the (child) triangle, as rows; the
+%                third row is the "singular point" the radial coordinate is centered on.
+%       RMIN   - (double) inner radius of the integration annulus.
+%       RINT   - (double) S-wave radius (velS * currT) for this time instant.
+%       REXT   - (double) P-wave radius (velP * currT) for this time instant.
+%       QUAD1D - (name-value) numNodes (nonnegative integer, default 0) number of 1D
+%                nodes to generate internally via GAUSS1D if G1Dn/G1Dw are not
+%                supplied; G1Dn/G1Dw (double, default []) precomputed 1D
+%                Gauss-Legendre nodes/ weights to reuse instead of regenerating them.
+%
+%   Output arguments:
+%       NODI3D - (Mx3 double) quadrature nodes in 3D Cartesian
+%                coordinates, with zero-weight nodes already removed.
+%       PESI3D - (Mx1 double) corresponding quadrature weights.
+%
+%   Notes:
+%       Either QUAD1D.numNodes must be nonzero, or both
+%       QUAD1D.G1Dn and QUAD1D.G1Dw must be supplied (asserted).
+%
+%   See also GAUSS1D, CALCSINGSUBBLOCKV, CALCSINGSUBBLOCKK,
+%   CALCSINGSUBBLOCKK_C, CALCSINGSUBBLOCKW
 
 arguments
     v3D     (3, 3) double

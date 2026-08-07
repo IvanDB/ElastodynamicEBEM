@@ -1,6 +1,34 @@
 function constValues = calcConstValues(domainMesh, quadData)
-%CALCCONSTANTVALUES Summary of this function goes here
-%   Detailed explanation goes here
+%CALCCONSTVALUES  Pre-compute, once, the per-triangle data reused throughout the time-marching loop.
+%   CONSTVALUES = CALCCONSTVALUES(DOMAINMESH, QUADDATA) loops over every triangle of
+%   DOMAINMESH (in parallel) and pre-computes quantities that do not depend on the time
+%   step and can therefore be cached and reused for the whole simulation: the affine map
+%   coefficients (matCoeff, vetCoeff) of the piecewise-linear basis functions, the outer
+%   quadrature nodes/weights mapped onto the triangle (EXTn, EXTw), the inner quadrature
+%   weights (INTw), and, for every outer node, the three "child" sub-triangles
+%   (childVerts, childArea) obtained by connecting the node to the triangle's edges,
+%   used by the singular-kernel integration routines (CALCSINGSUBBLOCKV/K/K_C).
+%
+%   Input arguments:
+%       DOMAINMESH - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA   - (struct) quadrature nodes/weights and
+%                    METHODSPECS, see GENERATEQUADDATA.
+%
+%   Output arguments:
+%       CONSTVALUES - (cell, numTriangles x 1) one struct per triangle with fields
+%                     matCoeff, vetCoeff, EXTn, EXTw, INTn, INTw, childVerts, childArea.
+%
+%   Notes:
+%       Uses a PARFOR loop; a parallel pool speeds this step up but is not
+%       required. Known issue: the loop that should fill INTn{indINT} instead
+%       indexes with the stale loop variable indEXT left over from the previous
+%       loop, so INTn is not populated as intended for numIntN > 1. This
+%       currently has no observed effect because CONSTVALUES.INTn is not read
+%       anywhere else in the codebase (only the unrelated QUADDATA.INTn is), but
+%       the field -- together with the allocated-and-never-used GHCnodes field --
+%       looks like dead code from an earlier refactor and is worth revisiting.
+%
+%   See also GENERATEQUADDATA, CALCSINGSUBBLOCKV, CALCSINGSUBBLOCKK
 arguments (Input)
     domainMesh struct
     quadData struct

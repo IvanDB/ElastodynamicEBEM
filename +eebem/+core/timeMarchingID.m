@@ -1,4 +1,33 @@
 function density = timeMarchingID(basePath, pbParam, domainMesh, quadData, fullFileNames)
+%TIMEMARCHINGID  Solve the indirect-Dirichlet (ID) energetic BEM formulation by block time-marching.
+%   DENSITY = TIMEMARCHINGID(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
+%   FULLFILENAMES) computes the unknown surface density PHI that solves, for
+%   every discrete time step n = 1:PBPARAM.nT, the block-triangular system
+%
+%       V_0 * DENSITY(:,n) = BETAI{n} - sum_{k=2}^{n} V_{k-1} * DENSITY(:,n-k+1),
+%
+%   where V is the single-layer block-Toeplitz matrix (CALCMATRIXV) and BETAI is the
+%   outer-datum load history (CALCBETAI). The diagonal block V_0 is LU-factorized once
+%   and reused at every time step. Intermediate matrices/vectors are optionally saved to
+%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%
+%   Input arguments:
+%       BASEPATH      - (string) project root.
+%       PBPARAM       - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH    - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA      - (struct) quadrature nodes/weights/METHODSPECS, see GENERATEQUADDATA.
+%       FULLFILENAMES - (struct) output file paths, see GENERATEFILENAMES.
+%
+%   Output arguments:
+%       DENSITY - (3*numTriangles x nT double) the unknown density at every time step.
+%
+%   Notes:
+%       Requires one or more available CUDA-capable GPUs (used by CALCMATRIXV)
+%       and, if PBPARAM.lambda + PBPARAM.mu == 0, is the only formulation
+%       currently supported by MAIN for that (incompressible-limit) case.
+%
+%   See also CALCMATRIXV, CALCBETAI, CALCMATRIXSPECS, TIMEMARCHINGDD
+
 arguments
     basePath    (1, 1) string
     pbParam     (1, 1) struct

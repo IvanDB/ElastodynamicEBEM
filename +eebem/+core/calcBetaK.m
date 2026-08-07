@@ -1,6 +1,24 @@
 function betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath)
-%CALCBETAV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCBETAK  Convolve the double-layer block-Toeplitz matrix K with the Dirichlet datum history.
+%   BETAK = CALCBETAK(PBPARAM, DOMAINMESH, MATRIXK, BASEPATH) samples the exact
+%   Dirichlet datum at every mesh vertex and time instant (via
+%   CALCBOUNDDATADIRICHLET) and forms, for each time step n, the discrete convolution
+%
+%       BETAK{n} = sum_{j=1}^{n} MATRIXK{n-j+1} * gK{j}.
+%
+%   The result is combined with BETAI to build the right-hand side used by TIMEMARCHINGDD.
+%
+%   Input arguments:
+%       PBPARAM    - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       MATRIXK    - (cell, nT x 1) sparse block-Toeplitz
+%                    double-layer matrix produced by CALCMATRIXK.
+%       BASEPATH   - (string) project root, forwarded to CALCBOUNDDATADIRICHLET.
+%
+%   Output arguments:
+%       BETAK - (cell, nT x 1) each entry a (3*numTriangles x 1) double column vector.
+%
+%   See also CALCMATRIXK, CALCBOUNDDATADIRICHLET, CALCBETAI, TIMEMARCHINGDD
 arguments
     pbParam     struct
     domainMesh  struct
