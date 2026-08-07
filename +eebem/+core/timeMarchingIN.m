@@ -8,10 +8,10 @@ function density = timeMarchingIN(basePath, pbParam, domainMesh, quadData, fullF
 %
 %   where W is the hypersingular block-Toeplitz matrix (CALCMATRIXW), IGAMMA is a
 %   diagonal mass-like term built from the mesh incidence/area data, and GV is the
-%   exact Neumann datum sampled at the mesh vertices (CALCBOUNDDATANEUMANN). The
-%   diagonal block W_0 is LU-factorized once and reused at every time step.
-%   Intermediate matrices/vectors are optionally saved to
-%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%   exact Neumann datum sampled at the mesh vertices (CALCBOUNDDATANEUMANN).
+%   The diagonal block W_0 is LU-factorized once and reused at every time step.
+%   The solution is saved to FULLFILENAMES.outFullFilename and, optionally,
+%   intermediate matrices/vectors to FULLFILENAMES.tmpFullFilename.
 %
 %   Input arguments:
 %       BASEPATH      - (string) project root.

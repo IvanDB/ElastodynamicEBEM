@@ -1,8 +1,8 @@
 function matrixSpecs = calcMatrixSpecs(nGPU, avMem, blockSizes, numBlocks)
 %CALCMATRIXSPECS  Plan how a block-Toeplitz BEM matrix is split across GPUs and iterations.
 %   MATRIXSPECS = CALCMATRIXSPECS(NGPU, AVMEM, BLOCKSIZES, NUMBLOCKS) works out,
-%   given the amount of free GPU memory AVMEM and the number of available devices
-%   NGPU, how many (3*BLOCKSIZES(1)) x (3*BLOCKSIZES(2)) matrix blocks can be held in
+%   given the amount of free GPU memory AVMEM and the number of available devices NGPU,
+%   how many (3*BLOCKSIZES(1)) x (3*BLOCKSIZES(2)) matrix blocks can be held in
 %   memory at once, and derives the per-device offsets needed to split the NUMBLOCKS
 %   blocks of a CALCMATRIXV/CALCMATRIXK/CALCMATRIXK_C/CALCMATRIXW computation into a
 %   sequence of GPU launches ("iterations"), each as large as memory allows.

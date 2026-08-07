@@ -1,22 +1,24 @@
 function quadData = generateQuadData(methodId, methodSpecs)
 %GENERATEQUADDATA  Build the quadrature nodes/weights used throughout the BEM assembly.
 %   QUADDATA = GENERATEQUADDATA(METHODID, METHODSPECS) either looks up a predefined
-%   quadrature scheme by METHODID (an index into an internal list of preset "quadType +
-%   sizes" strings), or takes the sizes directly from the METHODSPECS name-value arguments
-%   (used when METHODID is 0, the default). From the resulting sizes it builds: a
-%   composite Gauss-Hammer rule for the outer/test integration (QUADDATA.EXTn/EXTw), a
-%   composite Gauss-Hammer rule for the inner/ trial integration (QUADDATA.INTn/INTw), and
-%   a 1D Gauss-Legendre rule for the radial singular integration (QUADDATA.G1Dn/G1Dw).
+%   quadrature scheme by METHODID (an index into an internal list of preset 
+%   "quadType + sizes" strings), or takes the sizes directly from the METHODSPECS
+%   name-value arguments (used when METHODID is 0, the default). 
+%   From the resulting sizes it builds:
+%   a composite Gauss-Hammer rule for the outer/test integrations (QUADDATA.EXTn/EXTw),
+%   a composite Gauss-Hammer rule for the inner/trial integrations (QUADDATA.INTn/INTw), and
+%   a 1D Gauss-Legendre rule for the singular integrations (QUADDATA.G1Dn/G1Dw).
 %
 %   Input arguments:
 %       METHODID    - (nonnegative integer, default 0) index into the
 %                     internal preset list; 0 means "use METHODSPECS".
-%       METHODSPECS - (name-value) quadType (string, default "FN"); numSRext/numGHext
-%                     (outer sub-triangles / Gauss- Hammer nodes per sub-triangle,
-%                     defaults 16/1); numSRint/numGHint (inner counterparts, defaults
-%                     64/3); numSNGLR (radial singular quadrature order, default
-%                     256); numBOUND (boundary/edge integration points, used only by
-%                     CALCSINGSUBBLOCKK_C, default 256).
+%       METHODSPECS - (name-value) quadType (string, default "FN"); 
+%                     numSRext/numGHext (outer sub-triangles / Gauss- Hammer
+%                      nodes per sub-triangle, defaults 16/1); 
+%                     numSRint/numGHint (inner counterparts, defaults 64/3);
+%                     numSNGLR (radial singular quadrature order, default 256);
+%                     numBOUND (boundary/edge integration points, used only by
+%                      CALCSINGSUBBLOCKK_C, default 256).
 %
 %   Output arguments:
 %       QUADDATA - (struct) with fields EXTn, EXTw, INTn, INTw, G1Dn,
@@ -25,8 +27,8 @@ function quadData = generateQuadData(methodId, methodSpecs)
 %
 %   Notes:
 %       Asserts that numSRext/numSRint are perfect squares (required by
-%       the composite Gauss-Hammer subdivision) and that numGHext/
-%       numGHint are one of the valid base-rule sizes {1, 3, 7, 12, 19}.
+%       the composite Gauss-Hammer subdivision) and that numGHext/numGHint 
+%       are one of the valid base-rule sizes {1, 3, 7, 12, 19}.
 %
 %   See also GAUSSHAMMERCOMPOSITE, GAUSS1D, CALCMATRIXSPECS
 

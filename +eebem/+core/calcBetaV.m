@@ -1,8 +1,8 @@
 function betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath)
 %CALCBETAV  Convolve the single-layer block-Toeplitz matrix V with the Neumann datum history.
-%   BETAV = CALCBETAV(PBPARAM, DOMAINMESH, MATRIXV, BASEPATH) samples the exact Neumann
-%   (traction) datum at every triangle centroid and half-integer time instant (via
-%   CALCBOUNDDATANEUMANN) and forms, for each time step n, the discrete convolution
+%   BETAV = CALCBETAV(PBPARAM, DOMAINMESH, MATRIXV, BASEPATH) samples the exact 
+%   Neumann (traction) datum at every triangle centroid and half-integer time instant
+%   (via CALCBOUNDDATANEUMANN) and forms, for each time step n, the discrete convolution
 %
 %       BETAV{n} = sum_{j=1}^{n} MATRIXV{n-j+1} * gV{j},
 %

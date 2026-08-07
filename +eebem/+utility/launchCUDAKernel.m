@@ -1,10 +1,10 @@
 function deviceMatrix = launchCUDAKernel(gpuID, kernel, varargin)
 %LAUNCHCUDAKERNEL  Allocate the output buffer and run a compiled CUDA kernel on one GPU.
 %   DEVICEMATRIX = LAUNCHCUDAKERNEL(GPUID, KERNEL, VARARGIN) waits for GPUID to be
-%   idle, allocates a zero gpuArray output buffer sized from KERNEL.GridSize (9
-%   vector components per grid cell, matching the 3x3 block layout used throughout
-%   this codebase), and invokes KERNEL with that buffer as first argument followed
-%   by VARARGIN. Used by CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C and CALCMATRIXW
+%   idle, allocates a zero gpuArray output buffer sized from KERNEL.GridSize
+%   (9 vector components per grid cell, matching the 3x3 block layout), and
+%   invokes KERNEL with that buffer as first argument followed by VARARGIN.
+%   Used by CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C and CALCMATRIXW
 %   to launch their respective "kernel*.cu" CUDA kernels.
 %
 %   Input arguments:

@@ -6,11 +6,11 @@ function traction = timeMarchingDD(basePath, pbParam, domainMesh, quadData, full
 %
 %       V_0 * TRACTION(:,n) = (BETAI{n}/2 + BETAK{n}) - sum_{k=2}^{n} V_{k-1} * TRACTION(:,n-k+1),
 %
-%   where V and K are the single- and double-layer block-Toeplitz matrices (CALCMATRIXV,
-%   CALCMATRIXK) and BETAI/BETAK are the load histories from the exact Dirichlet datum
-%   (CALCBETAI, CALCBETAK). The diagonal block V_0 is LU-factorized once and reused at
-%   every time step. Intermediate matrices/vectors are optionally saved to
-%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%   where V and K are the single- and double-layer block-Toeplitz matrices (CALCMATRIXV, CALCMATRIXK) 
+%   and BETAI/BETAK are the load histories from the exact Dirichlet datum (CALCBETAI, CALCBETAK).
+%   The diagonal block W_0 is LU-factorized once and reused at every time step.
+%   The solution is saved to FULLFILENAMES.outFullFilename and, optionally,
+%   intermediate matrices/vectors to FULLFILENAMES.tmpFullFilename.
 %
 %   Input arguments:
 %       BASEPATH      - (string) project root.

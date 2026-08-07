@@ -1,14 +1,15 @@
 function matrixW = calcMatrixW(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
 %CALCMATRIXW  Assemble the block-Toeplitz hypersingular (W) BEM matrix on the GPU.
 %   MATRIXW = CALCMATRIXW(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, CONSTVALUES)
-%   computes the sequence of sparse matrix blocks {W_0, W_1, ..., W_{numBlocks-1}} of the
-%   discrete hypersingular operator, tested and discretized with piecewise-linear
-%   (vertex-based, continuous) basis functions. The regular part of every block is evaluated
-%   on the GPU by the CUDA kernel "kernelW.cu"; vertex pairs that share a triangle (flagged
-%   by the local NODEADJ adjacency helper) get an additional singular correction computed on
-%   the CPU via CALCSINGSUBBLOCKW. Work is split across MATRIXSPECS.numIter iterations to
-%   respect the available GPU memory. Blocks beyond numBlocks (up to PBPARAM.nT) are
-%   returned as zero sparse matrices, since the kernel support vanishes there.
+%   computes the sequence of sparse matrix blocks {W_0, W_1, ..., W_{numBlocks-1}} of
+%   the discrete hypersingular operator, tested and discretized with piecewise-linear
+%   (vertex-based, continuous) basis functions. 
+%   The regular part of every block is evaluated on NGPU GPU devices
+%   by the CUDA kernel "kernelW.cu"; vertex pairs that share a triangle
+%   get an additional singular correction computed on the CPU via CALCSINGSUBBLOCKW. 
+%   Work is split across MATRIXSPECS.numIter iterations to respect the available GPU memory. 
+%   Blocks beyond numBlocks (up to PBPARAM.nT) are returned as
+%   zero sparse matrices, since the kernel support vanishes there.
 %
 %   Input arguments:
 %       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.
@@ -24,10 +25,8 @@ function matrixW = calcMatrixW(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %       MATRIXW - (cell, PBPARAM.nT x 1) sparse (3*numVertices x 3*numVertices) matrices.
 %
 %   Notes:
-%       Requires one or more available CUDA-capable GPUs and a compiled
-%       "kernelW.ptx" (see AUTOBUILD). Unlike CALCMATRIXV/CALCMATRIXK, the GPU
-%       launch here is not wrapped in SPMD (the block is commented out in the
-%       source), so only a single GPU is effectively used regardless of NGPU.
+%       Requires one or more available CUDA-capable GPUs
+%       and a compiled "kernelW.ptx" (see AUTOBUILD).
 %
 %   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKW, CALCMATRIXV, CALCMATRIXK, TIMEMARCHINGIN
 arguments (Input)

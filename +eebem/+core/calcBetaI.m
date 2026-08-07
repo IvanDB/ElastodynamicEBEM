@@ -1,11 +1,12 @@
 function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs, basePath)
 %CALCBETAI  Assemble the RHS load history for the indirect Dirichlet formulation.
-%   BETAI = CALCBETAI(PBPARAM, DOMAINMESH, CONSTVALUES, METHODSPECS, BASEPATH) builds, for
-%   every discrete time step n = 1:PBPARAM.nT, the load vector used as right-hand side by
-%   TIMEMARCHINGID (and, together with CALCBETAK, by TIMEMARCHINGDD). For each boundary
-%   triangle it integrates, over the interval [(n-1)*deltaT, n*deltaT], the exact Dirichlet
-%   datum returned by GETDATUMHANDLEDIRICHLET, using the outer quadrature nodes/weights
-%   stored in CONSTVALUES. Entries smaller than 1e-14 in magnitude are truncated to zero.
+%   BETAI = CALCBETAI(PBPARAM, DOMAINMESH, CONSTVALUES, METHODSPECS, BASEPATH) builds,
+%   for every discrete time step n = 1:PBPARAM.nT, the load vector used as right-hand side
+%   by TIMEMARCHINGID (and, together with CALCBETAK, by TIMEMARCHINGDD).
+%   For each boundary triangle it integrates, over the interval [(n-1)*deltaT, n*deltaT],
+%   the exact Dirichlet datum returned by GETDATUMHANDLEDIRICHLET, using
+%   the outer quadrature nodes/weights stored in CONSTVALUES.
+%   Entries smaller than 1e-14 in magnitude are truncated to zero.
 %
 %   Input arguments:
 %       PBPARAM     - (struct) physical/time-discretization parameters

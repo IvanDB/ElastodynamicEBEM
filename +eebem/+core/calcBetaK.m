@@ -1,8 +1,8 @@
 function betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath)
 %CALCBETAK  Convolve the double-layer block-Toeplitz matrix K with the Dirichlet datum history.
 %   BETAK = CALCBETAK(PBPARAM, DOMAINMESH, MATRIXK, BASEPATH) samples the exact
-%   Dirichlet datum at every mesh vertex and time instant (via
-%   CALCBOUNDDATADIRICHLET) and forms, for each time step n, the discrete convolution
+%   Dirichlet datum at every mesh vertex and time instant (viaCALCBOUNDDATADIRICHLET) 
+%   and forms, for each time step n, the discrete convolution
 %
 %       BETAK{n} = sum_{j=1}^{n} MATRIXK{n-j+1} * gK{j}.
 %

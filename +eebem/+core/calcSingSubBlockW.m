@@ -1,6 +1,7 @@
 function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constData, indSMatrix, TriangPerNodes, maxNumTriangles, timeInstant, outerNode, innerNode)
 %CALCSINGSUBBLOCKW  Correct the singular vertex-pair contribution of a hypersingular (W) matrix block.
-%   OUTPUTMATRIX = CALCSINGSUBBLOCKW(PBPARAM, DOMAINMESH, QUADDATA, CONSTDATA, INDSMATRIX, TRIANGPERNODES, MAXNUMTRIANGLES, TIMEINSTANT, OUTERNODE, INNERNODE)
+%   OUTPUTMATRIX = CALCSINGSUBBLOCKW(PBPARAM, DOMAINMESH, QUADDATA, CONSTDATA, INDSMATRIX,
+%                                    TRIANGPERNODES, MAXNUMTRIANGLES, TIMEINSTANT, OUTERNODE, INNERNODE)
 %   evaluates the singular correction to add between mesh vertices OUTERNODE and
 %   INNERNODE (only meaningful, and only called by CALCMATRIXW, for vertex pairs
 %   that share at least one triangle). For every shared triangle it delegates to

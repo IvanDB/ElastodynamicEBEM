@@ -3,12 +3,13 @@ function matrixV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %   MATRIXV = CALCMATRIXV(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, CONSTVALUES)
 %   computes the sequence of sparse matrix blocks {V_0, V_1, ..., V_{numBlocks-1}} of
 %   the discrete single-layer operator, tested and discretized with piecewise-constant
-%   basis functions on the mesh triangles. The regular part of every block is
-%   evaluated in parallel on NGPU GPU devices by the CUDA kernel "kernelV.cu"; the
-%   singular (self-triangle) contribution is corrected afterwards on the CPU via
-%   CALCSINGSUBBLOCKV. Work is split across MATRIXSPECS.numIter iterations to respect
-%   the available GPU memory. Blocks beyond numBlocks (up to PBPARAM.nT) are returned
-%   as zero sparse matrices, since the kernel support vanishes there.
+%   basis functions on the mesh triangles.
+%   The regular part of every block is evaluated in parallel on NGPU GPU devices
+%   by the CUDA kernel "kernelV.cu"; the singular (self-triangle) contribution
+%   is corrected afterwards on the CPU via CALCSINGSUBBLOCKV.
+%   Work is split across MATRIXSPECS.numIter iterations to respect the available GPU memory. 
+%   Blocks beyond numBlocks (up to PBPARAM.nT) are returned as
+%   zero sparse matrices, since the kernel support vanishes there.
 %
 %   Input arguments:
 %       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.
@@ -27,8 +28,7 @@ function matrixV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %       Requires one or more available CUDA-capable GPUs
 %       and a compiled "kernelV.ptx" (see AUTOBUILD).
 %
-%   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKV,
-%   CALCMATRIXK, CALCMATRIXW, TIMEMARCHINGID, TIMEMARCHINGDD
+%   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKV, CALCMATRIXK, CALCMATRIXW, TIMEMARCHINGID, TIMEMARCHINGDD
 arguments (Input)
     matrixSpecs struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}

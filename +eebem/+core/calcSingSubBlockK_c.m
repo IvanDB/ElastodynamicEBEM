@@ -7,8 +7,8 @@ function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, const
 %   helper) into a closed-form "domain" part, integrated on the light-cone-intersected
 %   sub-triangles via GENERATEFINALG2DNODES, plus a "boundary" line term integrated with
 %   the trapezoidal rule along the triangle's three edges. Both are combined with a
-%   third-order backward finite-difference in time (coefficients [-1, 3, -3, 1]). The
-%   function returns early (an all-zero block) once the time-lag exceeds the light-cone
+%   third-order backward finite-difference in time (coefficients [-1, 3, -3, 1]).
+%   The function returns early (an all-zero block) once the time-lag exceeds the light-cone
 %   support implied by the triangle's largest edge length (DOMAINMESH.maxL).
 %
 %   Input arguments:

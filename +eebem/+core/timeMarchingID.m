@@ -6,10 +6,11 @@ function density = timeMarchingID(basePath, pbParam, domainMesh, quadData, fullF
 %
 %       V_0 * DENSITY(:,n) = BETAI{n} - sum_{k=2}^{n} V_{k-1} * DENSITY(:,n-k+1),
 %
-%   where V is the single-layer block-Toeplitz matrix (CALCMATRIXV) and BETAI is the
-%   outer-datum load history (CALCBETAI). The diagonal block V_0 is LU-factorized once
-%   and reused at every time step. Intermediate matrices/vectors are optionally saved to
-%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%   where V is the single-layer block-Toeplitz matrix (CALCMATRIXV)
+%   and BETAI is the outer-datum load history (CALCBETAI).
+%   The diagonal block W_0 is LU-factorized once and reused at every time step.
+%   The solution is saved to FULLFILENAMES.outFullFilename and, optionally,
+%   intermediate matrices/vectors to FULLFILENAMES.tmpFullFilename.
 %
 %   Input arguments:
 %       BASEPATH      - (string) project root.

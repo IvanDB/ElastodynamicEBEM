@@ -9,10 +9,11 @@ function displacement = timeMarchingDN(basePath, pbParam, domainMesh, quadData, 
 %
 %   where K is the double-layer block-Toeplitz matrix (CALCMATRIXK), IGAMMA is a
 %   diagonal "jump" mass-like term built from the mesh incidence/area data, and BETAV is
-%   the outer-datum load history from the exact Neumann datum (CALCBETAV). The system
-%   matrix (K_0 + IGAMMA) is factorized once (via backslash) and reused, in factorized
-%   form, at every time step. Intermediate matrices/vectors are optionally saved to
-%   FULLFILENAMES.tmpFullFilename, and the solution to FULLFILENAMES.outFullFilename.
+%   the outer-datum load history from the exact Neumann datum (CALCBETAV).
+%   The system matrix (K_0 + IGAMMA) is factorized once (via backslash)
+%   and reused, in factorized form, at every time step. 
+%   The solution is saved to FULLFILENAMES.outFullFilename and, optionally,
+%   intermediate matrices/vectors to FULLFILENAMES.tmpFullFilename.
 %
 %   Input arguments:
 %       BASEPATH      - (string) project root.

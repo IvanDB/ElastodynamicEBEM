@@ -3,8 +3,8 @@ function [nDim, tVal, jVal, climCustom] = getPlotProblemParameter(pbParam)
 %   [NDIM, TVAL, JVAL, CLIMCUSTOM] = GETPLOTPROBLEMPARAMETER(PBPARAM) returns, for each
 %   built-in benchmark problem (selected via PBPARAM.domainName), hand-picked defaults
 %   describing which solution snapshots PLOTSOLUTIONS should render: the plot
-%   dimensionality, which discrete time-step indices to plot, which vector component(s) (or
-%   0 for the magnitude) to plot, and whether a custom color-axis limit should be used.
+%   dimensionality, which discrete time-step indices to plot, which vector component(s)
+%   (or 0 for the magnitude) to plot, and whether a custom color-axis limit should be used.
 %
 %   Input arguments:
 %       PBPARAM - (struct) physical/problem parameters; only PBPARAM.domainName (and,

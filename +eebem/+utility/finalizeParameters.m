@@ -4,8 +4,8 @@ function [pbParam, domainMesh] = finalizeParameters(pbParam, domainMesh, timeSpe
 %   combines the problem's default time horizon and interval count
 %   (PBPARAM.defaultValues.timeLimit/numIntvls) with the user-supplied multipliers and
 %   the mesh refinement level to produce the final simulation horizon PBPARAM.Tfin,
-%   number of time steps PBPARAM.nT, and time step PBPARAM.deltaT = Tfin / nT. The
-%   number of intervals is scaled by 2^((mesh level - 1) * PBPARAM.STcoupling),
+%   number of time steps PBPARAM.nT, and time step PBPARAM.deltaT = Tfin / nT.
+%   If PBPARAM.STcoupling is true the number of intervals is scaled by 2^(mesh level - 1),
 %   implementing the space-time mesh coupling used to keep the CFL-like ratio between
 %   mesh size and time step roughly constant when the mesh is refined.
 %

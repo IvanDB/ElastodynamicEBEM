@@ -2,13 +2,13 @@ function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constVa
 %CALCSINGSUBBLOCKK  Correct the self-triangle (singular) contribution of a double-layer (K) matrix block.
 %   SUBBLOCKK = CALCSINGSUBBLOCKK(PBPARAM, DOMAINMESH, METHODSPECS, CONSTVALUESCURR, G1DN, G1DW, INDTEMP, INDM, INDV)
 %   evaluates, for triangle INDM, discrete time-lag INDTEMP and trial vertex INDV
-%   (1, 2 or 3, local to the triangle), the singular self-interaction 3x3
-%   sub-block of the double-layer operator that CALCMATRIXK's GPU kernel does not
-%   handle accurately. Integration is performed on the light-cone-intersected
-%   sub-triangles via GENERATEFINALG2DNODES, combined with a third-order backward
-%   finite-difference in time (coefficients [-1, 3, -3, 1]). The function returns
-%   early (an all-zero block) once the time-lag exceeds the light-cone support
-%   implied by the triangle's largest edge length (DOMAINMESH.maxL).
+%   (1, 2 or 3, local to the triangle), the singular self-interaction 3x3 sub-block
+%   of the double-layer operator that CALCMATRIXK's GPU kernel does not handle. 
+%   Integration is performed on the light-cone-intersected sub-triangles 
+%   via GENERATEFINALG2DNODES, combined with a third-order backward
+%   finite-difference in time (coefficients [-1, 3, -3, 1]). 
+%   The function returns early (an all-zero block) once the time-lag exceeds the light-cone
+%   support implied by the triangle's largest edge length (DOMAINMESH.maxL).
 %
 %   Input arguments:
 %       PBPARAM         - (struct) physical/time-discretization parameters

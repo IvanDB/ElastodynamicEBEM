@@ -1,11 +1,11 @@
 function [numBlocksV, numBlocksK, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh)
 %CALCNUMMATRIXBLOCKS  Compute how many time-blocks each BEM operator needs, from the mesh diameter and wave speeds.
 %   [NUMBLOCKSV, NUMBLOCKSK, NUMBLOCKSW] = CALCNUMMATRIXBLOCKS(PBPARAM, DOMAINMESH)
-%   exploits the finite speed of propagation of the elastodynamic kernels: a
-%   block-Toeplitz matrix entry at time-lag k*deltaT is zero once k*velS*deltaT
+%   exploits the finite speed of propagation of the elastodynamic kernels:
+%   a block-Toeplitz matrix entry at time-lag k*deltaT is zero once k*velS*deltaT
 %   exceeds the mesh diameter (plus a small safety margin), so only the first
-%   NUMBLOCKSV/K/W blocks (out of the PBPARAM.nT that a naive implementation would
-%   need) are ever non-zero and have to be actually assembled by CALCMATRIXV/K/W.
+%   NUMBLOCKSV/K/W blocks (out of the PBPARAM.nT that a naive implementation would need)
+%   are ever non-zero and have to be actually assembled by CALCMATRIXV/K/W.
 %
 %   Input arguments:
 %       PBPARAM    - (struct) physical/time-discretization parameters

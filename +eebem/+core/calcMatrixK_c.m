@@ -6,8 +6,8 @@ function matrixK_c = calcMatrixK_c(matrixSpecs, nGPU, basePath, pbParam, domainM
 %   "DNc" variant of the direct Neumann formulation. Each block is the sum of an "internal"
 %   domain contribution and a "boundary" (near-edge) correction, evaluated on the GPU by the
 %   CUDA kernels "kernelKinternal.cu" and "kernelKboundary.cu" respectively; the singular
-%   self-triangle contribution is corrected on the CPU via CALCSINGSUBBLOCKK_C. Work is
-%   split across MATRIXSPECS.numIter iterations to respect the available GPU memory.
+%   self-triangle contribution is corrected on the CPU via CALCSINGSUBBLOCKK_C.
+%   Work is split across MATRIXSPECS.numIter iterations to respect the available GPU memory.
 %
 %   Input arguments:
 %       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.

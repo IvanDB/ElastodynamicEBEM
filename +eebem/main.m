@@ -4,13 +4,13 @@
 %   be assigned before this script is run -- typically by a launcher such as
 %   WINSCRIPT, or by assigning it by hand for a single ad hoc run.
 %
-%   Pipeline (see the "%%" section headers in the source for the exact steps):
-%   SETUPWORKSPACE parses INPUTSTRUCT into base-workspace variables; AUTOBUILD (re)compiles
-%   the CUDA/MEX kernels if requested; a parallel pool is started if GLBFLAGS.usePool; the
-%   problem and mesh files are read (READINPUTFILE, READSPACEMESH) and the mesh is
-%   optionally plotted (PLOTMESH); FINALIZEPARAMETERS derives the final time-discretization;
-%   GENERATEQUADDATA builds the quadrature rules and GENERATEFILENAMES the output paths; the
-%   formulation selected by FORMSELECTED ("ID"|"DD"|"DN"|"DNc"|"IN") is solved by the
+%   Pipeline: SETUPWORKSPACE parses INPUTSTRUCT into base-workspace variables; 
+%   AUTOBUILD (re)compiles the CUDA/MEX kernels if requested; a parallel pool 
+%   is started if GLBFLAGS.usePool; the problem and mesh files are read 
+%   (READINPUTFILE, READSPACEMESH) and the mesh is optionally plotted (PLOTMESH); 
+%   FINALIZEPARAMETERS derives the final time-discretization; GENERATEQUADDATA builds 
+%   the quadrature rules and GENERATEFILENAMES the output paths; the formulation 
+%   selected by FORMSELECTED ("ID"|"DD"|"DN"|"DNc"|"IN") is solved by the
 %   matching TIMEMARCHING* function; PLOTSOLUTIONS renders/exports the result.
 %
 %   Notes:
