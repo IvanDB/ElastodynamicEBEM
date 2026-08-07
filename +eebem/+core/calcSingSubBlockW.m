@@ -1,15 +1,14 @@
 function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constData, indSMatrix, TriangPerNodes, maxNumTriangles, timeInstant, outerNode, innerNode)
 %CALCSINGSUBBLOCKW  Correct the singular vertex-pair contribution of a hypersingular (W) matrix block.
-%   OUTPUTMATRIX = CALCSINGSUBBLOCKW(PBPARAM, DOMAINMESH, QUADDATA, CONSTDATA,
-%   INDSMATRIX, TRIANGPERNODES, MAXNUMTRIANGLES, TIMEINSTANT, OUTERNODE, INNERNODE)
+%   OUTPUTMATRIX = CALCSINGSUBBLOCKW(PBPARAM, DOMAINMESH, QUADDATA, CONSTDATA, INDSMATRIX, TRIANGPERNODES, MAXNUMTRIANGLES, TIMEINSTANT, OUTERNODE, INNERNODE)
 %   evaluates the singular correction to add between mesh vertices OUTERNODE and
 %   INNERNODE (only meaningful, and only called by CALCMATRIXW, for vertex pairs
 %   that share at least one triangle). For every shared triangle it delegates to
 %   the local helper COMPUTESINGBLOCKW, which evaluates the closed-form regularized
-%   hypersingular kernel (see the local KERNELCALC family) on the light-
-%   cone-intersected sub-triangles and combines it with a 4-point backward finite
-%   difference in time (coefficients [1, -3, 3, -1], scaled by 1/deltaT^2) to
-%   realize the double time-differentiation the hypersingular operator requires.
+%   hypersingular kernel (see the local KERNELCALC family) on the
+%   light-cone-intersected sub-triangles and combines it with a 4-point backward
+%   finite difference in time (coefficients [1, -3, 3, -1], scaled by 1/deltaT^2)
+%   to realize the double time-differentiation the hypersingular operator requires.
 %
 %   Input arguments:
 %       PBPARAM         - (struct) physical/time-discretization

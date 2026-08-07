@@ -1,8 +1,8 @@
 function traction = timeMarchingDD(basePath, pbParam, domainMesh, quadData, fullFileNames)
 %TIMEMARCHINGDD  Solve the direct-Dirichlet (DD) energetic BEM formulation by block time-marching.
-%   TRACTION = TIMEMARCHINGDD(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
-%   FULLFILENAMES) computes the unknown surface traction P that solves, for
-%   every discrete time step n = 1:PBPARAM.nT, the block-triangular system
+%   TRACTION = TIMEMARCHINGDD(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, FULLFILENAMES)
+%   computes the unknown surface traction P that solves, for every
+%   discrete time step n = 1:PBPARAM.nT, the block-triangular system
 %
 %       V_0 * TRACTION(:,n) = (BETAI{n}/2 + BETAK{n}) - sum_{k=2}^{n} V_{k-1} * TRACTION(:,n-k+1),
 %

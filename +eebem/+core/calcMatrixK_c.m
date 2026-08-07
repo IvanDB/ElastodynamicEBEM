@@ -1,13 +1,13 @@
 function matrixK_c = calcMatrixK_c(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
 %CALCMATRIXK_C  Assemble the block-Toeplitz double-layer (K) matrix in triangle-to-triangle collocation form.
-%   MATRIXK_C = CALCMATRIXK_C(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
-%   CONSTVALUES) computes the same double-layer operator as CALCMATRIXK, but discretized
-%   with both test and trial space collocated on triangles (rather than trial on vertices),
-%   for use by the "DNc" variant of the direct Neumann formulation. Each block is the sum of
-%   an "internal" domain contribution and a "boundary" (near-edge) correction, evaluated on
-%   the GPU by the CUDA kernels "kernelKinternal.cu" and "kernelKboundary.cu" respectively;
-%   the singular self-triangle contribution is corrected on the CPU via CALCSINGSUBBLOCKK_C.
-%   Work is split across MATRIXSPECS.numIter iterations to respect the available GPU memory.
+%   MATRIXK_C = CALCMATRIXK_C(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, CONSTVALUES)
+%   computes the same double-layer operator as CALCMATRIXK, but discretized with both test
+%   and trial space collocated on triangles (rather than trial on vertices), for use by the
+%   "DNc" variant of the direct Neumann formulation. Each block is the sum of an "internal"
+%   domain contribution and a "boundary" (near-edge) correction, evaluated on the GPU by the
+%   CUDA kernels "kernelKinternal.cu" and "kernelKboundary.cu" respectively; the singular
+%   self-triangle contribution is corrected on the CPU via CALCSINGSUBBLOCKK_C. Work is
+%   split across MATRIXSPECS.numIter iterations to respect the available GPU memory.
 %
 %   Input arguments:
 %       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.

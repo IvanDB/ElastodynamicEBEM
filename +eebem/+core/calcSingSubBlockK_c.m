@@ -1,15 +1,15 @@
 function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp, indM)
 %CALCSINGSUBBLOCKK_C  Correct the self-triangle (singular) contribution of a K_c matrix block.
-%   SUBBLOCKK = CALCSINGSUBBLOCKK_C(PBPARAM, DOMAINMESH, METHODSPECS, CONSTVALUESCURR,
-%   G1DN, G1DW, INDTEMP, INDM) evaluates, for triangle INDM and discrete time-lag INDTEMP,
-%   the singular self-interaction 3x3 sub-block of the triangle-collocated double-layer
-%   operator used by CALCMATRIXK_C. The kernel is regularized (via GETKERNELSFUNCTION
-%   HANDLES, a local helper) into a closed-form "domain" part, integrated on the
-%   light-cone-intersected sub-triangles via GENERATEFINALG2DNODES, plus a "boundary" line
-%   term integrated with the trapezoidal rule along the triangle's three edges. Both are
-%   combined with a third- order backward finite-difference in time (coefficients [-1, 3,
-%   -3, 1]). The function returns early (an all-zero block) once the time-lag exceeds the
-%   light-cone support implied by the triangle's largest edge length (DOMAINMESH.maxL).
+%   SUBBLOCKK = CALCSINGSUBBLOCKK_C(PBPARAM, DOMAINMESH, METHODSPECS, CONSTVALUESCURR, G1DN, G1DW, INDTEMP, INDM)
+%   evaluates, for triangle INDM and discrete time-lag INDTEMP, the singular
+%   self-interaction 3x3 sub-block of the triangle-collocated double-layer operator used
+%   by CALCMATRIXK_C. The kernel is regularized (via GETKERNELSFUNCTIONHANDLES, a local
+%   helper) into a closed-form "domain" part, integrated on the light-cone-intersected
+%   sub-triangles via GENERATEFINALG2DNODES, plus a "boundary" line term integrated with
+%   the trapezoidal rule along the triangle's three edges. Both are combined with a
+%   third-order backward finite-difference in time (coefficients [-1, 3, -3, 1]). The
+%   function returns early (an all-zero block) once the time-lag exceeds the light-cone
+%   support implied by the triangle's largest edge length (DOMAINMESH.maxL).
 %
 %   Input arguments:
 %       PBPARAM         - (struct) physical/time-discretization parameters (deltaT,

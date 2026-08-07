@@ -1,12 +1,12 @@
 function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp)
 %CALCSINGSUBBLOCKV  Correct the self-triangle (singular) contribution of a single-layer (V) matrix block.
-%   SUBBLOCKV = CALCSINGSUBBLOCKV(PBPARAM, METHODSPECS, CONSTVALUESCURR, G1DN,
-%   G1DW, INDTEMP) evaluates, for one triangle and one discrete time-lag INDTEMP,
-%   the diagonal 3x3 self-interaction sub-block of the single-layer operator that
-%   CALCMATRIXV's GPU kernel does not handle accurately because source and target
-%   coincide. The kernel is integrated on the light-cone-intersected sub-triangles
-%   (childVerts, from CALCCONSTVALUES) via GENERATEFINALG2DNODES, and combined with
-%   a second-order backward finite-difference in time (coefficients [1, -2, 1]) to
+%   SUBBLOCKV = CALCSINGSUBBLOCKV(PBPARAM, METHODSPECS, CONSTVALUESCURR, G1DN, G1DW, INDTEMP)
+%   evaluates, for one triangle and one discrete time-lag INDTEMP, the diagonal
+%   3x3 self-interaction sub-block of the single-layer operator that CALCMATRIXV's
+%   GPU kernel does not handle accurately because source and target coincide. The
+%   kernel is integrated on the light-cone-intersected sub-triangles (childVerts,
+%   from CALCCONSTVALUES) via GENERATEFINALG2DNODES, and combined with a
+%   second-order backward finite-difference in time (coefficients [1, -2, 1]) to
 %   account for the double time-integration of the energetic weak formulation.
 %
 %   Input arguments:

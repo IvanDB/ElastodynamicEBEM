@@ -1,12 +1,12 @@
 function glbIndexFigures = plotSolutions(form, pbParam, domainMesh, density, glbIndexFigures, glbFlags, basePath)
 %PLOTSOLUTIONS  Render (and optionally export) solution snapshots at the problem's default time instants.
-%   GLBINDEXFIGURES = PLOTSOLUTIONS(FORM, PBPARAM, DOMAINMESH, DENSITY,
-%   GLBINDEXFIGURES, GLBFLAGS, BASEPATH) plots, for each (time instant, vector
-%   component) pair returned by GETPLOTPROBLEMPARAMETER, a TRISURF snapshot of the
-%   solution DENSITY -- interpreted as the density phi (FORM "ID"/"IN"), traction p
-%   (FORM "DD") or displacement u (FORM "DN"/"DNc") depending on FORM -- with a
-%   LaTeX-formatted title. Vertex-based solutions (numVertices rows) are first mapped
-%   onto triangles by averaging. Returns immediately, without creating any figure, if
+%   GLBINDEXFIGURES = PLOTSOLUTIONS(FORM, PBPARAM, DOMAINMESH, DENSITY, GLBINDEXFIGURES, GLBFLAGS, BASEPATH)
+%   plots, for each (time instant, vector component) pair returned by
+%   GETPLOTPROBLEMPARAMETER, a TRISURF snapshot of the solution DENSITY --
+%   interpreted as the density phi (FORM "ID"/"IN"), traction p (FORM "DD") or
+%   displacement u (FORM "DN"/"DNc") depending on FORM -- with a LaTeX-formatted
+%   title. Vertex-based solutions (numVertices rows) are first mapped onto
+%   triangles by averaging. Returns immediately, without creating any figure, if
 %   both GLBFLAGS.plotFigs and GLBFLAGS.saveFigs are false. If GLBFLAGS.saveFigs is
 %   true, each figure is exported as .jpg, .fig (always) and .svg (Windows only)
 %   under BASEPATH/outputPlot/<domainName>, skipping files that already exist.

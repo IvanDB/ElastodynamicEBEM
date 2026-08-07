@@ -1,8 +1,8 @@
 function density = timeMarchingID(basePath, pbParam, domainMesh, quadData, fullFileNames)
 %TIMEMARCHINGID  Solve the indirect-Dirichlet (ID) energetic BEM formulation by block time-marching.
-%   DENSITY = TIMEMARCHINGID(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
-%   FULLFILENAMES) computes the unknown surface density PHI that solves, for
-%   every discrete time step n = 1:PBPARAM.nT, the block-triangular system
+%   DENSITY = TIMEMARCHINGID(BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, FULLFILENAMES)
+%   computes the unknown surface density PHI that solves, for every
+%   discrete time step n = 1:PBPARAM.nT, the block-triangular system
 %
 %       V_0 * DENSITY(:,n) = BETAI{n} - sum_{k=2}^{n} V_{k-1} * DENSITY(:,n-k+1),
 %

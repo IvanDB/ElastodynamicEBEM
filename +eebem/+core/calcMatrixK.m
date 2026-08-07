@@ -1,14 +1,14 @@
 function matrixK = calcMatrixK(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
 %CALCMATRIXK  Assemble the block-Toeplitz double-layer (K) BEM matrix on the GPU.
-%   MATRIXK = CALCMATRIXK(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA,
-%   CONSTVALUES) computes the sequence of sparse matrix blocks {K_0, K_1, ...,
-%   K_{numBlocks-1}} of the discrete double-layer operator, which couples the
-%   piecewise-constant test space (triangles) with the piecewise-linear trial space
-%   (vertices) of the energetic space-time Galerkin BEM. The regular part of every
-%   block is evaluated in parallel on NGPU GPU devices by the CUDA kernel
-%   "kernelK.cu"; the singular (self-triangle) contribution is corrected afterwards on
-%   the CPU via CALCSINGSUBBLOCKK. Work is split across MATRIXSPECS.numIter iterations
-%   to respect the available GPU memory. Blocks beyond numBlocks (up to PBPARAM.nT)
+%   MATRIXK = CALCMATRIXK(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, CONSTVALUES)
+%   computes the sequence of sparse matrix blocks {K_0, K_1, ..., K_{numBlocks-1}}
+%   of the discrete double-layer operator, which couples the piecewise-constant
+%   test space (triangles) with the piecewise-linear trial space (vertices) of the
+%   energetic space-time Galerkin BEM. The regular part of every block is
+%   evaluated in parallel on NGPU GPU devices by the CUDA kernel "kernelK.cu"; the
+%   singular (self-triangle) contribution is corrected afterwards on the CPU via
+%   CALCSINGSUBBLOCKK. Work is split across MATRIXSPECS.numIter iterations to
+%   respect the available GPU memory. Blocks beyond numBlocks (up to PBPARAM.nT)
 %   are returned as zero sparse matrices, since the kernel support vanishes there.
 %
 %   Input arguments:
