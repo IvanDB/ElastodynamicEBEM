@@ -35,8 +35,8 @@ arguments (Input)
     domainMesh      (1, 1) struct
     methodSpecs     (1, 1) struct
     constValuesCurr (1, 1) struct
-    G1Dn            double
-    G1Dw            double
+    G1Dn            (1, :) double
+    G1Dw            (1, :) double
     indTemp         (1, 1) double {mustBeInteger, mustBeNonnegative}
     indM            (1, 1) double {mustBeInteger, mustBePositive}
     indV            (1, 1) double {mustBeInteger, mustBeMember(indV, [1, 2, 3])}

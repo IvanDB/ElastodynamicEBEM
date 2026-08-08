@@ -34,6 +34,11 @@ arguments
     beta    (1, 1) double {} = 0
 end
 
+arguments (Output)
+    nodes  (1, :) double
+    weight (1, :) double
+end
+
 import eebem.utility.quadratureRules.*
 
 % CALCOLO COEFFICIENTI RELAZIONE A TRE TERMINI E 0-th MOMENT (?)

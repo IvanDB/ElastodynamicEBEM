@@ -27,8 +27,8 @@ arguments (Input)
     pbParam         (1, 1) struct
     methodSpecs     (1, 1) struct
     constValuesCurr (1, 1) struct
-    G1Dn            double
-    G1Dw            double
+    G1Dn            (1, :) double
+    G1Dw            (1, :) double
     indTemp         (1, 1) double {mustBeInteger, mustBeNonnegative}
 end
 
