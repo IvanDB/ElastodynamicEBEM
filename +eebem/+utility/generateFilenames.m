@@ -23,7 +23,8 @@ function fullFileNames = generateFilenames(basePath, formID, pbParam, domainMesh
 %
 %   See also eebem.core.timeMarchingID, eebem.core.timeMarchingDD,
 %   eebem.core.timeMarchingDN, eebem.core.timeMarchingDN_c, eebem.core.timeMarchingIN
-arguments
+
+arguments (Input)
     basePath    (1, 1) string
     formID      (1, 1) string
     pbParam     (1, 1) struct
@@ -31,6 +32,9 @@ arguments
     quadID      (1, 1) string
 end
 
+arguments(Output)
+    fullFileNames (1, 1) struct
+end
 
 baseFileName = pbParam.domainName + "_" + formID + "_mesh=" + domainMesh.name + domainMesh.lev ...
                         + "_bMult=" + pbParam.beta + "_TMult=" + pbParam.tMlt ...

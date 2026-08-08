@@ -32,6 +32,10 @@ arguments (Input)
     fullFileNames (1, 1) struct
 end
 
+arguments (Output)
+    displacement (:, :) double
+end
+
 import eebem.core.*
 
 %GPUs initialization

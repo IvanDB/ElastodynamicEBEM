@@ -20,8 +20,13 @@ function [nodes, weights] = doppioGauss1D(nNodes)
 %
 %   See also GAUSS1D, GAUSSHAMMERCOMPOSITE
 
-arguments
+arguments (Input)
     nNodes (1, 1) double {mustBeInteger, mustBePositive}
+end
+
+arguments (Output)
+    nodes   (:, 3) double
+    weights (:, 1) double
 end
 
 import eebem.utility.quadratureRules.*

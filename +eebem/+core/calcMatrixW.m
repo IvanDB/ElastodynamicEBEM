@@ -29,6 +29,7 @@ function matrixW = calcMatrixW(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %       and a compiled "kernelW.ptx" (see AUTOBUILD).
 %
 %   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKW, CALCMATRIXV, CALCMATRIXK, TIMEMARCHINGIN
+
 arguments (Input)
     matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}

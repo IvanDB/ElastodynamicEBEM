@@ -19,11 +19,16 @@ function betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath)
 %       BETAK - (cell, nT x 1) each entry a (3*numTriangles x 1) double column vector.
 %
 %   See also CALCMATRIXK, CALCBOUNDDATADIRICHLET, CALCBETAI, TIMEMARCHINGDD
-arguments
+
+arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     matrixK     (:, 1) cell
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    betaK (:, 1) cell
 end
 
 import eebem.core.*

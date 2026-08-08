@@ -24,6 +24,7 @@ function matrixSpecs = calcMatrixSpecs(nGPU, avMem, blockSizes, numBlocks)
 %       (using a safety factor of 2.5x the raw block size).
 %
 %   See also CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C, CALCMATRIXW, CALCNUMMATRIXBLOCKS
+
 arguments (Input)
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}
     avMem       (1, 1) double {mustBeInteger, mustBePositive}

@@ -16,10 +16,15 @@ function boundDataNeumann = calcBoundDataNeumann(pbParam, domainMesh, basePath)
 %                          (3*numTriangles x 1) double column vector.
 %
 %   See also GETDATUMHANDLENEUMANN, CALCBETAV, TIMEMARCHINGIN
+
 arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    boundDataNeumann (:, 1) cell
 end
 
 import eebem.core.*

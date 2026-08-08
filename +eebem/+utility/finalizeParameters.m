@@ -27,11 +27,16 @@ function [pbParam, domainMesh] = finalizeParameters(pbParam, domainMesh, timeSpe
 %
 %   See also GENERATEFILENAMES, eebem.core.calcNumMatrixBlocks
 
-arguments
+arguments (Input)
     pbParam    (1, 1) struct
     domainMesh (1, 1) struct
-    timeSpecs.betaMult  (1, 1) double {mustBePositive} = 1
+    timeSpecs.betaMult (1, 1) double {mustBePositive} = 1
     timeSpecs.timeMult (1, 1) double {mustBePositive} = 1
+end
+
+arguments (Output)
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
 end
 
 pbParam.beta = timeSpecs.betaMult;

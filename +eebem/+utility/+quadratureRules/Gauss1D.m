@@ -27,7 +27,7 @@ function [nodes, weight] = Gauss1D(type, n, alpha, beta)
 %
 %   See also GENERATEFINALG2DNODES, DOPPIOGAUSS1D
 
-arguments
+arguments (Input)
     type    (1, 1) double {mustBeInteger, mustBePositive}
     n       (1, 1) double {mustBeInteger, mustBePositive}
     alpha   (1, 1) double {} = 0

@@ -29,6 +29,7 @@ function matrixK_c = calcMatrixK_c(matrixSpecs, nGPU, basePath, pbParam, domainM
 %       "kernelKinternal.ptx"/"kernelKboundary.ptx" (see AUTOBUILD).
 %
 %   See also CALCMATRIXK, CALCSINGSUBBLOCKK_C, TIMEMARCHINGDN_C
+
 arguments (Input)
     matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}

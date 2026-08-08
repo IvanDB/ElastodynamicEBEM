@@ -29,6 +29,7 @@ function matrixV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %       and a compiled "kernelV.ptx" (see AUTOBUILD).
 %
 %   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKV, CALCMATRIXK, CALCMATRIXW, TIMEMARCHINGID, TIMEMARCHINGDD
+
 arguments (Input)
     matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}

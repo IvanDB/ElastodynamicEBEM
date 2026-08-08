@@ -26,7 +26,7 @@ function autobuild(basePath, flag)
 %   See also SETUPWORKSPACE, eebem.core.calcMatrixV, eebem.core.calcMatrixK,
 %   eebem.core.calcMatrixK_c, eebem.core.calcMatrixW
 
-arguments
+arguments (Input)
     basePath (1, 1) string
     flag     (1, 1) logical = false
 end

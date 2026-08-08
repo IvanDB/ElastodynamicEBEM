@@ -12,7 +12,7 @@ function checkImplementation(pbParam)
 %
 %   See also READINPUTFILE
 
-arguments
+arguments (Input)
     pbParam (1, 1) struct
 end
 

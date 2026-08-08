@@ -25,8 +25,12 @@ function g = ConeBall_D(pbParam)
 %
 %   See also eebem.core.getDatumHandleDirichlet
 
-arguments
-    pbParam (1, 1) struct
+arguments (Input)
+    pbParam (1, 1) struct %#ok<INUSA>
+end
+
+arguments (Output)
+    g (1, 1) function_handle
 end
 
 R = 0.5;

@@ -25,9 +25,13 @@ function domainMesh = readSpaceMesh(basePath, meshFileName)
 %
 %   See also CONSTRUCTMESHFILENAME, READINPUTFILE, eebem.core.calcConstValues
 
-arguments
+arguments (Input)
     basePath     (1, 1) string
     meshFileName (1, 1) string
+end
+
+arguments (Output)
+    domainMesh (1, 1) struct
 end
 
 import eebem.utility.fileRead.*

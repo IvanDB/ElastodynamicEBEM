@@ -30,6 +30,7 @@ function matrixK = calcMatrixK(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %       and a compiled "kernelK.ptx" (see AUTOBUILD).
 %
 %   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKK, CALCMATRIXV, CALCMATRIXK_C, TIMEMARCHINGDD, TIMEMARCHINGDN
+
 arguments (Input)
     matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}

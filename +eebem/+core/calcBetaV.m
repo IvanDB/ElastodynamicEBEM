@@ -19,11 +19,16 @@ function betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath)
 %       BETAV - (cell, nT x 1) each entry a (3*numTriangles x 1) double column vector.
 %
 %   See also CALCMATRIXV, CALCBOUNDDATANEUMANN, TIMEMARCHINGDN, TIMEMARCHINGDN_C
-arguments
+
+arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     matrixV     (:, 1) cell
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    betaV (:, 1) cell
 end
 
 import eebem.core.*

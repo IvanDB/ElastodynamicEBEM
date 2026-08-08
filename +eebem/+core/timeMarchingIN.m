@@ -30,12 +30,16 @@ function density = timeMarchingIN(basePath, pbParam, domainMesh, quadData, fullF
 %
 %   See also CALCMATRIXW, CALCBOUNDDATANEUMANN, TIMEMARCHINGID
 
-arguments
+arguments (Input)
     basePath    (1, 1) string
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
     fullFileNames (1, 1) struct
+end
+
+arguments (Output)
+    density (:, :) double
 end
 
 import eebem.core.*

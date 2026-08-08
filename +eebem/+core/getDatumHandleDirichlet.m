@@ -22,6 +22,7 @@ function g = getDatumHandleDirichlet(pbParam, basePath)
 %       cases and no matching "pbData/<domainName>_D.m" file exists.
 %
 %   See also GETDATUMHANDLENEUMANN, CALCBOUNDDATADIRICHLET, CALCBETAI
+
 arguments (Input)
     pbParam  (1, 1) struct
     basePath (1, 1) string = "."

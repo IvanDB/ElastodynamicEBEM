@@ -33,7 +33,7 @@ function quadData = generateQuadData(methodId, methodSpecs)
 %   See also eebem.utility.quadratureRules.GaussHammerComposite,
 %   eebem.utility.quadratureRules.Gauss1D, eebem.core.calcMatrixSpecs
 
-arguments
+arguments (Input)
     methodId (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
 
     methodSpecs.quadType (1, 1) string {mustBeText} = "FN"
@@ -47,6 +47,10 @@ arguments
     methodSpecs.numSNGLR (1, 1) double {mustBeInteger, mustBePositive} = 256
 
     methodSpecs.numBOUND (1, 1) double {mustBeInteger, mustBePositive} = 256
+end
+
+arguments (Output)
+    quadData (1, 1) struct
 end
 
 import eebem.utility.quadratureRules.*

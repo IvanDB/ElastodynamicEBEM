@@ -28,12 +28,16 @@ function traction = timeMarchingDD(basePath, pbParam, domainMesh, quadData, full
 %
 %   See also CALCMATRIXV, CALCMATRIXK, CALCBETAI, CALCBETAK, TIMEMARCHINGID
 
-arguments
+arguments (Input)
     basePath    (1, 1) string
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     quadData    (1, 1) struct
     fullFileNames (1, 1) struct
+end
+
+arguments (Output)
+    traction (:, :) double
 end
 
 import eebem.core.*

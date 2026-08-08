@@ -25,6 +25,7 @@ function [nDim, tVal, jVal, climCustom] = getPlotProblemParameter(pbParam)
 %       CLIMCUSTOM branch is marked "still WIP" where it is consumed in PLOTSOLUTIONS.
 %
 %   See also PLOTSOLUTIONS, PLOTMESH
+
 arguments (Input)
     pbParam (1, 1) struct
 end

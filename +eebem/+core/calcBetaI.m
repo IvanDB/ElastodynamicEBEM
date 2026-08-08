@@ -23,12 +23,17 @@ function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs, basePa
 %               double column vector, the load at time step n.
 %
 %   See also GETDATUMHANDLEDIRICHLET, CALCCONSTVALUES, TIMEMARCHINGID, TIMEMARCHINGDD
-arguments
+
+arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     constValues (:, 1) cell
     methodSpecs (1, 1) struct
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    betaI (:, 1) cell
 end
 
 import eebem.core.*

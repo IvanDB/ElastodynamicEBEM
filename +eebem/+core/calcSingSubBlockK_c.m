@@ -37,6 +37,7 @@ function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, const
 %
 %   See also CALCMATRIXK_C, CALCCONSTVALUES,
 %   eebem.utility.quadratureRules.generateFinalG2Dnodes
+
 arguments (Input)
     pbParam         (1, 1) struct
     domainMesh      (1, 1) struct

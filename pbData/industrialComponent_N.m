@@ -17,8 +17,12 @@ function g = industrialComponent_N(pbParam)
 %
 %   See also eebem.core.getDatumHandleNeumann
 
-arguments
-    pbParam (1, 1) struct
+arguments (Input)
+    pbParam (1, 1) struct %#ok<INUSA>
+end
+
+arguments (Output)
+    g (1, 1) function_handle
 end
 
 g = @(x, t, n) [0; 0; sign(n(3)) * (abs(n(3)) > 0.5)];

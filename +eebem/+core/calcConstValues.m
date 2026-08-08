@@ -23,6 +23,7 @@ function constValues = calcConstValues(domainMesh, quadData)
 %       Uses a PARFOR loop; a parallel pool speeds this step up but is not required.
 %
 %   See also eebem.utility.generateQuadData, CALCSINGSUBBLOCKV, CALCSINGSUBBLOCKK
+
 arguments (Input)
     domainMesh (1, 1) struct
     quadData   (1, 1) struct
@@ -31,6 +32,7 @@ end
 arguments (Output)
     constValues (:, 1) cell
 end
+
 numExtN = quadData.methodSpecs.numEXT;
 numExtW = quadData.methodSpecs.numGHext;
 

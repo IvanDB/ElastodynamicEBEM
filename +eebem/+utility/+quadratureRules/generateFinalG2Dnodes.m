@@ -42,6 +42,11 @@ arguments
     quad1D.G1Dw     double = []
 end
 
+arguments (Output)
+    nodi3D (:, 3) double
+    pesi3D (:, 1) double
+end
+
 import eebem.utility.quadratureRules.*
 
 l13 = v3D(1, :) - v3D(3, :);

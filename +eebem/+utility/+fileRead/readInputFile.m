@@ -23,9 +23,13 @@ function pbParam = readInputFile(basePath, problemFileName)
 %
 %   See also CONSTRUCTPROBLEMFILENAME, CHECKIMPLEMENTATION, READSPACEMESH
 
-arguments
+arguments (Input)
     basePath        (1, 1) string
     problemFileName (1, 1) string
+end
+
+arguments (Output)
+    pbParam (1, 1) struct
 end
 
 import eebem.utility.fileRead.*

@@ -24,6 +24,7 @@ function [numBlocksV, numBlocksK, numBlocksW] = calcNumMatrixBlocks(pbParam, dom
 %       has O(numVertices^2) cost; this can dominate runtime on very fine meshes.
 %
 %   See also CALCMATRIXSPECS, CALCMATRIXV, CALCMATRIXK, CALCMATRIXW
+
 arguments (Input)
     pbParam    (1, 1) struct
     domainMesh (1, 1) struct

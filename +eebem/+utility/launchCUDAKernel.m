@@ -22,13 +22,18 @@ function deviceMatrix = launchCUDAKernel(gpuID, kernel, varargin)
 %
 %   See also eebem.core.calcMatrixV, eebem.core.calcMatrixK,
 %   eebem.core.calcMatrixK_c, eebem.core.calcMatrixW
-arguments
-    gpuID (1,1) parallel.gpu.GPUDevice
-    kernel (1,1) parallel.gpu.CUDAKernel
+
+arguments (Input)
+    gpuID   (1, 1) parallel.gpu.GPUDevice
+    kernel  (1, 1) parallel.gpu.CUDAKernel
 end
 
 arguments (Repeating)
     varargin
+end
+
+arguments (Output)
+    deviceMatrix (:, :) gpuArray {mustBeUnderlyingType(deviceMatrix, 'double')}
 end
 
 %Array di input

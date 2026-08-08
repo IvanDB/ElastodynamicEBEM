@@ -15,10 +15,15 @@ function boundDataDirichlet = calcBoundDataDirichlet(pbParam, domainMesh, basePa
 %                            (3*numVertices x 1) double column vector.
 %
 %   See also GETDATUMHANDLEDIRICHLET, CALCBETAK
+
 arguments (Input)
     pbParam     (1, 1) struct
     domainMesh  (1, 1) struct
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    boundDataDirichlet (:, 1) cell
 end
 
 import eebem.core.*

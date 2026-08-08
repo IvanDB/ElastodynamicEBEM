@@ -24,7 +24,7 @@ function setupWorkspace(inputStruct)
 %
 %   See also eebem.main, AUTOBUILD, GENERATEQUADDATA
 
-arguments
+arguments (Input)
     inputStruct (1, 1) struct
 end
 

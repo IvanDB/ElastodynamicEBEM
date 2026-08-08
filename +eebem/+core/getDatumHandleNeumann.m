@@ -23,6 +23,7 @@ function g = getDatumHandleNeumann(pbParam, basePath)
 %       GETDATUMHANDLEDIRICHLET, there is no built-in "sphereWave" case here.
 %
 %   See also GETDATUMHANDLEDIRICHLET, CALCBOUNDDATANEUMANN, CALCBETAV
+
 arguments (Input)
     pbParam  (1, 1) struct
     basePath (1, 1) string = "."
