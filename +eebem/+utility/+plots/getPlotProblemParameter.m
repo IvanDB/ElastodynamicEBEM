@@ -31,7 +31,7 @@ end
 
 arguments (Output)
     nDim        (1, 1) double {mustBeInteger}
-    tVal        (1, :) double
+    tVal        (1, :) double {mustBeInteger}
     jVal        (1, :) double {mustBeInteger}
     climCustom  (1, 1) logical
 end
