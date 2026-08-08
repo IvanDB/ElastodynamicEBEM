@@ -30,17 +30,17 @@ function matrixV = calcMatrixV(matrixSpecs, nGPU, basePath, pbParam, domainMesh,
 %
 %   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKV, CALCMATRIXK, CALCMATRIXW, TIMEMARCHINGID, TIMEMARCHINGDD
 arguments (Input)
-    matrixSpecs struct
+    matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}
     basePath    (1, 1) string
-    pbParam     struct
-    domainMesh  struct
-    quadData    struct
-    constValues cell
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    quadData    (1, 1) struct
+    constValues (:, 1) cell
 end
 
 arguments (Output)
-    matrixV cell
+    matrixV (:, 1) cell
 end
 
 import eebem.core.*

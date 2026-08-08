@@ -22,6 +22,11 @@ function [nodes, weights] = GaussHammerComposite(nSubPart, nNodGH)
 %
 %   See also GAUSSHAMMER_BASE, GENERATEQUADDATA
 
+arguments
+    nSubPart (1, 1) double {mustBeInteger, mustBePositive}
+    nNodGH   (1, 1) double {mustBeInteger, mustBePositive}
+end
+
 import eebem.utility.quadratureRules.*
 
 [nGHstd, wGHstd] = GaussHammer_base(28);

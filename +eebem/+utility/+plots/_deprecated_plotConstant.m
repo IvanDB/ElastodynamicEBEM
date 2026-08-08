@@ -23,7 +23,15 @@ function glbIndexFigures = plotConstant(basePath, pbParam, domainMesh, density, 
 %       through the normal eebem.utility.plots.<name>(...) package syntax at all.
 %
 %   See also PLOTSOLUTIONS
-    
+
+arguments
+    basePath        (1, 1) string
+    pbParam         (1, 1) struct
+    domainMesh      (1, 1) struct
+    density         (:, :) double
+    glbIndexFigures (1, 1) double {mustBeInteger, mustBeNonnegative}
+end
+
 %Calcolo dei vettori conteneti le coordinate dei triangoli della mesh
 X = [(domainMesh.coordinates(domainMesh.triangles(:, 1), 1))'; ...
      (domainMesh.coordinates(domainMesh.triangles(:, 2), 1))'; ...

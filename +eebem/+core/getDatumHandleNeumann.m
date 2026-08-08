@@ -29,7 +29,7 @@ arguments (Input)
 end
 
 arguments (Output)
-    g function_handle
+    g (1, 1) function_handle
 end
 
 switch pbParam.domainName

@@ -26,14 +26,14 @@ function [nDim, tVal, jVal, climCustom] = getPlotProblemParameter(pbParam)
 %
 %   See also PLOTSOLUTIONS, PLOTMESH
 arguments (Input)
-    pbParam
+    pbParam (1, 1) struct
 end
 
 arguments (Output)
-    nDim        double {mustBeInteger}
-    tVal        double {mustBeInteger}
-    jVal        double {mustBeInteger}
-    climCustom  logical
+    nDim        (1, 1) double {mustBeInteger}
+    tVal        (1, :) double
+    jVal        (1, :) double {mustBeInteger}
+    climCustom  (1, 1) logical
 end
 
 %Assegnazione parametri in base al problema

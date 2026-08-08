@@ -30,17 +30,17 @@ function matrixK_c = calcMatrixK_c(matrixSpecs, nGPU, basePath, pbParam, domainM
 %
 %   See also CALCMATRIXK, CALCSINGSUBBLOCKK_C, TIMEMARCHINGDN_C
 arguments (Input)
-    matrixSpecs struct
+    matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}
     basePath    (1, 1) string
-    pbParam     struct
-    domainMesh  struct
-    quadData    struct
-    constValues cell
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    quadData    (1, 1) struct
+    constValues (:, 1) cell
 end
 
 arguments (Output)
-    matrixK_c cell
+    matrixK_c (:, 1) cell
 end
 
 import eebem.core.*

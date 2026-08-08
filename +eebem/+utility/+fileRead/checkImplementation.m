@@ -12,6 +12,10 @@ function checkImplementation(pbParam)
 %
 %   See also READINPUTFILE
 
+arguments
+    pbParam (1, 1) struct
+end
+
 err_flag = 0;
 message = "";
 

@@ -24,12 +24,12 @@ function constValues = calcConstValues(domainMesh, quadData)
 %
 %   See also GENERATEQUADDATA, CALCSINGSUBBLOCKV, CALCSINGSUBBLOCKK
 arguments (Input)
-    domainMesh struct
-    quadData struct
+    domainMesh (1, 1) struct
+    quadData   (1, 1) struct
 end
 
 arguments (Output)
-    constValues cell
+    constValues (:, 1) cell
 end
 numExtN = quadData.methodSpecs.numEXT;
 numExtW = quadData.methodSpecs.numGHext;

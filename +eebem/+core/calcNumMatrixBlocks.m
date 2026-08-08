@@ -30,9 +30,9 @@ arguments (Input)
 end
 
 arguments (Output)
-    numBlocksV (1, 1) {mustBeInteger, mustBePositive}
-    numBlocksK (1, 1) {mustBeInteger, mustBePositive}
-    numBlocksW (1, 1) {mustBeInteger, mustBePositive}
+    numBlocksV (1, 1) double {mustBeInteger, mustBePositive}
+    numBlocksK (1, 1) double {mustBeInteger, mustBePositive}
+    numBlocksW (1, 1) double {mustBeInteger, mustBePositive}
 end
 
 numV = domainMesh.numVertices;

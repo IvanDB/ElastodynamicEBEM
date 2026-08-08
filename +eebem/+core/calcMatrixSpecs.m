@@ -31,6 +31,10 @@ arguments (Input)
     numBlocks   (1, 1) double {mustBeInteger, mustBePositive}
 end
 
+arguments (Output)
+    matrixSpecs (1, 1) struct
+end
+
 matrixSpecs.blockSizes2D = blockSizes;
 matrixSpecs.blockNumRows = 3 * blockSizes(1);
 matrixSpecs.blockNumCols = 3 * blockSizes(2);

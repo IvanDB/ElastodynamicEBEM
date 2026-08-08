@@ -31,15 +31,19 @@ function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constVa
 %   See also CALCMATRIXK, CALCCONSTVALUES, GENERATEFINALG2DNODES
 
 arguments (Input)
-    pbParam
-    domainMesh
-    methodSpecs
-    constValuesCurr
-    G1Dn
-    G1Dw
-    indTemp
-    indM
-    indV
+    pbParam         (1, 1) struct
+    domainMesh      (1, 1) struct
+    methodSpecs     (1, 1) struct
+    constValuesCurr (1, 1) struct
+    G1Dn            double
+    G1Dw            double
+    indTemp         (1, 1) double {mustBeInteger, mustBeNonnegative}
+    indM            (1, 1) double {mustBeInteger, mustBePositive}
+    indV            (1, 1) double {mustBeInteger, mustBeMember(indV, [1, 2, 3])}
+end
+
+arguments (Output)
+    subBlockK (3, 3) double
 end
 
 import eebem.utility.quadratureRules.*

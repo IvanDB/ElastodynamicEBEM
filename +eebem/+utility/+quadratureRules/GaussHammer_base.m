@@ -23,6 +23,10 @@ function [gha, ghw] = GaussHammer_base(mxghp)
 %
 %   See also GAUSSHAMMERCOMPOSITE, GENERATEQUADDATA
 
+arguments
+    mxghp (1, 1) double {mustBeInteger, mustBePositive}
+end
+
 %% Allocazione matrici
 gha = zeros(mxghp, mxghp, 3);
 ghw = zeros(mxghp, mxghp);

@@ -24,10 +24,10 @@ function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs, basePa
 %
 %   See also GETDATUMHANDLEDIRICHLET, CALCCONSTVALUES, TIMEMARCHINGID, TIMEMARCHINGDD
 arguments
-    pbParam     struct
-    domainMesh  struct
-    constValues cell
-    methodSpecs struct
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    constValues (:, 1) cell
+    methodSpecs (1, 1) struct
     basePath    (1, 1) string = "."
 end
 

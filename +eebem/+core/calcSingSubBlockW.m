@@ -18,9 +18,11 @@ function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constDa
 %       QUADDATA        - (struct) quadrature nodes/weights/METHODSPECS,
 %                         see GENERATEQUADDATA.
 %       CONSTDATA       - (cell) per-triangle data from CALCCONSTVALUES.
-%       INDSMATRIX      - (numTriangles x numVertices int32) local vertex
-%                         index of each mesh vertex within each triangle
-%                         (0 if not incident), from READSPACEMESH.
+%       INDSMATRIX      - (numVertices x maxNumTriangles int32) for each vertex
+%                         and each incident-triangle slot, the local index (1, 2
+%                         or 3) of that vertex within the triangle (0 if the slot
+%                         is unused padding); built locally by the COPYARRAYW
+%                         helper in CALCMATRIXW, not by READSPACEMESH.
 %       TRIANGPERNODES  - (numVertices x maxNumTriangles) triangles
 %                         incident to each vertex (0-padded).
 %       MAXNUMTRIANGLES - (positive integer) width of TRIANGPERNODES,
@@ -35,8 +37,21 @@ function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constDa
 %
 %   See also CALCMATRIXW, CALCCONSTVALUES, GENERATEFINALG2DNODES
 
+arguments (Input)
+    pbParam         (1, 1) struct
+    domainMesh      (1, 1) struct
+    quadData        (1, 1) struct
+    constData       (:, 1) cell
+    indSMatrix      (:, :) int32
+    TriangPerNodes  (:, :) int32
+    maxNumTriangles (1, 1) double {mustBeInteger, mustBePositive}
+    timeInstant     (1, 1) double {mustBeInteger, mustBeNonnegative}
+    outerNode       (1, 1) double {mustBeInteger, mustBePositive}
+    innerNode       (1, 1) double {mustBeInteger, mustBePositive}
+end
+
 arguments (Output)
-    OutputMatrix
+    OutputMatrix (3, 3) double
 end
 delta = eye(3);
 

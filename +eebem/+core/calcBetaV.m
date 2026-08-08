@@ -20,8 +20,8 @@ function betaV = calcBetaV(pbParam, domainMesh, matrixV, basePath)
 %
 %   See also CALCMATRIXV, CALCBOUNDDATANEUMANN, TIMEMARCHINGDN, TIMEMARCHINGDN_C
 arguments
-    pbParam     struct
-    domainMesh  struct
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
     matrixV     (:, 1) cell
     basePath    (1, 1) string = "."
 end

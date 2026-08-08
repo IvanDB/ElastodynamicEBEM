@@ -33,18 +33,22 @@ function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, const
 %       The inner "domain" integration is marked "Temp MATLAB code" in the
 %       source and loops point-by-point in plain MATLAB rather than
 %       vectorizing, unlike the sibling CALCSINGSUBBLOCKK; it is noticeably
-%       slower and looks like a candidate for a future MEX/ GPU port.
+%       slower and looks like a candidate for a future MEX/GPU port.
 %
 %   See also CALCMATRIXK_C, CALCCONSTVALUES, GENERATEFINALG2DNODES
 arguments (Input)
-    pbParam
-    domainMesh
-    methodSpecs
-    constValuesCurr
-    G1Dn
-    G1Dw
-    indTemp
-    indM
+    pbParam         (1, 1) struct
+    domainMesh      (1, 1) struct
+    methodSpecs     (1, 1) struct
+    constValuesCurr (1, 1) struct
+    G1Dn            double
+    G1Dw            double
+    indTemp         (1, 1) double {mustBeInteger, mustBeNonnegative}
+    indM            (1, 1) double {mustBeInteger, mustBePositive}
+end
+
+arguments (Output)
+    subBlockK (3, 3) double
 end
 
 import eebem.utility.quadratureRules.*

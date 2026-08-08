@@ -20,8 +20,8 @@ function betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath)
 %
 %   See also CALCMATRIXK, CALCBOUNDDATADIRICHLET, CALCBETAI, TIMEMARCHINGDD
 arguments
-    pbParam     struct
-    domainMesh  struct
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
     matrixK     (:, 1) cell
     basePath    (1, 1) string = "."
 end
