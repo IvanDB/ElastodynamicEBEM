@@ -21,7 +21,8 @@ function fullFileNames = generateFilenames(basePath, formID, pbParam, domainMesh
 %       FULLFILENAMES - (struct) with fields tmpFullFilename (under BASEPATH/tempData)
 %                       and outFullFilename (under BASEPATH/outputData).
 %
-%   See also TIMEMARCHINGID, TIMEMARCHINGDD, TIMEMARCHINGDN, TIMEMARCHINGDN_C, TIMEMARCHINGIN
+%   See also eebem.core.timeMarchingID, eebem.core.timeMarchingDD,
+%   eebem.core.timeMarchingDN, eebem.core.timeMarchingDN_c, eebem.core.timeMarchingIN
 arguments
     basePath    (1, 1) string
     formID      (1, 1) string

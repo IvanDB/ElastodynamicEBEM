@@ -17,9 +17,12 @@
 %       The "POST PROCESSING" section near the end of the script is still a placeholder
 %       (asserts with a "WIP" message) and does not perform any actual post-processing yet.
 %
-%   See also SETUPWORKSPACE, AUTOBUILD, READINPUTFILE, READSPACEMESH,
-%   FINALIZEPARAMETERS, GENERATEQUADDATA, TIMEMARCHINGID, TIMEMARCHINGDD,
-%   TIMEMARCHINGDN, TIMEMARCHINGDN_C, TIMEMARCHINGIN, PLOTSOLUTIONS, WINSCRIPT
+%   See also eebem.utility.setupWorkspace, eebem.utility.autobuild,
+%   eebem.utility.fileRead.readInputFile, eebem.utility.fileRead.readSpaceMesh,
+%   eebem.utility.finalizeParameters, eebem.utility.generateQuadData,
+%   eebem.core.timeMarchingID, eebem.core.timeMarchingDD,
+%   eebem.core.timeMarchingDN, eebem.core.timeMarchingDN_c,
+%   eebem.core.timeMarchingIN, eebem.utility.plots.plotSolutions, WINSCRIPT
 
 %% INIT PHASE
 clearvars -except inputStruct glbIndexFigures basePath cmd cmdBuffer

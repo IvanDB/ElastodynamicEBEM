@@ -1,4 +1,4 @@
-%WINSCRIPT  Batch-launch EEBEM.MAIN over the full Cartesian product of parameters listed in a config file.
+%WINSCRIPT  Batch-launch eebem.main over the full Cartesian product of parameters listed in a config file.
 %   Top-level script (not part of the +eebem package). Reads "parameterLists.config"
 %   from this file's own directory via the local helper PARSECONFIGFILE, expands
 %   every listed parameter combination into one "inputStruct.<field> = <value>; ..."
@@ -6,7 +6,7 @@
 %   each command followed by "eebem.main;" in turn -- i.e. it runs one full
 %   simulation per combination, sequentially, in the base workspace.
 %
-%   See also EEBEM.MAIN, EEBEM.UTILITY.SETUPWORKSPACE
+%   See also eebem.main, eebem.utility.setupWorkspace
 
 clc
 clearvars -except glbIndexFigures
@@ -38,7 +38,7 @@ function cmdBuffer = generateCommandBuffer(configData)
 %   Output arguments:
 %       CMDBUFFER - (string array) one command string per parameter combination.
 %
-%   See also PARSECONFIGFILE, EEBEM.UTILITY.SETUPWORKSPACE
+%   See also PARSECONFIGFILE, eebem.utility.setupWorkspace
 arguments
     configData (1, 1) struct
 end

@@ -23,7 +23,8 @@ function autobuild(basePath, flag)
 %       asserts that the configured C compiler is MSVC. Never skips or caches
 %       compilation: with FLAG = true it always recompiles every kernel.
 %
-%   See also SETUPWORKSPACE, CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C, CALCMATRIXW
+%   See also SETUPWORKSPACE, eebem.core.calcMatrixV, eebem.core.calcMatrixK,
+%   eebem.core.calcMatrixK_c, eebem.core.calcMatrixW
 
 arguments
     basePath (1, 1) string

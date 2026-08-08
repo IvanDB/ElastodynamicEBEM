@@ -28,7 +28,8 @@ function subBlockK = calcSingSubBlockK(pbParam, domainMesh, methodSpecs, constVa
 %       SUBBLOCKK - (3x3 double) singular correction to add at the
 %                   (triangle INDM, vertex INDV) position of the block.
 %
-%   See also CALCMATRIXK, CALCCONSTVALUES, GENERATEFINALG2DNODES
+%   See also CALCMATRIXK, CALCCONSTVALUES,
+%   eebem.utility.quadratureRules.generateFinalG2Dnodes
 
 arguments (Input)
     pbParam         (1, 1) struct

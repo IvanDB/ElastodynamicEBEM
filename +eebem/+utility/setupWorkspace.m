@@ -1,7 +1,8 @@
 function setupWorkspace(inputStruct)
 %SETUPWORKSPACE  Translate the user input struct into the base-workspace variables MAIN expects.
-%   SETUPWORKSPACE(INPUTSTRUCT) reads the fields of INPUTSTRUCT (as assembled by a launcher
-%   script, e.g. WINSCRIPT) and ASSIGNIN's, in the base workspace, the variables MAIN relies on:
+%   SETUPWORKSPACE(INPUTSTRUCT) reads the fields of INPUTSTRUCT (as assembled by a 
+%   launcher script, e.g. WINSCRIPT, or typed directly before calling eebem.main) 
+%   and ASSIGNIN's, in the base workspace, the variables MAIN relies on:
 %    - pbIndex/pbSpecs (problem selection),
 %    - formSelected (formulation ID),
 %    - timeSpecs/meshSpecs (name-value cell arrays for FINALIZEPARAMETERS and the mesh file name),
@@ -17,11 +18,11 @@ function setupWorkspace(inputStruct)
 %                     numBOUND, usePool, autoBuild, plotFigs, saveFigs, saveTemp.
 %
 %   Notes:
-%       Must be called from EEBEM.MAIN (or another script one call frame above it): it
+%       Must be called from eebem.main (or another script one call frame above it): it
 %       asserts on the call stack depth when it needs to infer basePath. Side effect only:
 %       writes directly into the base workspace via ASSIGNIN and never returns a value.
 %
-%   See also EEBEM.MAIN, AUTOBUILD, GENERATEQUADDATA
+%   See also eebem.main, AUTOBUILD, GENERATEQUADDATA
 
 arguments
     inputStruct (1, 1) struct

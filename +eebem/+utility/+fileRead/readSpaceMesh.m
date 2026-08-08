@@ -23,7 +23,7 @@ function domainMesh = readSpaceMesh(basePath, meshFileName)
 %       computation in the local CALCPARAMMESH helper uses a plain (non-vectorized,
 %       non-parallel) loop over all triangles and can be a bottleneck on very fine meshes.
 %
-%   See also CONSTRUCTMESHFILENAME, READINPUTFILE, CALCCONSTVALUES
+%   See also CONSTRUCTMESHFILENAME, READINPUTFILE, eebem.core.calcConstValues
 
 arguments
     basePath     (1, 1) string

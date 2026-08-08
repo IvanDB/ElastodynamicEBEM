@@ -21,7 +21,8 @@ function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, G1
 %       SUBBLOCKV - (3x3 double) singular correction to add on
 %                   the diagonal of the triangle's self-block.
 %
-%   See also CALCMATRIXV, CALCCONSTVALUES, GENERATEFINALG2DNODES
+%   See also CALCMATRIXV, CALCCONSTVALUES,
+%   eebem.utility.quadratureRules.generateFinalG2Dnodes
 
 arguments (Input)
     pbParam         (1, 1) struct

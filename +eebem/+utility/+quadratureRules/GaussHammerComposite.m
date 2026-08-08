@@ -20,7 +20,7 @@ function [nodes, weights] = GaussHammerComposite(nSubPart, nNodGH)
 %   Notes:
 %       Errors ("Valore non valido") if NSUBPART is not a perfect square.
 %
-%   See also GAUSSHAMMER_BASE, GENERATEQUADDATA
+%   See also GAUSSHAMMER_BASE, eebem.utility.generateQuadData
 
 arguments
     nSubPart (1, 1) double {mustBeInteger, mustBePositive}

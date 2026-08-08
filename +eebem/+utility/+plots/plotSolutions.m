@@ -34,8 +34,9 @@ function glbIndexFigures = plotSolutions(form, pbParam, domainMesh, density, glb
 %       color-limit branch (CLIMCUSTOM, from GETPLOTPROBLEMPARAMETER)
 %       only emits a "still WIP" warning and is not actually applied.
 %
-%   See also GETPLOTPROBLEMPARAMETER, PLOTMESH, TIMEMARCHINGID,
-%   TIMEMARCHINGDD, TIMEMARCHINGDN, TIMEMARCHINGDN_C, TIMEMARCHINGIN
+%   See also GETPLOTPROBLEMPARAMETER, PLOTMESH, eebem.core.timeMarchingID,
+%   eebem.core.timeMarchingDD, eebem.core.timeMarchingDN,
+%   eebem.core.timeMarchingDN_c, eebem.core.timeMarchingIN
 
 arguments
     form            (1, 1) string {mustBeMember(form, ["ID", "DD", "DN", "DNc", "IN"])}

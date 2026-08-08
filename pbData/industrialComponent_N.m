@@ -15,7 +15,7 @@ function g = industrialComponent_N(pbParam)
 %   Output arguments:
 %       G - (function_handle) G(x, t, n) -> (3x1 double) traction datum.
 %
-%   See also GETDATUMHANDLENEUMANN
+%   See also eebem.core.getDatumHandleNeumann
 
 arguments
     pbParam (1, 1) struct

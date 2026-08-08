@@ -23,7 +23,7 @@ function g = ConeBall_D(pbParam)
 %       match the file, which is a likely leftover from copying/renaming this datum file
 %       from an (unseen) "ConeBall_D.m" original. Worth reconciling one way or the other.
 %
-%   See also GETDATUMHANDLEDIRICHLET
+%   See also eebem.core.getDatumHandleDirichlet
 
 arguments
     pbParam (1, 1) struct

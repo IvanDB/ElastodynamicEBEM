@@ -35,7 +35,8 @@ function subBlockK = calcSingSubBlockK_c(pbParam, domainMesh, methodSpecs, const
 %       vectorizing, unlike the sibling CALCSINGSUBBLOCKK; it is noticeably
 %       slower and looks like a candidate for a future MEX/GPU port.
 %
-%   See also CALCMATRIXK_C, CALCCONSTVALUES, GENERATEFINALG2DNODES
+%   See also CALCMATRIXK_C, CALCCONSTVALUES,
+%   eebem.utility.quadratureRules.generateFinalG2Dnodes
 arguments (Input)
     pbParam         (1, 1) struct
     domainMesh      (1, 1) struct

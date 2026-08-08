@@ -29,7 +29,8 @@ function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, quad1D)
 %       Either QUAD1D.numNodes must be nonzero, or both
 %       QUAD1D.G1Dn and QUAD1D.G1Dw must be supplied (asserted).
 %
-%   See also GAUSS1D, CALCSINGSUBBLOCKV, CALCSINGSUBBLOCKK, CALCSINGSUBBLOCKK_C, CALCSINGSUBBLOCKW
+%   See also GAUSS1D, eebem.core.calcSingSubBlockV, eebem.core.calcSingSubBlockK,
+%   eebem.core.calcSingSubBlockK_c, eebem.core.calcSingSubBlockW
 
 arguments
     v3D     (3, 3) double

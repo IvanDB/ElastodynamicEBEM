@@ -21,7 +21,7 @@ function [gha, ghw] = GaussHammer_base(mxghp)
 %       reviewed") -- kept here verbatim as a caution, since the hard-coded constants have
 %       not been independently re-derived or unit-tested as part of this documentation pass.
 %
-%   See also GAUSSHAMMERCOMPOSITE, GENERATEQUADDATA
+%   See also GAUSSHAMMERCOMPOSITE, eebem.utility.generateQuadData
 
 arguments
     mxghp (1, 1) double {mustBeInteger, mustBePositive}

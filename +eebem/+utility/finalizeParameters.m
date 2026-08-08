@@ -25,7 +25,7 @@ function [pbParam, domainMesh] = finalizeParameters(pbParam, domainMesh, timeSpe
 %       DOMAINMESH - (struct) returned unchanged (kept for a symmetrical,
 %                    future-proof call signature), see READSPACEMESH.
 %
-%   See also GENERATEFILENAMES, CALCNUMMATRIXBLOCKS
+%   See also GENERATEFILENAMES, eebem.core.calcNumMatrixBlocks
 
 arguments
     pbParam    (1, 1) struct

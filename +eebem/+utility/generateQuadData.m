@@ -30,7 +30,8 @@ function quadData = generateQuadData(methodId, methodSpecs)
 %       the composite Gauss-Hammer subdivision) and that numGHext/numGHint 
 %       are one of the valid base-rule sizes {1, 3, 7, 12, 19}.
 %
-%   See also GAUSSHAMMERCOMPOSITE, GAUSS1D, CALCMATRIXSPECS
+%   See also eebem.utility.quadratureRules.GaussHammerComposite,
+%   eebem.utility.quadratureRules.Gauss1D, eebem.core.calcMatrixSpecs
 
 arguments
     methodId (1, 1) double {mustBeInteger, mustBeNonnegative} = 0

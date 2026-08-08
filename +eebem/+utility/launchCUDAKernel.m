@@ -20,7 +20,8 @@ function deviceMatrix = launchCUDAKernel(gpuID, kernel, varargin)
 %       DEVICEMATRIX - (gpuArray double) the kernel's output
 %                      buffer, still on the GPU (not gathered).
 %
-%   See also CALCMATRIXV, CALCMATRIXK, CALCMATRIXK_C, CALCMATRIXW
+%   See also eebem.core.calcMatrixV, eebem.core.calcMatrixK,
+%   eebem.core.calcMatrixK_c, eebem.core.calcMatrixW
 arguments
     gpuID (1,1) parallel.gpu.GPUDevice
     kernel (1,1) parallel.gpu.CUDAKernel

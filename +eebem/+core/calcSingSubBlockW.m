@@ -35,7 +35,8 @@ function OutputMatrix = calcSingSubBlockW(pbParam, domainMesh, quadData, constDa
 %       OUTPUTMATRIX - (3x3 double) singular correction to add at the
 %                      (OUTERNODE, INNERNODE) position of the block.
 %
-%   See also CALCMATRIXW, CALCCONSTVALUES, GENERATEFINALG2DNODES
+%   See also CALCMATRIXW, CALCCONSTVALUES,
+%   eebem.utility.quadratureRules.generateFinalG2Dnodes
 
 arguments (Input)
     pbParam         (1, 1) struct
