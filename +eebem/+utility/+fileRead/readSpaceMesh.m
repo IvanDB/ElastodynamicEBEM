@@ -1,5 +1,5 @@
 function domainMesh = readSpaceMesh(basePath, meshFileName)
-%READSPACEMESH  Load a triangular surface mesh file and derive all the per-triangle geometric data the BEM code needs.
+%READSPACEMESH  Load a triangular surface mesh file and derive all the geometric data the BEM code needs.
 %   DOMAINMESH = READSPACEMESH(BASEPATH, MESHFILENAME) parses the mesh file
 %   BASEPATH/mesh/<domainName>/MESHFILENAME (vertex coordinates then triangle
 %   connectivity, in a fixed custom text format), then computes and stores: outward unit

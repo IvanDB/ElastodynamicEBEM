@@ -1,5 +1,5 @@
 function [nodes, weights] = doppioGauss1D(nNodes)
-%DOPPIOGAUSS1D  Build a tensor-product ("double Gauss") quadrature rule on the reference triangle via a Duffy-type collapse.
+%DOPPIOGAUSS1D  Build a tensor-product Gauss quadrature rule on the reference triangle via a Duffy-type collapse.
 %   [NODES, WEIGHTS] = DOPPIOGAUSS1D(NNODES) takes a SQRT(NNODES)-point 1D Gauss-Legendre
 %   rule (GAUSS1D) on (-1,1), rescales it to (0,1), and collapses the resulting 2D
 %   tensor-product grid onto the reference triangle with barycentric coordinates
