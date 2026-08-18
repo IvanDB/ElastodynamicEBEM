@@ -1,13 +1,35 @@
 function g = getDatumHandleDirichlet(pbParam, basePath)
-%GETDATUMHANDLEDIRICHLET Summary of this function goes here
-%   Detailed explanation goes here
+%GETDATUMHANDLEDIRICHLET  Return the exact Dirichlet (displacement) datum as a function handle.
+%   G = GETDATUMHANDLEDIRICHLET(PBPARAM, BASEPATH) returns a function handle G = @(x, t)
+%   with X a 1x3 point and T a scalar time, returning the 3x1 prescribed displacement.
+%   For the built-in benchmark problems ("barH1", "barH3", "DesCop-cube",
+%   "DesCop-sphere", "sphereWave", selected via PBPARAM.domainName) the closed-form
+%   analytical solution is hard-coded. For any other PBPARAM.domainName, a user-supplied
+%   "<domainName>_D.m" file is looked up under BASEPATH/pbData, loaded with
+%   STR2FUNC/FEVAL, and expected to return a G = @(x, t) handle itself given PBPARAM.
+%
+%   Input arguments:
+%       PBPARAM  - (struct) physical/problem parameters (domainName,
+%                  velP, mu, nu, rho, Tfin, ...), see READINPUTFILE.
+%       BASEPATH - (string, optional, default ".") project root, used
+%                  to locate custom "pbData/<domainName>_D.m" files.
+%
+%   Output arguments:
+%       G - (function_handle) G(x, t) -> (3x1 double) displacement datum.
+%
+%   Notes:
+%       Asserts if PBPARAM.domainName is not one of the built-in
+%       cases and no matching "pbData/<domainName>_D.m" file exists.
+%
+%   See also GETDATUMHANDLENEUMANN, CALCBOUNDDATADIRICHLET, CALCBETAI
+
 arguments (Input)
     pbParam  (1, 1) struct
     basePath (1, 1) string = "."
 end
 
 arguments (Output)
-    g function_handle
+    g (1, 1) function_handle
 end
 
 switch pbParam.domainName

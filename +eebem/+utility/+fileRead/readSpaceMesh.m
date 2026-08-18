@@ -1,10 +1,41 @@
 function domainMesh = readSpaceMesh(basePath, meshFileName)
-arguments
+%READSPACEMESH  Load a triangular surface mesh file and derive all the geometric data the BEM code needs.
+%   DOMAINMESH = READSPACEMESH(BASEPATH, MESHFILENAME) parses the mesh file
+%   BASEPATH/mesh/<domainName>/MESHFILENAME (vertex coordinates then triangle
+%   connectivity, in a fixed custom text format), then computes and stores: outward unit
+%   normals and areas per triangle (from the cross product of two edges; triangle vertex
+%   order is flipped for the "DesCop-sphere" mesh to keep normals outward- pointing on
+%   that interior-scattering geometry), centroids, edge lengths and the maximum edge
+%   length per triangle (maxL, used by the light-cone cutoffs in CALCSINGSUBBLOCKK/K_C),
+%   the local-index-per- vertex incidence matrix (indSMmatrix), and the mesh-wide
+%   minimum/ maximum edge length (lMin/lMax, via the local helper CALCPARAMMESH).
+%
+%   Input arguments:
+%       BASEPATH     - (string) project root.
+%       MESHFILENAME - (string) file name, see CONSTRUCTMESHFILENAME.
+%
+%   Output arguments:
+%       DOMAINMESH - (struct) with fields name, lev, numVertices, coordinates, numTriangles,
+%                    triangles, normal, area, center, maxL, curl, indSMmatrix, lMin, lMax.
+%
+%   Notes:
+%       Asserts if the mesh file cannot be opened. The mesh-wide min/max edge length
+%       computation in the local CALCPARAMMESH helper uses a plain (non-vectorized,
+%       non-parallel) loop over all triangles and can be a bottleneck on very fine meshes.
+%
+%   See also CONSTRUCTMESHFILENAME, READINPUTFILE, eebem.core.calcConstValues
+
+arguments (Input)
     basePath     (1, 1) string
     meshFileName (1, 1) string
 end
 
+arguments (Output)
+    domainMesh (1, 1) struct
+end
+
 import eebem.utility.fileRead.*
+
 %Extract mesh name parts
 fileNameParts = split(meshFileName, ["_", "."]);
 domainName = fileNameParts(1);
@@ -31,7 +62,7 @@ fgets(meshFile);
 fgets(meshFile);
 fgets(meshFile);
 
-%Read mesh verteces
+%Read mesh vertices
 fgets(meshFile);
 
 domainMesh.numVertices = sscanf(fgets(meshFile), "%d");
@@ -125,31 +156,33 @@ return
 end
 
 function domainMesh = calcParamMesh(domainMesh)
-    %Initialize values
-    lMin = Inf;
-    lMax = -Inf;
+%Compute the mesh-wide minimum/maximum triangle edge length (DOMAINMESH.lMin/lMax) by looping over every triangle.
 
-    for indT = 1 : domainMesh.numTriangles
+%Initialize values
+lMin = Inf;
+lMax = -Inf;
 
-        incidenze = domainMesh.triangles(indT, 1:3);
-        verts(1, :) = domainMesh.coordinates(incidenze(1), :);
-        verts(2, :) = domainMesh.coordinates(incidenze(2), :);
-        verts(3, :) = domainMesh.coordinates(incidenze(3), :);      
-    
-        l1 = norm(verts(1, :) - verts(2, :));
-        l2 = norm(verts(1, :) - verts(3, :));
-        l3 = norm(verts(2, :) - verts(3, :));
-    
-        lMaxCurr = max(max(l1, l2), l3);
-        lMinCurr = min(min(l1, l2), l3);
-       
-        %Aggiornamento valori globali
-        lMax = max(lMax, lMaxCurr);
-        lMin = min(lMin, lMinCurr);
-    end
-    
-    %Salvataggio valori
-    domainMesh.lMin = lMin;
-    domainMesh.lMax = lMax;
-    return
+for indT = 1 : domainMesh.numTriangles
+
+    incidenze = domainMesh.triangles(indT, 1:3);
+    verts(1, :) = domainMesh.coordinates(incidenze(1), :);
+    verts(2, :) = domainMesh.coordinates(incidenze(2), :);
+    verts(3, :) = domainMesh.coordinates(incidenze(3), :);      
+
+    l1 = norm(verts(1, :) - verts(2, :));
+    l2 = norm(verts(1, :) - verts(3, :));
+    l3 = norm(verts(2, :) - verts(3, :));
+
+    lMaxCurr = max(max(l1, l2), l3);
+    lMinCurr = min(min(l1, l2), l3);
+   
+    %Update values
+    lMax = max(lMax, lMaxCurr);
+    lMin = min(lMin, lMinCurr);
+end
+
+%Save final values
+domainMesh.lMin = lMin;
+domainMesh.lMax = lMax;
+return
 end

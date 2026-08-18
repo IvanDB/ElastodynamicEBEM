@@ -1,23 +1,40 @@
 function [gha, ghw] = GaussHammer_base(mxghp)
-% ****FUNZIONE NON REVISIONATA****
-% INPUT 
-%   - mxghp: intero contenente il massimo numero di nodi
+%GAUSSHAMMER_BASE  Look up hard-coded base Gauss-Hammer quadrature rules on the reference triangle.
+%   [GHA, GHW] = GAUSSHAMMER_BASE(MXGHP) returns, for every supported node count up to MXGHP
+%   (the valid sizes are 1, 3, 7, 12 and 19, see GENERATEQUADDATA's isGHvalid check), the
+%   barycentric node coordinates and weights of the corresponding classical Gauss-Hammer
+%   rule on the reference triangle, as literal hard-coded constants. Unsupported row indices
+%   of GHA/GHW (any MXGHP value other than 1, 3, 7, 12, 19) are simply left as zero.
+%
+%   Input arguments:
+%       MXGHP - (positive integer) upper bound on the node count; only used to size the
+%               output arrays (GAUSSHAMMER_BASE always fills in all five hard-coded
+%               rules, regardless of MXGHP, as long as MXGHP is at least 19).
+%
+%   Output arguments:
+%       GHA - (MXGHP x MXGHP x 3 double) barycentric coordinates: GHA(m, :, :)
+%             holds the m-node rule (only populated for m in {1, 3, 7, 12, 19}).
+%       GHW - (MXGHP x MXGHP double) corresponding weights.
+%
+%   Notes:
+%       Flagged by the original author as "FUNZIONE NON REVISIONATA" ("function not
+%       reviewed") -- kept here verbatim as a caution, since the hard-coded constants have
+%       not been independently re-derived or unit-tested as part of this documentation pass.
+%
+%   See also GAUSSHAMMERCOMPOSITE, eebem.utility.generateQuadData
 
-% OUTPUT:
-%   - gha: matrice mxghp x mxghp x 3 contenente le coordinate dei nodi di
-%   Gauss-Hammer per il triangolo di default
-%   - ghw: matrice mxghp x mxghp contenente i pesi Gauss-Hammer
+arguments
+    mxghp (1, 1) double {mustBeInteger, mustBePositive}
+end
 
-
-%% Allocazione matrici
+%Matrix allocation
 gha = zeros(mxghp, mxghp, 3);
 ghw = zeros(mxghp, mxghp);
 
-%Allocazione vettore ausiliario necessario per il calcolo
+%Auxiliary vector allocation
 val = zeros(1, 3);
 
-%% FORMULA a 1 NODO
-
+%% 1 node formula
 val(1) = 1/3;
 
 gha(1,1,1) = val(1);
@@ -26,13 +43,11 @@ gha(1,1,3) = val(1);
 
 ghw(1,1) = 1/2;
 
-%% FORMULA di quadratura a 3 NODI
-
+%% 3 nodes formula
 val(1) = 2/3;
 val(2) = 1/6;
 val(3) = 1/6;
 
-%Numero di nodi - Indice 
 gha(3,1,1) = val(1);
 gha(3,1,2) = val(2);
 gha(3,1,3) = val(3);
@@ -49,8 +64,7 @@ ghw(3,1) = val(1);
 ghw(3,2) = val(1);
 ghw(3,3) = val(1);
 
-%% FORMULA di quadratura a 7 NODI
-
+%% 7 nodes formula
 gha(7,1,1) = 0.1012865073235;
 gha(7,2,1) = 0.7974269853531;
 gha(7,3,1) = 0.1012865073235;
@@ -78,8 +92,7 @@ ghw(7,5) = 0.1323941527885/2;
 ghw(7,6) = 0.1323941527885/2;
 ghw(7,7) = 0.225/2;
 
-%% FORMULA di quadratura a 12 NODI
-
+%% 12 nodes formula
 val(1) = 0.873821971016996;
 val(2) = (1-val(1))/2;
 val(3) = val(2);
@@ -148,8 +161,7 @@ ghw(12,10) = val(3);
 ghw(12,11) = val(3);
 ghw(12,12) = val(3);
 
-%% FORMULA di quadratura a 19 NODI
-
+%% 19 nodes formula
 val(1) = 1/3;
 
 gha(19,1,1:3) = val(1);
@@ -254,7 +266,7 @@ gha(19,19,3) = val(1);
 
 ghw(19,14:19) = 0.2597012362637364/12;
 
-%% FORMULA di quadratura a 28 NODI
+%% 28 nodes formula
 
 val(1) = 1/3;
 

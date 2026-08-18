@@ -1,3 +1,29 @@
+%MAIN  Top-level script: run one elastodynamic energetic-BEM simulation end to end.
+%   Entry point of the ElastodynamicEBEM pipeline. Requires the base
+%   workspace variable INPUTSTRUCT (a struct, see SETUPWORKSPACE) to already
+%   be assigned before this script is run -- typically by a launcher such as
+%   WINSCRIPT, or by assigning it by hand for a single ad hoc run.
+%
+%   Pipeline: SETUPWORKSPACE parses INPUTSTRUCT into base-workspace variables; 
+%   AUTOBUILD (re)compiles the CUDA/MEX kernels if requested; a parallel pool 
+%   is started if GLBFLAGS.usePool; the problem and mesh files are read 
+%   (READINPUTFILE, READSPACEMESH) and the mesh is optionally plotted (PLOTMESH); 
+%   FINALIZEPARAMETERS derives the final time-discretization; GENERATEQUADDATA builds 
+%   the quadrature rules and GENERATEFILENAMES the output paths; the formulation 
+%   selected by FORMSELECTED ("ID"|"DD"|"DN"|"DNc"|"IN") is solved by the
+%   matching TIMEMARCHING* function; PLOTSOLUTIONS renders/exports the result.
+%
+%   Notes:
+%       The "POST PROCESSING" section near the end of the script is still a placeholder
+%       (asserts with a "WIP" message) and does not perform any actual post-processing yet.
+%
+%   See also eebem.utility.setupWorkspace, eebem.utility.autobuild,
+%   eebem.utility.fileRead.readInputFile, eebem.utility.fileRead.readSpaceMesh,
+%   eebem.utility.finalizeParameters, eebem.utility.generateQuadData,
+%   eebem.core.timeMarchingID, eebem.core.timeMarchingDD,
+%   eebem.core.timeMarchingDN, eebem.core.timeMarchingDN_c,
+%   eebem.core.timeMarchingIN, eebem.utility.plots.plotSolutions, WINSCRIPT
+
 %% INIT PHASE
 clearvars -except inputStruct glbIndexFigures basePath cmd cmdBuffer
 

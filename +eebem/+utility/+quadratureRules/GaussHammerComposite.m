@@ -1,4 +1,33 @@
 function [nodes, weights] = GaussHammerComposite(nSubPart, nNodGH)
+%GAUSSHAMMERCOMPOSITE  Build a composite Gauss-Hammer quadrature rule on the reference triangle.
+%   [NODES, WEIGHTS] = GAUSSHAMMERCOMPOSITE(NSUBPART, NNODGH) subdivides the
+%   reference triangle into NSUBPART congruent sub-triangles (NSUBPART must be
+%   a perfect square, giving SQRT(NSUBPART) subdivisions per edge) and places,
+%   in each sub-triangle, the NNODGH-point base Gauss-Hammer rule returned by
+%   GAUSSHAMMER_BASE, mapped from barycentric to Cartesian coordinates.
+%
+%   Input arguments:
+%       NSUBPART - (perfect-square positive integer) number of sub-triangles.
+%       NNODGH   - (positive integer, one of the base-rule sizes
+%                  supported by GAUSSHAMMER_BASE) nodes per sub-triangle.
+%
+%   Output arguments:
+%       NODES   - ((NSUBPART*NNODGH) x 3 double) barycentric-mapped
+%                 quadrature nodes over the whole reference triangle.
+%       WEIGHTS - ((NSUBPART*NNODGH) x 1 double) corresponding weights,
+%                 normalized to a reference-triangle area of 1.
+%
+%   See also GAUSSHAMMER_BASE, eebem.utility.generateQuadData
+
+arguments (Input)
+    nSubPart (1, 1) double {mustBeInteger, mustBePositive}
+    nNodGH   (1, 1) double {mustBeInteger, mustBePositive}
+end
+
+arguments (Output)
+    nodes   (:, 3) double
+    weights (:, 1) double
+end
 
 import eebem.utility.quadratureRules.*
 
@@ -10,13 +39,11 @@ if(nNodGH == 1)
     nGHstd = nGHstd';
 end
 
-%Check valore valido
-if(sqrt(nSubPart) ~= round(sqrt(nSubPart)))
-    error("Valore non valido")
-end
+%Check value
 nDiv = sqrt(nSubPart);
+assert(nDiv == floor(nDiv), "Number of subregions must be a perfect square")
 
-%Calcolo nodi
+%Compute nodes
 nodes = zeros(nSubPart .* nNodGH, 3);
 
 n = 0;
@@ -46,8 +73,7 @@ for i = 1 : nDiv
     end
 end
 
-
-%Calcolo dei pesi
+%Compute weights
 fatAreaR = 2; 
 weights = (fatAreaR / nSubPart) .* wGHstd;
 

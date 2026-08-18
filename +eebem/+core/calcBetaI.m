@@ -1,12 +1,39 @@
 function betaI = calcBetaI(pbParam, domainMesh, constValues, methodSpecs, basePath)
-%CALCBETAISummary of this function goes here
-%   Detailed explanation goes here
-arguments
-    pbParam     struct
-    domainMesh  struct
-    constValues cell
-    methodSpecs struct
+%CALCBETAI  Assemble the RHS load history for the indirect Dirichlet formulation.
+%   BETAI = CALCBETAI(PBPARAM, DOMAINMESH, CONSTVALUES, METHODSPECS, BASEPATH) builds,
+%   for every discrete time step n = 1:PBPARAM.nT, the load vector used as right-hand side
+%   by TIMEMARCHINGID (and, together with CALCBETAK, by TIMEMARCHINGDD).
+%   For each boundary triangle it integrates, over the interval [(n-1)*deltaT, n*deltaT],
+%   the exact Dirichlet datum returned by GETDATUMHANDLEDIRICHLET, using
+%   the outer quadrature nodes/weights stored in CONSTVALUES.
+%   Entries smaller than 1e-14 in magnitude are truncated to zero.
+%
+%   Input arguments:
+%       PBPARAM     - (struct) physical/time-discretization parameters
+%                     (deltaT, nT, domainName, ...), see READINPUTFILE.
+%       DOMAINMESH  - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       CONSTVALUES - (cell, numTriangles x 1) per-triangle geometric
+%                     and quadrature data from CALCCONSTVALUES.
+%       METHODSPECS - (struct) quadrature scheme sizes, see GENERATEQUADDATA.
+%       BASEPATH    - (string) project root, forwarded to GETDATUMHANDLEDIRICHLET
+%                     to load custom "<domainName>_D.m" datum files.
+%
+%   Output arguments:
+%       BETAI - (cell, nT x 1) each entry a (3*numTriangles x 1)
+%               double column vector, the load at time step n.
+%
+%   See also GETDATUMHANDLEDIRICHLET, CALCCONSTVALUES, TIMEMARCHINGID, TIMEMARCHINGDD
+
+arguments (Input)
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    constValues (:, 1) cell
+    methodSpecs (1, 1) struct
     basePath    (1, 1) string = "."
+end
+
+arguments (Output)
+    betaI (:, 1) cell
 end
 
 import eebem.core.*

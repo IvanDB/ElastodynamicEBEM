@@ -1,3 +1,13 @@
+%WINSCRIPT  Batch-launch eebem.main over the full Cartesian product of parameters listed in a config file.
+%   Top-level script (not part of the +eebem package). Reads "parameterLists.config"
+%   from this file's own directory via the local helper PARSECONFIGFILE, expands
+%   every listed parameter combination into one "inputStruct.<field> = <value>; ..."
+%   command string per run via the local helper GENERATECOMMANDBUFFER, then EVALs
+%   each command followed by "eebem.main;" in turn -- i.e. it runs one full
+%   simulation per combination, sequentially, in the base workspace.
+%
+%   See also eebem.main, eebem.utility.setupWorkspace
+
 clc
 clearvars -except glbIndexFigures
 
@@ -11,6 +21,24 @@ end
 
 
 function cmdBuffer = generateCommandBuffer(configData)
+%GENERATECOMMANDBUFFER  Expand a parsed config struct into one inputStruct-assignment command string per run.
+%   CMDBUFFER = GENERATECOMMANDBUFFER(CONFIGDATA) maps every recognized CONFIGDATA field
+%   (via the internal INPUTFIELDNAMES table, e.g. "pbNames" -> "pbName", "betaMults" ->
+%   "betaMult", ...) to a list of "inputStruct.<name> = <value>;" assignment snippets,
+%   then builds the full Cartesian product of all such lists (via repeated NDGRID) so
+%   that CMDBUFFER contains one concatenated command string per parameter combination,
+%   ready to be EVAL'd right before "eebem.main;". Boolean fields set to false are
+%   skipped entirely (that inputStruct field is left at its SETUPWORKSPACE default).
+%   Quadrature-size fields (numsSRext, numsGHext, ...) are skipped whenever CONFIGDATA
+%   also defines "quadIDs", since a quadrature preset index takes precedence.
+%
+%   Input arguments:
+%       CONFIGDATA - (struct) parsed config fields, see PARSECONFIGFILE.
+%
+%   Output arguments:
+%       CMDBUFFER - (string array) one command string per parameter combination.
+%
+%   See also PARSECONFIGFILE, eebem.utility.setupWorkspace
 arguments
     configData (1, 1) struct
 end
@@ -56,6 +84,27 @@ end
 end
 
 function configData = parseConfigFile(basePath)
+%PARSECONFIGFILE  Parse "parameterLists.config" into a struct via literal MATLAB assignment evaluation.
+%   CONFIGDATA = PARSECONFIGFILE(BASEPATH) reads BASEPATH/parameterLists.config
+%   line by line, skipping blank lines, "#"-prefixed comment lines and lines
+%   containing "()", stripping trailing "# ..." comments, rewriting "(" / ")" to
+%   "[" / "]" (so MATLAB array literals can be written with parentheses in the
+%   config file), and EVALs each resulting line as "configData.<lineContent>;" --
+%   i.e. each config line is expected to already be valid MATLAB assignment syntax
+%   once its brackets are normalized, e.g. "pbNames = ["barH1", "barH3"];".
+%
+%   Input arguments:
+%       BASEPATH - (string) directory containing "parameterLists.config".
+%
+%   Output arguments:
+%       CONFIGDATA - (struct) one field per assignment found in the config file.
+%
+%   Notes:
+%       Asserts if the config file cannot be opened. Uses EVAL on file content
+%       with only light sanitization (comment stripping, bracket substitution);
+%       the config file is trusted input, not arbitrary/untrusted text.
+%
+%   See also GENERATECOMMANDBUFFER
 arguments (Input)
     basePath (1, 1) string
 end

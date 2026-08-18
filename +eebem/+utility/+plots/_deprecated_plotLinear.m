@@ -1,4 +1,35 @@
 function glbIndexFigures = plotLinear(basePath, pbParam, domainMesh, values, glbIndexFigures)
+%PLOTLINEAR  (Deprecated) plot a piecewise-linear (per-vertex) solution snapshot.
+%   GLBINDEXFIGURES = PLOTLINEAR(BASEPATH, PBPARAM, DOMAINMESH, VALUES,
+%   GLBINDEXFIGURES) manually builds per-triangle patch coordinates from vertex-based
+%   VALUES and plots a single snapshot of a piecewise-linear solution field.
+%
+%   Input arguments:
+%       BASEPATH        - (string) project root.
+%       PBPARAM         - (struct) physical/problem parameters, see READINPUTFILE.
+%       DOMAINMESH      - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       VALUES          - (double) per-vertex solution values.
+%       GLBINDEXFIGURES - (nonnegative integer) running figure-number counter.
+%
+%   Output arguments:
+%       GLBINDEXFIGURES - (nonnegative integer) updated figure counter.
+%
+%   Notes:
+%       DEPRECATED: superseded by PLOTSOLUTIONS. As with the sibling
+%       "_deprecated_plotConstant.m", the file name does not match the internal function
+%       name ("plotLinear") and starts with an underscore, which is not a valid leading
+%       character for a MATLAB identifier, so this file likely cannot be invoked through
+%       the normal eebem.utility.plots.<name>(...) package syntax at all.
+%
+%   See also PLOTSOLUTIONS
+
+arguments
+    basePath        (1, 1) string
+    pbParam         (1, 1) struct
+    domainMesh      (1, 1) struct
+    values          (:, :) double
+    glbIndexFigures (1, 1) double {mustBeInteger, mustBeNonnegative}
+end
 
 % Linear vectors with the x-y-z coordinates of all the mesh triangles
 X = [(domainMesh.coordinates(domainMesh.triangles(:, 1), 1))'; ...

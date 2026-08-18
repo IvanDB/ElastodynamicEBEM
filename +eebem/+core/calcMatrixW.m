@@ -1,18 +1,47 @@
 function matrixW = calcMatrixW(matrixSpecs, nGPU, basePath, pbParam, domainMesh, quadData, constValues)
-%CALCMATRIXV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCMATRIXW  Assemble the block-Toeplitz hypersingular (W) BEM matrix on the GPU.
+%   MATRIXW = CALCMATRIXW(MATRIXSPECS, NGPU, BASEPATH, PBPARAM, DOMAINMESH, QUADDATA, CONSTVALUES)
+%   computes the sequence of sparse matrix blocks {W_0, W_1, ..., W_{numBlocks-1}} of
+%   the discrete hypersingular operator, tested and discretized with piecewise-linear
+%   (vertex-based, continuous) basis functions. 
+%   The regular part of every block is evaluated on NGPU GPU devices
+%   by the CUDA kernel "kernelW.cu"; vertex pairs that share a triangle
+%   get an additional singular correction computed on the CPU via CALCSINGSUBBLOCKW. 
+%   Work is split across MATRIXSPECS.numIter iterations to respect the available GPU memory. 
+%   Blocks beyond numBlocks (up to PBPARAM.nT) are returned as
+%   zero sparse matrices, since the kernel support vanishes there.
+%
+%   Input arguments:
+%       MATRIXSPECS - (struct) block sizes/offsets/iteration plan, see CALCMATRIXSPECS.
+%       NGPU        - (positive integer) number of GPU devices to use.
+%       BASEPATH    - (string) project root, used to locate
+%                     "+core/kernelsCUDA/kernelW.cu" and its compiled PTX.
+%       PBPARAM     - (struct) physical/time-discretization parameters, see READINPUTFILE.
+%       DOMAINMESH  - (struct) triangulated boundary mesh, see READSPACEMESH.
+%       QUADDATA    - (struct) quadrature nodes/weights/METHODSPECS, see GENERATEQUADDATA.
+%       CONSTVALUES - (cell) per-triangle data from CALCCONSTVALUES.
+%
+%   Output arguments:
+%       MATRIXW - (cell, PBPARAM.nT x 1) sparse (3*numVertices x 3*numVertices) matrices.
+%
+%   Notes:
+%       Requires one or more available CUDA-capable GPUs
+%       and a compiled "kernelW.ptx" (see AUTOBUILD).
+%
+%   See also CALCMATRIXSPECS, CALCSINGSUBBLOCKW, CALCMATRIXV, CALCMATRIXK, TIMEMARCHINGIN
+
 arguments (Input)
-    matrixSpecs struct
+    matrixSpecs (1, 1) struct
     nGPU        (1, 1) double {mustBeInteger, mustBePositive}
     basePath    (1, 1) string
-    pbParam     struct
-    domainMesh  struct
-    quadData    struct
-    constValues cell
+    pbParam     (1, 1) struct
+    domainMesh  (1, 1) struct
+    quadData    (1, 1) struct
+    constValues (:, 1) cell
 end
 
 arguments (Output)
-    matrixW cell
+    matrixW (:, 1) cell
 end
 
 import eebem.core.*
@@ -137,6 +166,8 @@ end
 
 
 function extraStuff = generateextraStuff(domainMesh)
+%Build the vertex-to-triangle incidence tables (TRIANGPERNODES, INDSMMATRIX)
+%0-padded to MAXTRIANGLESPERNODE columns.
 
 numNodes = domainMesh.numVertices;
 numTriangles = domainMesh.numTriangles;
@@ -225,6 +256,10 @@ gpuInputArrays.nodesMesh = gpuArray(reshape(domainMesh.coordinates', [3*numNodes
 end
 
 function adjMatrix = nodeAdj(triangleAdj, numNodes)
+    %Build the vertex-to-vertex adjacency matrix (including self- adjacency)
+    %from the mesh triangle connectivity: ADJMATRIX(i,j) is true iff vertices i
+    %and j share at least one triangle (or i == j). Used by CALCMATRIXW to flag
+    %which vertex pairs need the singular correction from CALCSINGSUBBLOCKW.
     adj = sparse(triangleAdj(:,1), triangleAdj(:,2), 1, numNodes, numNodes) + ...
     sparse(triangleAdj(:,2), triangleAdj(:,3), 1, numNodes, numNodes) + ...
     sparse(triangleAdj(:,3), triangleAdj(:,1), 1, numNodes, numNodes);

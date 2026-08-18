@@ -1,13 +1,36 @@
 function g = getDatumHandleNeumann(pbParam, basePath)
-%GETDATUMHANDLEDIRICHLET Summary of this function goes here
-%   Detailed explanation goes here
+%GETDATUMHANDLENEUMANN  Return the exact Neumann (traction) datum as a function handle.
+%   G = GETDATUMHANDLENEUMANN(PBPARAM, BASEPATH) returns a function handle G = @(x, t,
+%   n) with X a 1x3 point, T a scalar time and N the 1x3 outward unit normal, returning
+%   the 3x1 prescribed traction. For the built-in benchmark problems ("barH1", "barH3",
+%   "DesCop-cube", "DesCop-sphere", selected via PBPARAM.domainName) the closed-form
+%   analytical solution is hard-coded. For any other PBPARAM.domainName, a user-supplied
+%   "<domainName>_N.m" file is looked up under BASEPATH/pbData, loaded with
+%   STR2FUNC/FEVAL, and expected to return a G = @(x, t, n) handle itself given PBPARAM.
+%
+%   Input arguments:
+%       PBPARAM  - (struct) physical/problem parameters (domainName,
+%                  velP, velS, mu, rho, ...), see READINPUTFILE.
+%       BASEPATH - (string, optional, default ".") project root, used
+%                  to locate custom "pbData/<domainName>_N.m" files.
+%
+%   Output arguments:
+%       G - (function_handle) G(x, t, n) -> (3x1 double) traction datum.
+%
+%   Notes:
+%       Asserts if PBPARAM.domainName is not one of the built-in cases and no
+%       matching "pbData/<domainName>_N.m" file exists. Unlike
+%       GETDATUMHANDLEDIRICHLET, there is no built-in "sphereWave" case here.
+%
+%   See also GETDATUMHANDLEDIRICHLET, CALCBOUNDDATANEUMANN, CALCBETAV
+
 arguments (Input)
     pbParam  (1, 1) struct
     basePath (1, 1) string = "."
 end
 
 arguments (Output)
-    g function_handle
+    g (1, 1) function_handle
 end
 
 switch pbParam.domainName

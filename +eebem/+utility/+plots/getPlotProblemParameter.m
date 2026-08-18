@@ -1,18 +1,42 @@
 function [nDim, tVal, jVal, climCustom] = getPlotProblemParameter(pbParam)
-%GETPLOTPROBLEMPARAMETER Summary of this function goes here
-%   Detailed explanation goes here
+%GETPLOTPROBLEMPARAMETER  Look up the plotting defaults (time instants, components) for a benchmark problem.
+%   [NDIM, TVAL, JVAL, CLIMCUSTOM] = GETPLOTPROBLEMPARAMETER(PBPARAM) returns, for each
+%   built-in benchmark problem (selected via PBPARAM.domainName), hand-picked defaults
+%   describing which solution snapshots PLOTSOLUTIONS should render: the plot
+%   dimensionality, which discrete time-step indices to plot, which vector component(s)
+%   (or 0 for the magnitude) to plot, and whether a custom color-axis limit should be used.
+%
+%   Input arguments:
+%       PBPARAM - (struct) physical/problem parameters; only PBPARAM.domainName (and,
+%                 for several cases, PBPARAM.nT/Tfin) are used, see READINPUTFILE.
+%
+%   Output arguments:
+%       NDIM       - (integer) 2 or 3, the view dimensionality passed to VIEW.
+%       TVAL       - (integer vector) discrete time-step indices to plot.
+%       JVAL       - (integer vector) vector component(s) to plot (1, 2,
+%                    3, or a combination); 0 means "plot the magnitude".
+%       CLIMCUSTOM - (logical) whether a custom color-axis limit should
+%                    be applied (currently unimplemented, see Notes).
+%
+%   Notes:
+%       Emits a warning and returns without setting any output for PBPARAM.domainName
+%       values not in its internal list (e.g. custom user problems): callers must handle
+%       that case, as PLOTSOLUTIONS does via its early "plotFigs/saveFigs" flag check. The
+%       CLIMCUSTOM branch is marked "still WIP" where it is consumed in PLOTSOLUTIONS.
+%
+%   See also PLOTSOLUTIONS, PLOTMESH
+
 arguments (Input)
-    pbParam
+    pbParam (1, 1) struct
 end
 
 arguments (Output)
-    nDim        double {mustBeInteger}
-    tVal        double {mustBeInteger}
-    jVal        double {mustBeInteger}
-    climCustom  logical
+    nDim        (1, 1) double {mustBeInteger}
+    tVal        (1, :) double {mustBeInteger}
+    jVal        (1, :) double {mustBeInteger}
+    climCustom  (1, 1) logical
 end
 
-%Assegnazione parametri in base al problema
 switch pbParam.domainName
     case 'screenTest'
         nDim = 2;

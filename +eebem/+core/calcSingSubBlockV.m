@@ -1,14 +1,40 @@
 function subBlockV = calcSingSubBlockV(pbParam, methodSpecs, constValuesCurr, G1Dn, G1Dw, indTemp)
-%CALCSINGSUBBLOCKV Summary of this function goes here
-%   Detailed explanation goes here
+%CALCSINGSUBBLOCKV  Correct the self-triangle (singular) contribution of a single-layer (V) matrix block.
+%   SUBBLOCKV = CALCSINGSUBBLOCKV(PBPARAM, METHODSPECS, CONSTVALUESCURR, G1DN, G1DW, INDTEMP)
+%   evaluates, for one triangle and one discrete time-lag INDTEMP, the diagonal self-interaction
+%   3x3 sub-block of the single-layer operator that CALCMATRIXV's GPU kernel does not handle.
+%   Integration is performed on the light-cone-intersected sub-triangles (childVerts,
+%   from CALCCONSTVALUES) via GENERATEFINALG2DNODES, combined with a
+%   second-order backward finite-difference in time (coefficients [1, -2, 1])..
+%
+%   Input arguments:
+%       PBPARAM         - (struct) physical/time-discretization parameters
+%                         (deltaT, velP, velS, rho), see READINPUTFILE.
+%       METHODSPECS     - (struct) quadrature scheme sizes, see GENERATEQUADDATA.
+%       CONSTVALUESCURR - (struct) precomputed data for this triangle,
+%                         one entry of CALCCONSTVALUES's output.
+%       G1DN            - (double) 1D Gauss-Legendre nodes on [-1, 1].
+%       G1DW            - (double) 1D Gauss-Legendre weights.
+%       INDTEMP         - (nonnegative integer) discrete time-lag index for this block.
+%
+%   Output arguments:
+%       SUBBLOCKV - (3x3 double) singular correction to add on
+%                   the diagonal of the triangle's self-block.
+%
+%   See also CALCMATRIXV, CALCCONSTVALUES,
+%   eebem.utility.quadratureRules.generateFinalG2Dnodes
 
 arguments (Input)
-    pbParam
-    methodSpecs
-    constValuesCurr
-    G1Dn
-    G1Dw
-    indTemp
+    pbParam         (1, 1) struct
+    methodSpecs     (1, 1) struct
+    constValuesCurr (1, 1) struct
+    G1Dn            (1, :) double
+    G1Dw            (1, :) double
+    indTemp         (1, 1) double {mustBeInteger, mustBeNonnegative}
+end
+
+arguments (Output)
+    subBlockV (3, 3) double
 end
 
 import eebem.utility.quadratureRules.*
