@@ -35,6 +35,7 @@ arguments (Output)
 end
 
 import eebem.utility.fileRead.*
+
 %Extract mesh name parts
 fileNameParts = split(meshFileName, ["_", "."]);
 domainName = fileNameParts(1);
@@ -61,7 +62,7 @@ fgets(meshFile);
 fgets(meshFile);
 fgets(meshFile);
 
-%Read mesh verteces
+%Read mesh vertices
 fgets(meshFile);
 
 domainMesh.numVertices = sscanf(fgets(meshFile), "%d");
@@ -155,33 +156,33 @@ return
 end
 
 function domainMesh = calcParamMesh(domainMesh)
-    %Compute the mesh-wide minimum/maximum triangle edge length
-    %(DOMAINMESH.lMin/lMax) by looping over every triangle.
-    %Initialize values
-    lMin = Inf;
-    lMax = -Inf;
+%Compute the mesh-wide minimum/maximum triangle edge length (DOMAINMESH.lMin/lMax) by looping over every triangle.
 
-    for indT = 1 : domainMesh.numTriangles
+%Initialize values
+lMin = Inf;
+lMax = -Inf;
 
-        incidenze = domainMesh.triangles(indT, 1:3);
-        verts(1, :) = domainMesh.coordinates(incidenze(1), :);
-        verts(2, :) = domainMesh.coordinates(incidenze(2), :);
-        verts(3, :) = domainMesh.coordinates(incidenze(3), :);      
-    
-        l1 = norm(verts(1, :) - verts(2, :));
-        l2 = norm(verts(1, :) - verts(3, :));
-        l3 = norm(verts(2, :) - verts(3, :));
-    
-        lMaxCurr = max(max(l1, l2), l3);
-        lMinCurr = min(min(l1, l2), l3);
-       
-        %Aggiornamento valori globali
-        lMax = max(lMax, lMaxCurr);
-        lMin = min(lMin, lMinCurr);
-    end
-    
-    %Salvataggio valori
-    domainMesh.lMin = lMin;
-    domainMesh.lMax = lMax;
-    return
+for indT = 1 : domainMesh.numTriangles
+
+    incidenze = domainMesh.triangles(indT, 1:3);
+    verts(1, :) = domainMesh.coordinates(incidenze(1), :);
+    verts(2, :) = domainMesh.coordinates(incidenze(2), :);
+    verts(3, :) = domainMesh.coordinates(incidenze(3), :);      
+
+    l1 = norm(verts(1, :) - verts(2, :));
+    l2 = norm(verts(1, :) - verts(3, :));
+    l3 = norm(verts(2, :) - verts(3, :));
+
+    lMaxCurr = max(max(l1, l2), l3);
+    lMinCurr = min(min(l1, l2), l3);
+   
+    %Update values
+    lMax = max(lMax, lMaxCurr);
+    lMin = min(lMin, lMinCurr);
+end
+
+%Save final values
+domainMesh.lMin = lMin;
+domainMesh.lMax = lMax;
+return
 end

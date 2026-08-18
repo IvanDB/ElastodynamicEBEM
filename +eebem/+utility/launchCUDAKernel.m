@@ -28,7 +28,7 @@ arguments (Input)
     kernel  (1, 1) parallel.gpu.CUDAKernel
 end
 
-arguments (Repeating)
+arguments (Input, Repeating)
     varargin
 end
 

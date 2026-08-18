@@ -48,18 +48,18 @@ end
 import eebem.core.*
 import eebem.utility.*
 
-%Allocazione array contente i blocchi matriciali
+%Matrix cell array
 matrixK = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
 
-%Ciclo sulle iterazioni necessarie (limite memoria GPU)
-for indIter = 1 : matrixSpecs.numIter
-    %Calcolo numero blocchi iterazione corrente
-    numBlocksThisIter = matrixSpecs.offsets_full(indIter + 1) - matrixSpecs.offsets_full(indIter);
+%Loop over number of iterations (GPU memory limit)
+for iterIdx = 1 : matrixSpecs.numIter
+    %Number of blocks for the current iteration
+    numBlocksThisIter = matrixSpecs.offsets_full(iterIdx + 1) - matrixSpecs.offsets_full(iterIdx);
 
-    %Avvio computazione GPU
+    %Start GPU work
     spmd(nGPU)
-        indGPU = spmdIndex;
-        globIdx = nGPU * (indIter - 1) + indGPU;
+        gpuIdx = spmdIndex;
+        globIdx = nGPU * (iterIdx - 1) + gpuIdx;
         numBlockThisLaunch = matrixSpecs.offsets_sing(globIdx + 1) - matrixSpecs.offsets_sing(globIdx);
 
         matrixOutMulti = [];
@@ -85,66 +85,65 @@ for indIter = 1 : matrixSpecs.numIter
         end
     end
 
-    %Allocazione array contente i componenti singolari dei blocchi di questa iterazione
+    %Singular component array
     matrixSubBlocksSING = zeros(3, 3, 3, matrixSpecs.blockSizes2D(1), numBlocksThisIter);
 
-    %Avvio computazione CPU
-    for indTemp = 1 : numBlocksThisIter
-        %Check non sforamento numero di blocchi necessario?
-        if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
+    %Start CPU work
+    for blockIdx = 1 : numBlocksThisIter
+        %Check (redundant?)
+        if matrixSpecs.offsets_full(iterIdx) + blockIdx > matrixSpecs.numBlocks
             continue
         end
 
-        %Set istante temporale
-        istTemp = matrixSpecs.offsets_full(indIter) + indTemp - 1;
+        %Set time instant
+        istTemp = matrixSpecs.offsets_full(iterIdx) + blockIdx - 1;
         
-        %Ciclo sull'indice di riga
-        parfor indBlock = 1 : matrixSpecs.blockSizes2D(1)
+        %Loop over block-row index
+        parfor rowIdx = 1 : matrixSpecs.blockSizes2D(1)
             for indV = 1 : 3
-                matrixSubBlocksSING(:, :, indV, indBlock, indTemp) = calcSingSubBlockK(pbParam, domainMesh, quadData.methodSpecs, constValues{indBlock}, quadData.G1Dn, quadData.G1Dw, istTemp, indBlock, indV);
+                matrixSubBlocksSING(:, :, indV, rowIdx, blockIdx) = calcSingSubBlockK(pbParam, domainMesh, quadData.methodSpecs, constValues{rowIdx}, quadData.G1Dn, quadData.G1Dw, istTemp, rowIdx, indV);
             end
         end
     end
 
+    %Gather and reshape GPU output
     matrixOut = cell(nGPU, 1);
-    for indGPU = 1 : nGPU
-        matrixOut{indGPU} = gather(matrixOutMulti{indGPU});
+    for gpuIdx = 1 : nGPU
+        matrixOut{gpuIdx} = gather(matrixOutMulti{gpuIdx});
     end
     matrixOut = vertcat(matrixOut{:});
-
-    %Reshape matrice output GPU
     matrixOut = reshape(matrixOut, [matrixSpecs.blockNumRows matrixSpecs.blockNumCols numBlocksThisIter]);
 
-    %Aggiunta componenti blocchi singolari calcolate su CPU e salvataggio in memoria
-    parfor indTemp = 1 : numBlocksThisIter
-        %Check non sforamento numero di blocchi necessario?
-        if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
+    %CPU-GPU matrix assembly
+    parfor blockIdx = 1 : numBlocksThisIter
+        %Check (redundant?)
+        if matrixSpecs.offsets_full(iterIdx) + blockIdx > matrixSpecs.numBlocks
             continue
         end
 
-        %Selezione singolo blocco matriciale
-        matrixK{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
+        %Matrix block extraction
+        matrixK{blockIdx, iterIdx} = squeeze(matrixOut(:, :, blockIdx));
 
-        %Aggiunta sottoblocchi singolari
-        for indBlock = 1 : matrixSpecs.blockSizes2D(1)
-            [~, indCols] = ismember([1 2 3], domainMesh.indSMmatrix(indBlock, :));
+        %Add singular sub-blocks
+        for rowIdx = 1 : matrixSpecs.blockSizes2D(1)
+            [~, indCols] = ismember([1 2 3], domainMesh.indSMmatrix(rowIdx, :));
             for indV = 1 : 3
-                indR = 3 * (indBlock - 1);
+                indR = 3 * (rowIdx - 1);
                 indC = 3 * (indCols(indV) - 1);
-                matrixK{indTemp, indIter}(indR + (1:3), indC + (1:3)) = matrixK{indTemp, indIter}(indR + (1:3), indC + (1:3)) + matrixSubBlocksSING(:, :, indV, indBlock, indTemp);
+                matrixK{blockIdx, iterIdx}(indR + (1:3), indC + (1:3)) = matrixK{blockIdx, iterIdx}(indR + (1:3), indC + (1:3)) + matrixSubBlocksSING(:, :, indV, rowIdx, blockIdx);
             end
         end
 
-        %Trasformazione in sparse matrix
-        matrixK{indTemp, indIter} = sparse(matrixK{indTemp, indIter});
+        %Sparse matrix store
+        matrixK{blockIdx, iterIdx} = sparse(matrixK{blockIdx, iterIdx});
     end
 end
 
-%Reshape matrici salvate
+%Array reshape and truncation
 matrixK = reshape(matrixK, [numel(matrixK), 1]);
 matrixK = matrixK(1 : matrixSpecs.numBlocks);
 
-% AGGIUNTA BLOCCHI NULLI
+%Fill null blocks
 for ind = (matrixSpecs.numBlocks + 1) : pbParam.nT
     matrixK{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
 end
@@ -158,19 +157,19 @@ function gpuInputArrays = copyArrayK(domainMesh, quadData, constValues)
 numT = domainMesh.numTriangles;
 numV = domainMesh.numVertices;
 
-%Nodi e pesi GH integrazione esterna
+%External quadrature nodes/weights
 gpuInputArrays.stdEXTw = gpuArray(kron(ones(quadData.methodSpecs.numSRext, 1), quadData.EXTw));
 gpuInputArrays.stdEXTnx = gpuArray(quadData.EXTn(:, 1));
 gpuInputArrays.stdEXTny = gpuArray(quadData.EXTn(:, 2));
 gpuInputArrays.stdEXTnz = gpuArray(quadData.EXTn(:, 3));
 
-%Nodi e pesi GHC integrazione interna
+%Internal quadrature nodes/weights
 gpuInputArrays.stdINTw = gpuArray(quadData.INTw);
 gpuInputArrays.stdINTnx = gpuArray(quadData.INTn(:, 1));
 gpuInputArrays.stdINTny = gpuArray(quadData.INTn(:, 2));
 gpuInputArrays.stdINTnz = gpuArray(quadData.INTn(:, 3));
 
-%Aree, vertici e vettori normali dei triangoli della mesh spaziale
+%Mesh triangles data
 gpuInputArrays.areeT = gpuArray(domainMesh.area);
 gpuInputArrays.vertsT = zeros(9 * domainMesh.numTriangles, 1, 'gpuArray');
 gpuInputArrays.normT = zeros(3*numT, 1, 'gpuArray');
@@ -188,9 +187,9 @@ for indTemp = 1 : numT
     gpuInputArrays.vetCoeff(3*(indTemp-1) + (1:3), 1) = constValues{indTemp}.vetCoeff;
 end
 
-%Vertex index matrix
+%Mesh vertex index matrix
 gpuInputArrays.indSMmatrix = gpuArray(reshape(domainMesh.indSMmatrix, [numV * numT, 1]));
 
-%Vertex coordinates
+%Mesh vertex coordinates
 gpuInputArrays.nodesMesh = gpuArray(reshape(domainMesh.coordinates', [3*numV 1]));
 end

@@ -49,19 +49,20 @@ gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
-% Matrix calculations
-[numBlocksV, ~, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
-
+%Compute constant values
 constValues = calcConstValues(domainMesh, quadData);
+
+%Compute matrix
+[numBlocksV, ~, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 blockSizesV = [domainMesh.numTriangles, domainMesh.numTriangles];
 matrixSpecsV = calcMatrixSpecs(nGPU, avMem, blockSizesV, numBlocksV);
 matrixV = calcMatrixV(matrixSpecsV, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
-% Datum vectors calculations
+%Compute datum vector
 betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
 
-% Time-marching process
+%Time-marching process
 density = zeros(3*domainMesh.numTriangles, pbParam.nT);
 
 [L, U, P] = lu(matrixV{1});

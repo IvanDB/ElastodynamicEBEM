@@ -48,10 +48,11 @@ gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
-% Matrix calculations
-[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
-
+%Compute constant values
 constValues = calcConstValues(domainMesh, quadData);
+
+%Compute matrices
+[numBlocksV, numBlocksK, ~] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 blockSizesV = [domainMesh.numTriangles, domainMesh.numTriangles];
 matrixSpecsV = calcMatrixSpecs(nGPU, avMem, blockSizesV, numBlocksV);
@@ -61,11 +62,11 @@ blockSizesK = [domainMesh.numTriangles, domainMesh.numVertices];
 matrixSpecsK = calcMatrixSpecs(nGPU, avMem, blockSizesK, numBlocksK);
 matrixK = calcMatrixK(matrixSpecsK, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
-% Datum vectors calculations
+%Compute datum vectors
 betaI = calcBetaI(pbParam, domainMesh, constValues, quadData.methodSpecs, basePath);
 betaK = calcBetaK(pbParam, domainMesh, matrixK, basePath);
 
-% Time-marching process
+%Time-marching process
 traction = zeros(3*domainMesh.numTriangles, pbParam.nT);
 
 [L, U, P] = lu(matrixV{1});

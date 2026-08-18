@@ -44,26 +44,28 @@ end
 
 import eebem.core.*
 
-%GPUs inizialization
+%GPUs initialization
 nGPU = gpuDeviceCount("available");
 gpuIDs = gpuDevice(1 : nGPU);
 reset(gpuIDs);
 avMem = min([gpuIDs.AvailableMemory]);
 
-% Matrix calculations
-[~, ~, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh);
-
+%Compute constant values
 constValues = calcConstValues(domainMesh, quadData);
+
+%Compute matrix
+[~, ~, numBlocksW] = calcNumMatrixBlocks(pbParam, domainMesh);
 
 blockSizesW = [domainMesh.numVertices, domainMesh.numVertices];
 matrixSpecsW = calcMatrixSpecs(nGPU, avMem, blockSizesW, numBlocksW);
 matrixW = calcMatrixW(matrixSpecsW, nGPU, basePath, pbParam, domainMesh, quadData, constValues);
 
-% Datum vectors calculations
 matrixIGamma = kron((domainMesh.indSMmatrix > 0) .* domainMesh.area ./ 3, eye(3))';
+
+%Compute datum vector
 gV = calcBoundDataNeumann(pbParam, domainMesh);
 
-% Time-marching process
+%Time-marching process
 density = zeros(3*domainMesh.numVertices, pbParam.nT);
 
 [L, U, P] = lu(matrixW{1});

@@ -56,8 +56,8 @@ end
 import eebem.utility.quadratureRules.*
 
 % TODO: move list to a .txt file
-methodsList = ["SA 01 03", "SA 01 07", "SA 01 12", "SA 01 19", ...                                  % cose
-               "MX 01 12 16 03", "MX 01 12 64 03", "MX 01 19 16 03", "MX 01 19 64 03", ...          % cose
+methodsList = ["SA 01 03", "SA 01 07", "SA 01 12", "SA 01 19", ...                                   % ...
+               "MX 01 12 16 03", "MX 01 12 64 03", "MX 01 19 16 03", "MX 01 19 64 03", ...           % ...
                "FN 01 19 64 03 256 256", ...                                                      % old 27
                "FN 16 01 64 03 256 256", ...                                                      % old 40
                "FN 16 03 64 03 256 256", ...                                                      % old 48
@@ -113,7 +113,7 @@ function flag = isSquare(val)
 end
 
 function flag = isGHvalid(val)
-    %True iff VAL is a supported base Gauss-Hammer rule size {1,3,7,12,19}.
+    %True iff VAL is a supported base Gauss-Hammer rule size {1, 3, 7, 12, 19}.
     flag = ismember(val, [1, 3, 7, 12, 19]);
     return
 end

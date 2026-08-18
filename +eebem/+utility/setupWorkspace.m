@@ -67,7 +67,6 @@ for fieldName = timeFields
 end
 assignin('base', "timeSpecs", namedargs2cell(localStruct));
 
-
 %Space mesh data
 localStruct = struct();
 for fieldName = meshFields

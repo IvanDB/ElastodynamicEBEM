@@ -47,23 +47,24 @@ end
 import eebem.core.*
 import eebem.utility.*
 
+%Matrix cell array
 matrixV = cell(matrixSpecs.maxNumBlocksPerIter, matrixSpecs.numIter);
 
-% %Ciclo sulle iterazioni necessarie (limite memoria GPU)
+%Loop over number of iterations (GPU memory limit)
 for indIter = 1 : matrixSpecs.numIter
-    %Calcolo numero blocchi iterazione corrente
+    %Number of blocks for the current iteration
     numBlocksThisIter = matrixSpecs.offsets_full(indIter + 1) - matrixSpecs.offsets_full(indIter);
 
-    %Avvio computazione GPU
+    %Start GPU work
     spmd(nGPU)
-        indGPU = spmdIndex;
-        globIdx = nGPU * (indIter - 1) + indGPU;
+        gpuIdx = spmdIndex;
+        globIdx = nGPU * (indIter - 1) + gpuIdx;
         numBlockThisLaunch = matrixSpecs.offsets_sing(globIdx + 1) - matrixSpecs.offsets_sing(globIdx);
         
         matrixOutMulti = [];
 
         if(numBlockThisLaunch > 0)
-            gpuID = gpuDevice(indGPU);
+            gpuID = gpuDevice(gpuIdx);
 
             srcPath = fullfile(basePath, "+eebem", "+core", "kernelsCUDA", "kernelV.cu");
             ptxPath = fullfile(basePath, "buildDir", "kernelV.ptx");
@@ -82,61 +83,59 @@ for indIter = 1 : matrixSpecs.numIter
         end
     end
 
-    %Allocazione array contente i blocchi diagonali di questa iterazione
+    %Singular component array
     matrixSingSubBlocks = zeros(3, 3, matrixSpecs.blockSizes2D(1), numBlocksThisIter);
 
-    %Avvio computazione CPU
+    %Start CPU work
     for indTemp = 1 : numBlocksThisIter
-        %Check non sforamento numero di blocchi necessario
+        %Check (redundant?)
         if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
             continue
         end
 
-        %Set istante temporale
+        %Set time instant
         istTemp = matrixSpecs.offsets_full(indIter) + indTemp - 1;
 
-        %Ciclo sull'indice dei sottoblocchi
+        %Loop over block-row index
         parfor indBlock = 1 : matrixSpecs.blockSizes2D(1)
             matrixSingSubBlocks(:, :, indBlock, indTemp) = calcSingSubBlockV(pbParam, quadData.methodSpecs, constValues{indBlock}, quadData.G1Dn, quadData.G1Dw, istTemp);
         end
     end
 
-    %Attesa completamento operazioni GPU
+    %Gather and reshape GPU output
     matrixOut = cell(nGPU, 1);
-    for indGPU = 1 : nGPU
-        matrixOut{indGPU} = gather(matrixOutMulti{indGPU});
+    for gpuIdx = 1 : nGPU
+        matrixOut{gpuIdx} = gather(matrixOutMulti{gpuIdx});
     end
     matrixOut = vertcat(matrixOut{:});
-
-    %Reshape matrice output GPU
     matrixOut = reshape(matrixOut, [matrixSpecs.blockNumRows matrixSpecs.blockNumCols numBlocksThisIter]);
 
-    %Inserimento blocchi diagonali calcolati su CPU
+    %CPU-GPU matrix assembly
     parfor indTemp = 1 : numBlocksThisIter
-        %Check non sforamento numero di blocchi necessario?
+        %Check (redundant?)
         if matrixSpecs.offsets_full(indIter) + indTemp > matrixSpecs.numBlocks
             continue
         end
 
-        %Selezione singolo blocco matriciale
+        %Matrix block extraction
         matrixV{indTemp, indIter} = squeeze(matrixOut(:, :, indTemp));
 
-        %Inserimento sottoblocchi diagonali
+        %Add singular(diagonal) sub-blocks
         for indBlock = 1 : matrixSpecs.blockSizes2D(1)
             indRC = 3 * (indBlock - 1);
             matrixV{indTemp, indIter}(indRC + (1:3), indRC + (1:3)) = matrixSingSubBlocks(:, :, indBlock, indTemp);
         end
 
-        %Trasformazione in sparse matrix
+        %Sparse matrix store
         matrixV{indTemp, indIter} = sparse(matrixV{indTemp, indIter});
     end
 end
 
-%Reshape matrici salvate
+%Array reshape and truncation
 matrixV = reshape(matrixV, [numel(matrixV), 1]);
 matrixV = matrixV(1 : matrixSpecs.numBlocks);
 
-% AGGIUNTA BLOCCHI NULLI
+%Fill null blocks
 for ind = (matrixSpecs.numBlocks + 1) : pbParam.nT
     matrixV{ind} = sparse(zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols));
 end

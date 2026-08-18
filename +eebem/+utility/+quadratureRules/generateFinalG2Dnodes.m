@@ -32,7 +32,7 @@ function [nodi3D, pesi3D] = generateFinalG2Dnodes(v3D, rMin, rInt, rExt, quad1D)
 %   See also GAUSS1D, eebem.core.calcSingSubBlockV, eebem.core.calcSingSubBlockK,
 %   eebem.core.calcSingSubBlockK_c, eebem.core.calcSingSubBlockW
 
-arguments
+arguments (Input)
     v3D     (3, 3) double
     rMin    (1, 1) double
     rInt    (1, 1) double

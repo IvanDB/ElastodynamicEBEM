@@ -37,7 +37,6 @@ arguments (Output)
     climCustom  (1, 1) logical
 end
 
-%Assegnazione parametri in base al problema
 switch pbParam.domainName
     case 'screenTest'
         nDim = 2;

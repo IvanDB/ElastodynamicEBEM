@@ -17,9 +17,6 @@ function [nodes, weights] = GaussHammerComposite(nSubPart, nNodGH)
 %       WEIGHTS - ((NSUBPART*NNODGH) x 1 double) corresponding weights,
 %                 normalized to a reference-triangle area of 1.
 %
-%   Notes:
-%       Errors ("Valore non valido") if NSUBPART is not a perfect square.
-%
 %   See also GAUSSHAMMER_BASE, eebem.utility.generateQuadData
 
 arguments (Input)
@@ -42,13 +39,11 @@ if(nNodGH == 1)
     nGHstd = nGHstd';
 end
 
-%Check valore valido
-if(sqrt(nSubPart) ~= round(sqrt(nSubPart)))
-    error("Valore non valido")
-end
+%Check value
 nDiv = sqrt(nSubPart);
+assert(nDiv == floor(nDiv), "Number of subregions must be a perfect square")
 
-%Calcolo nodi
+%Compute nodes
 nodes = zeros(nSubPart .* nNodGH, 3);
 
 n = 0;
@@ -78,8 +73,7 @@ for i = 1 : nDiv
     end
 end
 
-
-%Calcolo dei pesi
+%Compute weights
 fatAreaR = 2; 
 weights = (fatAreaR / nSubPart) .* wGHstd;
 

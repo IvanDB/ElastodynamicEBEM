@@ -45,7 +45,6 @@ parfor indT = 1 : domainMesh.numTriangles
     vertsT = domainMesh.coordinates(domainMesh.triangles(indT, 1:3), :);
     areaT = domainMesh.area(indT);
 
-    %Valore per operatore Rj su test
     l21 = (vertsT(2, :) - vertsT(1, :))';
     l31 = (vertsT(3, :) - vertsT(1, :))';
     n = cross(l21, l31);
