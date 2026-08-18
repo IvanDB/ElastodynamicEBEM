@@ -99,7 +99,7 @@ their fields every time:
                                   utility.generateFilenames.
 
 =========================================================================
- SCOPE OF THIS DOCUMENTATION PASS
+ SCOPE OF THIS DOCUMENTATION STYLE
 =========================================================================
 A full HELP-style block (as above) is added to the PRIMARY function of
 every .m file (the one whose name matches the file name, which is the
