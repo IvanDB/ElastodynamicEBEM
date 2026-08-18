@@ -38,7 +38,7 @@ for indIter = 1 : matrixSpecs.numIter
         matrixOutMulti = [];
         
         if(numBlockThisLaunch > 0)
-            gpuID = gpuDevice(indGPU); % gpuDevice(spmdIndex);
+            gpuID = gpuDevice(indGPU);
 
             srcPath = fullfile(basePath, "+eebem", "+core", "kernelsCUDA", "kernelW.cu");
             ptxPath = fullfile(basePath, "buildDir", "kernelW.ptx");
@@ -71,10 +71,6 @@ for indIter = 1 : matrixSpecs.numIter
         %Set istante temporale
         istTemp = matrixSpecs.offsets_full(indIter) + indTemp - 1;
         
-        % 2D block containing all singular contributions fot this time
-        % istant block
-        %currentMatrixSing = zeros(matrixSpecs.blockNumRows, matrixSpecs.blockNumCols);
-
         % temporary Cell array to save Rows of 2D Block
         tempMatrixRows = cell(matrixSpecs.blockSizes2D(1), 1);
         parfor indNodeExt = 1 : matrixSpecs.blockSizes2D(1)
