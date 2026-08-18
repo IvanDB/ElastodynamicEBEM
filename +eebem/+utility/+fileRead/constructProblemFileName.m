@@ -37,10 +37,7 @@ if pbIndex > 0
     return
 end
 
-if pbSpecs.pbName == ""
-    error("No problem specifications provided, and no problem index specified. Please provide at least one of the two inputs.")
-end
-
+assert(pbSpecs.pbName ~= "", "No problem specifications provided, and no problem index specified. Please provide at least one of the two inputs.")
 problemFileName = pbSpecs.pbName + ".txt";
 end
 

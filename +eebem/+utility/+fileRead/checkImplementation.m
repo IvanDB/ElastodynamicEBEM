@@ -16,30 +16,21 @@ arguments (Input)
     pbParam (1, 1) struct
 end
 
-err_flag = 0;
-message = "";
-
 switch pbParam.BIE
     case "EFIE"
-        if ~strcmp(pbParam.BOU, "DIR") && ~strcmp(pbParam.BOU, "NEU")
-            message = "Error. Invalid boundary condition for EFIE.";
-            err_flag = 1;
-        end
-    case "MFIE" 
-        message = "Error. MFIE - Method not implemented. Coming Soon.";
-        err_flag = 1;
+        assert(strcmp(pbParam.BOU, "DIR") || strcmp(pbParam.BOU, "NEU"), "Error. Invalid boundary condition for EFIE.")
+
+    case "MFIE"
+        assert(false, "Error. MFIE - Method not implemented. Coming Soon.");
+
     case "HYPE"
-        message = "Error. HYPE - Method not implemented. Coming Soon.";
-        err_flag = 1; 
-    case "ENGI" 
-        message = "Error. ENGI - Method not implemented. Coming Soon.";
-        err_flag = 1;     
+        assert(false, "Error. HYPE - Method not implemented. Coming Soon.");
+
+    case "ENGI"
+        assert(false, "Error. ENGI - Method not implemented. Coming Soon.");
+
     otherwise
-        message = "Error. Invalid BIE type.";
-        err_flag = 1;
+        assert(false, "Error. Invalid BIE type.");
 end
 
-if err_flag
-    error(message)
-end
 return
