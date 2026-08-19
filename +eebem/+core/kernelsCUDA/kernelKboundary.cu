@@ -19,26 +19,26 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
 
     //Shared memory initialization
     extern __shared__ double matrixSubBlock[][3][3];
-    const size_t sharedBaseInd = threadIdx.x;
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    const uint32_t sharedBaseInd = threadIdx.x;
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             matrixSubBlock[sharedBaseInd][i][j] = 0;
 
     //Source triangle verteces
     double extVerts[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             extVerts[i][j] = vertsT[9*blockIdx.x + 3*j + i];  
 
     //Field triangle verteces
     double intVerts[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             intVerts[i][j] = vertsT[9*blockIdx.y + 3*j + i];
 
     //Field triangle vector components
     double intEdgeVectors[3][3];
-    for(size_t j = 0; j < 3; ++j)
+    for(uint32_t j = 0; j < 3; ++j)
     {
         intEdgeVectors[0][j] = intVerts[1][j] - intVerts[0][j];
         intEdgeVectors[1][j] = intVerts[2][j] - intVerts[1][j];
@@ -59,7 +59,7 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
     const double etaValues[4] = {-2, -1, 0, 1};
 
     //Loop over source nodes
-    for(size_t l = 0; l < numPointExt; ++l)
+    for(uint32_t l = 0; l < numPointExt; ++l)
     {
         //Source weight
         const double extWeight = stdIntW[l] * areeT[blockIdx.x];
@@ -72,17 +72,17 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
                                   stdNodeE[0] * extVerts[0][2] + stdNodeE[1] * extVerts[1][2] + stdNodeE[2] * extVerts[2][2]};
             
         //Loop over the field triangle edges
-        for(size_t m = 0; m < 3; ++m)
+        for(uint32_t m = 0; m < 3; ++m)
         {
             const double segmentLength = intEdgeLengths[m] / blockDim.x;
 
             //Space vectors
             double pointStart[3];
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
                 pointStart[i] = extNode[i] - (intVerts[m][i] + startFactor * intEdgeVectors[m][i]);
                     
             double pointEnd[3];
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
                 pointEnd[i] = extNode[i] - (intVerts[m][i] + endFactor * intEdgeVectors[m][i]);
 
             const double normStart = norm2(pointStart); 
@@ -90,11 +90,11 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
             
             //Edge tangent versor
             double tangentVersor[3];
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
                 tangentVersor[i] = intEdgeVectors[m][i] / intEdgeLengths[m];
     
             //Loop over eta factor
-            for(size_t k = 0; k < 4; ++k)
+            for(uint32_t k = 0; k < 4; ++k)
             {
                 const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) + etaValues[k]);
 
@@ -108,8 +108,8 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
                 nuKR_costant(tempValues, tangentVersor, pointEnd, normEnd, timeInstant, velP, velS, lambda, mu, rho);
 
                 //Add to shared memory
-                for(size_t i = 0; i < 3; ++i)
-                    for(size_t j = 0; j < 3; ++j)
+                for(uint32_t i = 0; i < 3; ++i)
+                    for(uint32_t j = 0; j < 3; ++j)
                         matrixSubBlock[sharedBaseInd][i][j] += extWeight * etaCoeffs[k] * (tempValues[i][j] * segmentLength / 2); 
             }
         }
@@ -118,13 +118,13 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
     __syncthreads();
 
     //Loop to reduce in x dimension (x size is assumed to be a power of 2)
-    size_t xDim = blockDim.x / 2;
+    uint32_t xDim = blockDim.x / 2;
     while(xDim > 0)
     {
-        size_t sharedOffInd = threadIdx.x + xDim;
+        uint32_t sharedOffInd = threadIdx.x + xDim;
         if(threadIdx.x < xDim)
-            for(size_t i = 0; i < 3; ++i)
-                for(size_t j = 0; j < 3; ++j)
+            for(uint32_t i = 0; i < 3; ++i)
+                for(uint32_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
@@ -133,12 +133,12 @@ __global__ void kernelKboundary(double* __restrict__ matrix, const double deltaT
 
     //Save in global memory
     if(threadIdx.x == 0)
-        for(size_t i = 0; i < 3; ++i)
-            for(size_t j = 0; j < 3; ++j)
+        for(uint32_t i = 0; i < 3; ++i)
+            for(uint32_t j = 0; j < 3; ++j)
             {
-                const size_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
+                const uint32_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
                 //matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
-                if(abs(matrixSubBlock[0][i][j]) > pow(10.0, -14))
+                if(fabs(matrixSubBlock[0][i][j]) > 1e-14)
                     matrix[ind] += matrixSubBlock[0][i][j] / const4PiDeltaT;
             }
 }

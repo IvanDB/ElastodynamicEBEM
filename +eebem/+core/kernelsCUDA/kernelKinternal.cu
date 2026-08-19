@@ -19,20 +19,20 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
 
     //Shared memory initialization
     extern __shared__ double matrixSubBlock[][3][3];
-    const size_t sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    const uint32_t sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             matrixSubBlock[sharedBaseInd][i][j] = 0;
 
     //Field triangle normal
     double intNormVect[3];
-    for(size_t i = 0; i < 3; i++)
+    for(uint32_t i = 0; i < 3; i++)
         intNormVect[i] = normT[3*blockIdx.y + i];
 
     //Field triangle verteces
     double intVerts[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             intVerts[i][j] = vertsT[9*blockIdx.y + 3*j + i];
 
     //Field node
@@ -49,8 +49,8 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
 
     //Source triangle verteces
     double vertsExt[3][3];
-    for(size_t i = 0; i < 3; i++)
-        for(size_t j = 0; j < 3; j++)
+    for(uint32_t i = 0; i < 3; i++)
+        for(uint32_t j = 0; j < 3; j++)
             vertsExt[i][j] = vertsT[9*blockIdx.x + 3*j + i];   
 
     //Eta costants
@@ -58,7 +58,7 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
     const double etaValues[4] = {-2, -1, 0, 1};
 
     //Loop over source nodes
-    for(size_t l = 0; l < numPointExt; l++)
+    for(uint32_t l = 0; l < numPointExt; l++)
     {
         //Source weight
         double extWeight = stdExtW[l] * areeT[blockIdx.x];
@@ -78,7 +78,7 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
         const double pointNorm = norm2(point);
 
         //Loop over eta values
-        for(size_t k = 0; k < 4; k++)
+        for(uint32_t k = 0; k < 4; k++)
         {
             const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) + etaValues[k]);
 
@@ -92,23 +92,21 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
             nuKL(tempValues, point, intNormVect, pointNorm, timeInstant, velP, velS, lambda, mu);
             
             //Add to shared memory
-            for(size_t i = 0; i < 3; i++)
-                for(size_t j = 0; j < 3; j++)
+            for(uint32_t i = 0; i < 3; i++)
+                for(uint32_t j = 0; j < 3; j++)
                     matrixSubBlock[sharedBaseInd][i][j] += extWeight * intWeight * etaCoeffs[k] * tempValues[i][j]; 
         }
     }
 
     __syncthreads();
     
-    size_t sharedOffInd;
-
     //First step to bring y dimension to power of 2
-    size_t yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
-    sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
+    uint32_t yDim = 1 << (31 - __clz(blockDim.y));
+    uint32_t sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
 
     if(threadIdx.y + yDim < blockDim.y)
-        for(size_t i = 0; i < 3; ++i)
-            for(size_t j = 0; j < 3; ++j)
+        for(uint32_t i = 0; i < 3; ++i)
+            for(uint32_t j = 0; j < 3; ++j)
                 matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
     __syncthreads();
@@ -119,8 +117,8 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
     {
         sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
         if(threadIdx.y < yDim)
-            for(size_t i = 0; i < 3; ++i)
-                for(size_t j = 0; j < 3; ++j)
+            for(uint32_t i = 0; i < 3; ++i)
+                for(uint32_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
@@ -128,13 +126,13 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
     }
 
     //Loop to reduce in x dimension (x size is assumed to be a power of 2)
-    size_t xDim = blockDim.x/2;
+    uint32_t xDim = blockDim.x/2;
     while(xDim > 0)
     {
         sharedOffInd = (threadIdx.x + xDim) * blockDim.y + threadIdx.y;
-        if(threadIdx.x < xDim)
-            for(size_t i = 0; i < 3; ++i)
-                for(size_t j = 0; j < 3; ++j)
+        if((threadIdx.x < xDim) && (threadIdx.y == 0))
+            for(uint32_t i = 0; i < 3; ++i)
+                for(uint32_t j = 0; j < 3; ++j)
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
 
         __syncthreads();
@@ -143,12 +141,12 @@ __global__ void kernelKinternal(double* __restrict__ matrix, const double deltaT
 
     //Save in global memory
     if(threadIdx.x == 0 && threadIdx.y == 0)
-        for(size_t i = 0; i < 3; ++i)
-            for(size_t j = 0; j < 3; ++j)
+        for(uint32_t i = 0; i < 3; ++i)
+            for(uint32_t j = 0; j < 3; ++j)
             {
-                const size_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
+                const uint32_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
                 //matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
-                if(abs(matrixSubBlock[0][i][j]) > pow(10.0, -14))
+                if(fabs(matrixSubBlock[0][i][j]) > 1e-14)
                     matrix[ind] += matrixSubBlock[0][i][j] / const4PiDeltaT;
             }
     

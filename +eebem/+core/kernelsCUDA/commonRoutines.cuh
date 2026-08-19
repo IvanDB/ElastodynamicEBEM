@@ -4,8 +4,10 @@
 //Macro
 #ifdef __CUDACC__
     #define __eebemDevice __device__
+    #define __eebemConstant __constant__
 #else
     #define __eebemDevice
+    #define __eebemConstant
 #endif
 
 //Basic math functions
@@ -32,8 +34,8 @@ static __eebemDevice inline double pow5(const double x)
 
 static __eebemDevice inline double norm2(const double v[3]) 
 {
-    //return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    return hypot(hypot(v[0], v[1]), v[2]);
+    return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    //return hypot(hypot(v[0], v[1]), v[2]);
 }
 
 static __eebemDevice inline double dotProd3D(const double v1[3], const double v2[3])
@@ -49,20 +51,22 @@ static __eebemDevice inline void cross(const double vettA[3], const double vettB
 }
 
 //Permutation tensor
-static __eebemDevice const double tensorE[3][3][3] = {{{0, 0, 0}, {0, 0, 1}, {0, -1, 0}}, 
-                                                      {{0, 0, -1}, {0, 0, 0}, {1, 0, 0}},
-                                                      {{0, 1, 0}, {-1, 0, 0}, {0, 0, 0}}};
+static __eebemDevice __eebemConstant const double tensorE[3][3][3] = {{{0, 0, 0}, {0, 0, 1}, {0, -1, 0}}, 
+                                                                      {{0, 0, -1}, {0, 0, 0}, {1, 0, 0}},
+                                                                      {{0, 1, 0}, {-1, 0, 0}, {0, 0, 0}}};
 
 //Auxiliary functions
 static __eebemDevice inline double baseFunctionSM(const double* __restrict__ nodeInt, const double (*__restrict__ matCoeff)[3], const double* __restrict__ vetCoeff, const int indSM)
 {
-    const double leftVector[3] = {vetCoeff[0] + matCoeff[0][0] * nodeInt[0] + matCoeff[0][1] * nodeInt[1] + matCoeff[0][2] * nodeInt[2],
-                                  vetCoeff[1] + matCoeff[1][0] * nodeInt[0] + matCoeff[1][1] * nodeInt[1] + matCoeff[1][2] * nodeInt[2],
-                                  vetCoeff[2] + matCoeff[2][0] * nodeInt[0] + matCoeff[2][1] * nodeInt[1] + matCoeff[2][2] * nodeInt[2]};
+    const int zeroIdx = indSM - 1;
+    return vetCoeff[zeroIdx] + matCoeff[zeroIdx][0] * nodeInt[0] + matCoeff[zeroIdx][1] * nodeInt[1] + matCoeff[zeroIdx][2] * nodeInt[2];
 
-    double rightVector[3] = {0.};
-    rightVector[indSM - 1] = 1.0;
-    return dotProd3D(leftVector, rightVector);
+    // const double leftVector[3] = {vetCoeff[0] + matCoeff[0][0] * nodeInt[0] + matCoeff[0][1] * nodeInt[1] + matCoeff[0][2] * nodeInt[2],
+    //                               vetCoeff[1] + matCoeff[1][0] * nodeInt[0] + matCoeff[1][1] * nodeInt[1] + matCoeff[1][2] * nodeInt[2],
+    //                               vetCoeff[2] + matCoeff[2][0] * nodeInt[0] + matCoeff[2][1] * nodeInt[1] + matCoeff[2][2] * nodeInt[2]};
+    // double rightVector[3] = {0.};
+    // rightVector[indSM - 1] = 1.0;
+    // return dotProd3D(leftVector, rightVector);
 }
 
 
@@ -81,8 +85,8 @@ static __eebemDevice inline void nuV(double (* __restrict__ nu)[3], const double
     const double invP3Factor = pow3(invP1Factor);
     const double invP5Factor = pow5(invP1Factor);
     
-    for (size_t i = 0; i < 3; ++i)
-        for (size_t j = 0; j < 3; ++j)
+    for (uint32_t i = 0; i < 3; ++i)
+        for (uint32_t j = 0; j < 3; ++j)
         {
             const double xi_xj_P3 = x[i] * x[j] * invP3Factor;
             const double xi_xj_P5 = x[i] * x[j] * invP5Factor;
@@ -108,8 +112,8 @@ static __eebemDevice inline void nuKL(double (* __restrict__ nuKL)[3], const dou
     const double invP3Factor = 1 / pow3(r);
     const double diagAddTerm = dotProd3D(x, n) * invP3Factor * SWaveFactor;
 
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             nuKL[i][j] += (elst1Factor * x[i] * n[j] + elst2Factor * x[j] * n[i]) * invP3Factor * wavesFactor;
             if(i == j)
@@ -129,8 +133,8 @@ static __eebemDevice inline void nuKT(double (* __restrict__ nuKT)[3], const dou
     const double invP2Factor = 1 / pow2(r);
     const double diagAddTerm = dotProd3D(x, n) * invP2Factor * SWaveFactor;
 
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             nuKT[i][j] += (elst1Factor * x[i] * n[j] + elst2Factor * x[j] * n[i]) * invP2Factor * wavesFactor;
             if(i == j)
@@ -152,13 +156,13 @@ static __eebemDevice inline void nuKLT(double (* __restrict__ nuKLT)[3], const d
     
     //Base function
     const double baseFunctionValue = baseFunctionSM(nodeInt, matCoeff, vetCoeff, indSM);
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j) 
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j) 
             nuKLT[i][j] += nuTemp[i][j] * baseFunctionValue;
 }
 
 static __eebemDevice inline void nuKRj(double (* __restrict__ nuKRj)[3], const double x[3], const double r, const double t, const double cP, const double cS, 
-                                       const double lambda, const double mu, const double rho, const size_t j)
+                                       const double lambda, const double mu, const double rho, const uint32_t j)
 {
     const double elst3Factor = 2 * mu / rho;
     const double elst4Factor = lambda * mu / (rho * (lambda + mu));
@@ -180,13 +184,13 @@ static __eebemDevice inline void nuKRj(double (* __restrict__ nuKRj)[3], const d
     const double e3_i5_w1 = elst3Factor * 3.0 * invP5Factor * wave1Factor;
     const double e4_i1_w2 = elst4Factor * invP1Factor * wave2Factor;
 
-    for(size_t r = 0; r < 3; ++r)
-        for(size_t c = 0; c < 3; ++c) 
+    for(uint32_t r = 0; r < 3; ++r)
+        for(uint32_t c = 0; c < 3; ++c) 
         {
             double sum_w1 = 0.0;
             double sum_w2 = 0.0;
 
-            for(size_t k = 0; k < 3; ++k) 
+            for(uint32_t k = 0; k < 3; ++k) 
             {
                 if (k == r) continue;
 
@@ -217,12 +221,12 @@ static __eebemDevice inline void nuKR_linear(double (* __restrict__ nuKR)[3], co
                                + normInt[0] * matCoeff[zeroBasedIndSM][1] - normInt[1] * matCoeff[zeroBasedIndSM][0]};
 
     //Loop over j index of nuKRj
-    for(size_t j = 0; j < 3; ++j)
+    for(uint32_t j = 0; j < 3; ++j)
     {   
         nuKRj(nuTemp, x, r, t, cP, cS, lambda, mu, rho, j);
         
-        for(size_t i = 0; i < 3; ++i)
-            for(size_t k = 0; k < 3; ++k) 
+        for(uint32_t i = 0; i < 3; ++i)
+            for(uint32_t k = 0; k < 3; ++k) 
                 nuKR[i][k] -= vettRSM[j] * nuTemp[i][k];
     }
 }
@@ -232,12 +236,12 @@ static __eebemDevice inline void nuKR_costant(double (* __restrict__ nuKR)[3], c
     double nuTemp[3][3] = {0.};
 
     //Loop over j index of nuKRj
-    for(size_t j = 0; j < 3; ++j)
+    for(uint32_t j = 0; j < 3; ++j)
     {
         nuKRj(nuTemp, x, r, t, cP, cS, lambda, mu, rho, j);
 
-        for(size_t i = 0; i < 3; ++i)
-            for(size_t k = 0; k < 3; ++k)
+        for(uint32_t i = 0; i < 3; ++i)
+            for(uint32_t k = 0; k < 3; ++k)
                 nuKR[i][k] += nuTemp[i][k] * tau[j];
     }
 }
@@ -247,8 +251,8 @@ static __eebemDevice inline bool isVBlockNull(const double* __restrict__ vertsT,
 {
     double vertsS[3][3];
     double vertsF[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             vertsS[i][j] = vertsT[9*blockIdx.x + 3*j + i];
             vertsF[i][j] = vertsT[9*blockIdx.y + 3*j + i];
@@ -256,8 +260,8 @@ static __eebemDevice inline bool isVBlockNull(const double* __restrict__ vertsT,
 
     double distMax = 0;
 
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             const double vettDist[] = {vertsS[i][0] - vertsF[j][0],
                                        vertsS[i][1] - vertsF[j][1],
@@ -275,8 +279,8 @@ static __eebemDevice inline bool isKBlockNull_costant(const double* __restrict__
 {
     double vertsS[3][3];
     double vertsF[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             vertsS[i][j] = vertsT[9*blockIdx.x + 3*j + i];
             vertsF[i][j] = vertsT[9*blockIdx.y + 3*j + i];
@@ -285,8 +289,8 @@ static __eebemDevice inline bool isKBlockNull_costant(const double* __restrict__
     double distMax = 0;
     double distMin = DBL_MAX;
 
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             const double vettDist[] = {vertsS[i][0] - vertsF[j][0],
                                        vertsS[i][1] - vertsF[j][1],
@@ -307,18 +311,18 @@ static __eebemDevice inline bool isKBlockNull_linear(const double* __restrict__ 
 
 {
     double vertsS[3][3];
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(uint32_t i = 0; i < 3; ++i)
+        for(uint32_t j = 0; j < 3; ++j)
             vertsS[i][j] = vertsT[9*blockIdx.x + 3*j + i];
 
     double pointF[3]; 
-    for(size_t i = 0; i < 3; ++i)
+    for(uint32_t i = 0; i < 3; ++i)
         pointF[i] = nodesMesh[3*blockIdx.y + i];
         
     double distMax = 0;
     double distMin = DBL_MAX;
 
-    for(size_t i = 0; i < 3; ++i)
+    for(uint32_t i = 0; i < 3; ++i)
     {
         const double vettDist[] = {vertsS[i][0] - pointF[0],
                                    vertsS[i][1] - pointF[1],
@@ -341,7 +345,7 @@ static __eebemDevice inline bool isWBlockNull(const double* __restrict__ nodesMe
 
     // blockIdx.x = outerNode (\tilde{s}), blockIdx.y = innerNode (s)
     #pragma unroll
-    for (size_t i = 0; i < 3; ++i) 
+    for (uint32_t i = 0; i < 3; ++i) 
     {
         outerNode[i] = nodesMesh[3 * blockIdx.x + i];
         innerNode[i]  = nodesMesh[3 * blockIdx.y + i];

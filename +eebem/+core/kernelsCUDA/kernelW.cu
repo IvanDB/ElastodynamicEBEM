@@ -47,10 +47,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     const unsigned int sharedBaseInd = threadIdx.x * blockDim.y + threadIdx.y;
     //Inizializzazione shared memory
     #pragma unroll
-    for(size_t i = 0; i < 3; ++i)
+    for(uint32_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for(size_t j = 0; j < 3; ++j)
+        for(uint32_t j = 0; j < 3; ++j)
         {
             matrixSubBlock[sharedBaseInd][i][j] = 0;
         }
@@ -67,7 +67,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     //Size matrix. if node s has less than MaxTrianglesPerNode touching it, then the remaining spaces in the row will be filled with zeros
     //However, note that TrianglesPerNode will be passed as a one dimentional array, and so the indexing needs to be adjusted.
 
-    for(size_t outerIndex = 0; outerIndex < MaxTrianglesPerNode; ++outerIndex) //Cycle on all triangles that have outer node as a vertex
+    for(uint32_t outerIndex = 0; outerIndex < MaxTrianglesPerNode; ++outerIndex) //Cycle on all triangles that have outer node as a vertex
     {
         const int currentOuterTriangleIndex = TrianglesPerNode[outerIndex*gridDim.x + outerNode]; //index of current outer triangle
         
@@ -75,7 +75,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         if(currentOuterTriangleIndex == 0) 
             break;
 
-        for(size_t innerIndex = 0; innerIndex < MaxTrianglesPerNode; ++innerIndex) //Cycle on all triangles that have inner node as a vertex
+        for(uint32_t innerIndex = 0; innerIndex < MaxTrianglesPerNode; ++innerIndex) //Cycle on all triangles that have inner node as a vertex
         {
             const int currentInnerTriangleIndex = TrianglesPerNode[innerIndex*gridDim.y + innerNode]; //index of current inner triangle
             
@@ -87,10 +87,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             if(currentInnerTriangleIndex == currentOuterTriangleIndex)
                 continue;
 
-            const size_t base3outerBaseIndex = 3*(currentOuterTriangleIndex - 1);
-            const size_t base9outerBaseIndex = 9*(currentOuterTriangleIndex - 1);
-            const size_t base3innerBaseIndex = 3*(currentInnerTriangleIndex - 1);
-            const size_t base9innerBaseIndex = 9*(currentInnerTriangleIndex - 1);
+            const uint32_t base3outerBaseIndex = 3*(currentOuterTriangleIndex - 1);
+            const uint32_t base9outerBaseIndex = 9*(currentOuterTriangleIndex - 1);
+            const uint32_t base3innerBaseIndex = 3*(currentInnerTriangleIndex - 1);
+            const uint32_t base9innerBaseIndex = 9*(currentInnerTriangleIndex - 1);
 
             //To find wich vertex the current nodes correspond to in regards to the currend inner and outer triangles, we use
             //indSMatrix. In this matrix each row corresponds to a node, and each column corresponds to a triangle that touches that Node, and it in in correspondance
@@ -107,10 +107,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             double currentOuterVertexes[3][3];
             double currentInnerVertexes[3][3];
             #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(size_t j = 0; j < 3; ++j)
+                for(uint32_t j = 0; j < 3; ++j)
                 {
                     // remember to pass vertsT the right way
                     currentOuterVertexes[i][j] = vertsT[base9outerBaseIndex + 3*j + i];
@@ -131,10 +131,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             double currentOuterTriangleMatrix[3][3];
             double currentInnerTriangleMatrix[3][3];
             #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(size_t j = 0; j < 3; ++j)
+                for(uint32_t j = 0; j < 3; ++j)
                 {
                     currentOuterTriangleMatrix[i][j] = matCoeff[base9outerBaseIndex + 3*j + i];
                     currentInnerTriangleMatrix[i][j] = matCoeff[base9innerBaseIndex + 3*j + i];
@@ -175,7 +175,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
             
             //Loop on outer composite Gauss-Hammer Nodes on current outer triangle
             
-            for(size_t l = 0; l < numPointExt; ++l)
+            for(uint32_t l = 0; l < numPointExt; ++l)
             {
                 //Reading curren standard outer coposite Gauss_Hammer node
                 //CHECK COME GESTIRE
@@ -205,7 +205,7 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                 const double kernelCoeffs[4] = {1., -3., 3., -1.};
                 const int timeShift[4] = {-2, -1, 0, 1};
                 #pragma unroll
-                for(size_t k = 0; k < 4; ++k)
+                for(uint32_t k = 0; k < 4; ++k)
                 {
                     const double timeInstant = deltaT * (offsetZ + double(blockIdx.z) + timeShift[k]); //(l+\eta)\Delta t
                         
@@ -223,10 +223,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
                     //Somma pesata dei valori del nucleo alla shared memory
                     const double inv2dt = pow2(1 / deltaT);
                     #pragma unroll
-                    for(size_t i = 0; i < 3; ++i)
+                    for(uint32_t i = 0; i < 3; ++i)
                     {
                         #pragma unroll
-                        for(size_t j = 0; j < 3; ++j)
+                        for(uint32_t j = 0; j < 3; ++j)
                         {
                             matrixSubBlock[sharedBaseInd][i][j] += currentOuterGaussWeight * innerGaussWeight * kernelCoeffs[k] * inv2dt * kernelValues[i][j];
                         }
@@ -239,20 +239,19 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     __syncthreads();
 
     //Starting Parallel Reduction
-    unsigned int xDim, yDim, sharedOffInd;
-
+    
     //Dimention along y is not guaranteed to be a power of two
     //First reduction to the biggest power of two smaller than y
-    yDim = pow(2.0, (int) floor(log2((float) blockDim.y)));
-    sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
+    uint32_t yDim = 1 << (31 - __clz(blockDim.y));
+    uint32_t sharedOffInd = threadIdx.x * blockDim.y + threadIdx.y + yDim;
 
     if(threadIdx.y + yDim < blockDim.y)
     {
         #pragma unroll
-        for(size_t i = 0; i < 3; ++i)
+        for(uint32_t i = 0; i < 3; ++i)
         {
             #pragma unroll
-            for(size_t j = 0; j < 3; ++j)
+            for(uint32_t j = 0; j < 3; ++j)
             {
                 matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
             }
@@ -269,10 +268,10 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
         if(threadIdx.y < yDim)
         {
             #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(size_t j = 0; j < 3; ++j)
+                for(uint32_t j = 0; j < 3; ++j)
                 {
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
                 }
@@ -284,17 +283,17 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     }
 
     //Iteration along x (always a power of two)
-    xDim = blockDim.x/2;
+    uint32_t xDim = blockDim.x/2;
     while(xDim > 0)
     {
         sharedOffInd = (threadIdx.x + xDim) * blockDim.y + threadIdx.y;
-        if(threadIdx.x < xDim && threadIdx.y == 0)
+        if((threadIdx.x < xDim) && (threadIdx.y == 0))
         {
             #pragma unroll
-            for(size_t i = 0; i < 3; ++i)
+            for(uint32_t i = 0; i < 3; ++i)
             {
                 #pragma unroll
-                for(size_t j = 0; j < 3; ++j)
+                for(uint32_t j = 0; j < 3; ++j)
                 {
                     matrixSubBlock[sharedBaseInd][i][j] += matrixSubBlock[sharedOffInd][i][j];
                 }
@@ -309,17 +308,15 @@ __global__ void kernelW(double *matrix, const double deltaT, const double cP, co
     if(threadIdx.x == 0 && threadIdx.y == 0)
     {
         #pragma unroll
-        for(size_t i = 0; i < 3; ++i)
+        for(uint32_t i = 0; i < 3; ++i)
         {
             #pragma unroll
-            for(size_t j = 0; j < 3; ++j)
+            for(uint32_t j = 0; j < 3; ++j)
             {
-                const size_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
-                //Matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
+                const uint32_t ind = 9*gridDim.x*gridDim.y*blockIdx.z + 3*gridDim.x*(3*blockIdx.y + j) + 3*blockIdx.x + i;
+                //matrix[3*blockIdx.x + i][3*blockIdx.y + j][blockIdx.z]
                 if(fabs(matrixSubBlock[0][i][j]) > 1e-14)
-                {
                     matrix[ind] += matrixSubBlock[0][i][j];
-                }
             }
         }
     }
@@ -342,10 +339,10 @@ static __device__ inline void kernelCalc(double kernel[3][3], const double t, co
 
     //Compute and add kernels
     #pragma unroll
-    for(size_t i = 0; i < 3; ++i)
+    for(uint32_t i = 0; i < 3; ++i)
     {
         #pragma unroll
-        for(size_t k = 0; k < 3; ++k)
+        for(uint32_t k = 0; k < 3; ++k)
         {
             kernelT[i][k] = kernelTCalc(i, k, t, VTildeX, VXi, rVector, r, n, v, pi, mu, lambda, rho, cS, cP);
             kernelR[i][k] = kernelRCalc(i, k, t, VAlphaS, VTildeAlphaS, rVector, r, pi, mu, lambda, rho, cS, cP);
