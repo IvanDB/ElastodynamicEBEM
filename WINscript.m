@@ -15,8 +15,9 @@ basePath = fileparts(mfilename("fullpath"));
 cmdBuffer = generateCommandBuffer(parseConfigFile(basePath));
 
 for cmd = cmdBuffer'
-   disp("Running " + cmd)
-   eval(cmd + " eebem.main;")
+    clearvars inputStruct
+    disp("Running " + cmd)
+    eval(cmd + " eebem.main;")
 end
 
 
@@ -54,6 +55,7 @@ inputFieldNames = ["formIDs", "formID";         "pbNames", "pbName";        ...
                    "plotFigs", "plotFigs";      "saveFigs", "saveFigs";     ...
                    "saveTemp", "saveTemp"];
 
+onceOnlyFields = ["poolFlag", "aBldFlag"];
 quadSpecsFields = ["numsSRext", "numsGHext", "numsSRint", "numsGHint", "numsSNGLR", "numsBOUND"];
 isSetQuadID = isfield(configData, "quadIDs");
 
@@ -76,10 +78,30 @@ for fieldName = fieldNames
         continue
     end
 
-    fieldCmds = "inputStruct." + inputFieldNames(inputFieldNames(:, 1) == fieldName, 2) + "=" + fieldVals + ";";
+    if ismember(fieldName, onceOnlyFields)
+        continue
+    end
 
-    [cmdGridF, cmdGridB] = ndgrid(fieldCmds, cmdBuffer);
+    fieldCmd = "inputStruct." + inputFieldNames(inputFieldNames(:, 1) == fieldName, 2) + "=" + fieldVals + ";";
+
+    [cmdGridF, cmdGridB] = ndgrid(fieldCmd, cmdBuffer);
     cmdBuffer = cmdGridB(:) + " " + cmdGridF(:);
+end
+
+for onceOnlyField = onceOnlyFields
+    assert(ismember(onceOnlyField, inputFieldNames), sprintf("Inconsistent once-only flag: %s", onceOnlyField))
+
+    if ~ismember(onceOnlyField, fieldNames) 
+        continue
+    end
+    fieldVal = configData.(onceOnlyField);
+    
+    if islogical(fieldVal) && ~fieldVal
+        continue
+    end
+
+    fieldCmd = "inputStruct." + inputFieldNames(inputFieldNames(:, 1) == onceOnlyField, 2) + "=" + fieldVal + ";";
+    cmdBuffer(1) = cmdBuffer(1) + " " + fieldCmd;
 end
 end
 
@@ -91,7 +113,7 @@ function configData = parseConfigFile(basePath)
 %   "[" / "]" (so MATLAB array literals can be written with parentheses in the
 %   config file), and EVALs each resulting line as "configData.<lineContent>;" --
 %   i.e. each config line is expected to already be valid MATLAB assignment syntax
-%   once its brackets are normalized, e.g. "pbNames = ["barH1", "barH3"];".
+%   once its brackets are normalized, e.g. "pbNames = ["barH1" "barH3"];".
 %
 %   Input arguments:
 %       BASEPATH - (string) directory containing "parameterLists.config".
