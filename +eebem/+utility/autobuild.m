@@ -5,7 +5,7 @@ function autobuild(basePath, flag)
 %   When FLAG is true, it additionally: 
 %   (1) compiles "kernelK.c" and "kernelV.c" (from +core/kernelsMEXC) into
 %       MEX files with MEX -R2018a, using aggressive optimization flags for 
-%       the detectedcompiler (MSVC on Windows, gcc/clang/mingw elsewhere); and 
+%       the detected compiler (MSVC on Windows, gcc/clang/mingw elsewhere); and 
 %   (2) compiles "kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu"
 %       and "kernelW.cu" (from +core/kernelsCUDA) into PTX files with NVCC, 
 %       targeting the compute capability of the currently selected GPU. 
@@ -32,11 +32,18 @@ arguments (Input)
 end
 
 disp("Autobuilding is in beta")
-addpath(fullfile(basePath, "buildDir"));
+binOutputDirectory = fullfile(basePath, "buildDir");
+if ~exist(binOutputDirectory, "dir")
+    warning("Directory for binary files not found in the intended location.")
+    mkdir(binOutputDirectory);
+end
+addpath(binOutputDirectory);
 
 if(~flag)
     return
 end
+
+clear mex
 
 compilerInfo = mex.getCompilerConfigurations('C');
 if(isempty(compilerInfo))
@@ -55,9 +62,7 @@ end
 
 
 coreMEXCkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsMEXC");
-coreMEXCkernelsFileNames = ["kernelK.c", "kernelV.c"];
-
-binOutputDirectory = fullfile(basePath, "buildDir");
+coreMEXCkernelsFileNames = ["kernelV.c", "kernelK.c"];
 
 for MEXCkernel = fullfile(coreMEXCkernelsDirectory, coreMEXCkernelsFileNames)
     cmd_base = "mex -v -R2018a ";
@@ -81,7 +86,7 @@ gpuCC = gpuInfo.ComputeCapability;
 gpuCC(gpuCC == '.') = [];
 
 coreCUDAkernelsDirectory = fullfile(basePath, "+eebem", "+core", "kernelsCUDA");
-coreCUDAkernelsFileNames = ["kernelK.cu", "kernelV.cu", "kernelKboundary.cu", "kernelKinternal.cu", "kernelW.cu"];
+coreCUDAkernelsFileNames = ["kernelV.cu", "kernelK.cu", "kernelKboundary.cu", "kernelKinternal.cu", "kernelW.cu"];
 
 for CUDAkernel = fullfile(coreCUDAkernelsDirectory, coreCUDAkernelsFileNames)
     cmd = strcat(scriptCompiler, ' nvcc -ptx -O3 -Wno-deprecated-gpu-targets --use_fast_math -arch=compute_', gpuCC, ' -odir "', binOutputDirectory, '" "', CUDAkernel, '"');
