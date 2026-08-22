@@ -16,6 +16,8 @@ true
 
 %Default mesh type
 simple
+%Exterior problem (w.r.t. the used mesh)
+false
 %Integral equation type 
 EFIE
 %Boundary datum type

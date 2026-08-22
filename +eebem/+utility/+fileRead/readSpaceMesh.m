@@ -1,18 +1,19 @@
-function domainMesh = readSpaceMesh(basePath, meshFileName)
+function domainMesh = readSpaceMesh(basePath, meshFileName, flipOrientation)
 %READSPACEMESH  Load a triangular surface mesh file and derive all the geometric data the BEM code needs.
-%   DOMAINMESH = READSPACEMESH(BASEPATH, MESHFILENAME) parses the mesh file
-%   BASEPATH/mesh/<domainName>/MESHFILENAME (vertex coordinates then triangle
-%   connectivity, in a fixed custom text format), then computes and stores: outward unit
-%   normals and areas per triangle (from the cross product of two edges; triangle vertex
-%   order is flipped for the "DesCop-sphere" mesh to keep normals outward- pointing on
-%   that interior-scattering geometry), centroids, edge lengths and the maximum edge
-%   length per triangle (maxL, used by the light-cone cutoffs in CALCSINGSUBBLOCKK/K_C),
-%   the local-index-per- vertex incidence matrix (indSMmatrix), and the mesh-wide
-%   minimum/ maximum edge length (lMin/lMax, via the local helper CALCPARAMMESH).
+%   DOMAINMESH = READSPACEMESH(BASEPATH, MESHFILENAME, FLIPORIENTATION) parses 
+%   the mesh file BASEPATH/mesh/<domainName>/MESHFILENAME (vertex coordinates then
+%   triangle connectivity, in a fixed custom text format), then computes and stores: 
+%    - outward unit normals (from the cross product of two edges; triangle vertex
+%      order is flipped if FLIPORIENTATION is true),
+%    - areas, centroids, edge lengths and the maximum edge length per triangle
+%      (maxL, used by the light-cone cutoffs in CALCSINGSUBBLOCKK/K_C),
+%    - the local-index-per- vertex incidence matrix (indSMmatrix), and 
+%    - the mesh-wide minimum/ maximum edge length (lMin/lMax, via the local helper CALCPARAMMESH).
 %
 %   Input arguments:
-%       BASEPATH     - (string) project root.
-%       MESHFILENAME - (string) file name, see CONSTRUCTMESHFILENAME.
+%       BASEPATH        - (string) project root.
+%       MESHFILENAME    - (string) file name, see CONSTRUCTMESHFILENAME.
+%       FLIPORIENTATION - (logical) if true, flips the triangle vertex order (columns 2 and 3).
 %
 %   Output arguments:
 %       DOMAINMESH - (struct) with fields name, lev, numVertices, coordinates, numTriangles,
@@ -26,8 +27,9 @@ function domainMesh = readSpaceMesh(basePath, meshFileName)
 %   See also CONSTRUCTMESHFILENAME, READINPUTFILE, eebem.core.calcConstValues
 
 arguments (Input)
-    basePath     (1, 1) string
-    meshFileName (1, 1) string
+    basePath        (1, 1) string
+    meshFileName    (1, 1) string
+    flipOrientation (1, 1) logical = false
 end
 
 arguments (Output)
@@ -90,15 +92,16 @@ domainMesh.triangles = fscanf(meshFile, formatSpec, sizeSpec)';
 ind = 4;
 domainMesh.triangles(:, 4) = ind * ones(domainMesh.numTriangles, 1);
 
-if(domainMesh.name == "DesCop-sphere")   %Move to a intern/extern problem dedicated flag
-    domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);
-end
-
 %Close mesh file
 fgets(meshFile);
 fclose(meshFile);
 
 %% Calculate useful information about the mesh
+%Flip mesh orientation
+if(flipOrientation)
+    domainMesh.triangles(:, [2 3]) = domainMesh.triangles(:, [3 2]);
+end
+
 coordVertTriangles = domainMesh.coordinates(domainMesh.triangles(:, 1:3), :);
 
 %P_iP_j vectors

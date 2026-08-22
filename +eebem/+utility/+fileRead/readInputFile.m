@@ -6,7 +6,8 @@ function pbParam = readInputFile(basePath, problemFileName)
 %   (rho, mu, nu, lambda), the derived P/S wave speeds (velP, velS), the default
 %   space/time discretization (defaultValues.timeLimit, defaultValues.numIntvls,
 %   STcoupling, defaultValues.meshType), the mesh/domain name (meshName, domainName,
-%   the latter from PROBLEMFILENAME itself) and the boundary-integral-equation
+%   the latter from PROBLEMFILENAME itself), a flag specifying if the problem is exterior
+%   w.r.t. the used mesh (isExterior) and the boundary-integral-equation
 %   settings (BIE, BOU), validated via CHECKIMPLEMENTATION before returning.
 %
 %   Input arguments:
@@ -80,6 +81,10 @@ end
 
 fgets(problemFile);       
 pbParam.defaultValues.meshType = sscanf(fgets(problemFile), '%s');
+
+%Read the exterior problem flag
+fgets(problemFile);       
+pbParam.isExterior = strcmpi(strtrim(fgets(problemFile)), "true");
 
 %Read other parameters (WIP)
 fgets(problemFile);       

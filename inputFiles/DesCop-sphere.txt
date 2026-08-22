@@ -16,6 +16,8 @@ false
 unitSphere
 %Default mesh type
 ico
+%Exterior problem (w.r.t. the used mesh)
+true
 %Integral equation type 
 EFIE
 %Boundary datum type

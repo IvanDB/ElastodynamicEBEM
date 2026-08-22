@@ -16,6 +16,8 @@ true
 
 %Default mesh type
 symm
+%Exterior problem (w.r.t. the used mesh)
+false
 %Integral equation type 
 EFIE
 %Boundary datum type

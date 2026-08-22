@@ -49,11 +49,11 @@ problemFileName = utility.fileRead.constructProblemFileName(pbIndex, pbSpecs{:})
 pbParam = utility.fileRead.readInputFile(basePath, problemFileName);
 
 meshFileName = utility.fileRead.constructMeshFileName(pbParam, meshSpecs{:});
-domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName);
-
-glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures, glbFlags);
+domainMesh = utility.fileRead.readSpaceMesh(basePath, meshFileName, pbParam.isExterior);
 
 [pbParam, domainMesh] = utility.finalizeParameters(pbParam, domainMesh, timeSpecs{:});
+
+glbIndexFigures = utility.plots.plotMesh(domainMesh, glbIndexFigures, glbFlags);
 
 %Check invalid configuration problems -> (Barilli working on it?) 
 assert((pbParam.lambda + pbParam.mu ~= 0) || (formSelected == "ID"), "Input error", "Problems with lambda + mu = 0 are not solvable with current implementation of the direct formulations");
