@@ -13,9 +13,9 @@
 %Space-time refinement coupling
 false
 %Mesh name
-
+unitSphere
 %Default mesh type
-
+ico
 %Integral equation type 
 EFIE
 %Boundary datum type

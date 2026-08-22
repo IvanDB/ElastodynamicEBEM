@@ -13,7 +13,7 @@
 %Space-time refinement coupling
 true
 %Mesh name
-
+centeredUnitCube
 %Default mesh type
 symm
 %Integral equation type 
